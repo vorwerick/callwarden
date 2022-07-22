@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_user"
+        android:title="Uživatel"/>
+    <item android:id="@+id/menu_about"
+        android:title="O aplikaci" />
+    <item android:id="@+id/menu_url"
+        android:title="Google sheet"/>
+    <item android:id="@+id/analytics"
+        android:title="Analytiky"/>
+    <item android:id="@+id/signOut"
+        android:title="Odhlásit"/>
+</menu>
