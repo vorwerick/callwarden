@@ -17,7 +17,7 @@ class App : Application() {
         val transmissionService: TransmissionService<Call> by lazy { TransmissionService() }
         lateinit var appDatabase: AppDatabase
         var dateFrom = Date()
-        var dateTo = Date(System.currentTimeMillis())
+        var dateTo = Date()
 
         fun toCalendar(date: Date): Calendar {
             val cal = Calendar.getInstance()

@@ -25,7 +25,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import cz.dzubera.callwarden.*
-import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -34,6 +33,9 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
 import java.util.*
 
 
@@ -261,13 +263,34 @@ class MainActivity : AppCompatActivity() {
 
         val dpd = DatePickerDialog(this, { view, year, monthOfYear, dayOfMonth ->
 
-            c.set(year, monthOfYear, dayOfMonth)
-            App.dateTo = App.toDate(c)
+            c.set(year, monthOfYear, dayOfMonth )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                App.dateTo = atEndOfDay(App.toDate(c))
+            } else {
+                App.dateTo = App.toDate(c)
+            }
             updateButtons()
 
         }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH))
 
         dpd.show()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun atEndOfDay(date: Date): Date {
+        val localDateTime: LocalDateTime = dateToLocalDateTime(date)
+        val endOfDay: LocalDateTime = localDateTime.with(LocalTime.MAX)
+        return localDateTimeToDate(endOfDay)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun dateToLocalDateTime(date: Date): LocalDateTime {
+        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun localDateTimeToDate(localDateTime: LocalDateTime): Date {
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant())
     }
 
     fun updateButtons() {
