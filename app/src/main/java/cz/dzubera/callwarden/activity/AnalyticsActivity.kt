@@ -16,6 +16,8 @@ class AnalyticsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.analytics_acitivity)
 
+        supportActionBar?.title = "Analytiky";
+
         var accepted = 0
         var declined = 0
         var called = 0

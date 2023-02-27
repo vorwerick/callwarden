@@ -3,18 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="#666666">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_margin="8dp"
         android:elevation="16dp"
-        app:cardCornerRadius="4dp">
+        app:cardCornerRadius="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -30,52 +32,61 @@
                 tools:ignore="MissingPrefix">
 
                 <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/call_type"
                     android:layout_width="42dp"
                     android:layout_height="42dp"
                     android:layout_margin="8dp"
-                    android:src="@drawable/ic_call_missed"
-                    android:id="@+id/call_type"/>
+                    android:src="@drawable/ic_call_missed" />
 
-             <LinearLayout
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_margin="4dp"
-                 android:orientation="vertical">
-                 <TextView
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
-
-                     android:gravity="center"
-                     android:id="@+id/call_number"
-                     android:textSize="18dp"
-                     android:text="+420 731 465 931" />
-                 <TextView
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
-                     android:gravity="center"
-                     android:id="@+id/call_dir"
-                     android:textSize="18dp"
-                     android:text="" />
-
-             </LinearLayout>
                 <LinearLayout
-                    android:layout_margin="8dp"
-                    android:layout_width="match_parent"
-                    android:layout_gravity="end|center"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
                     android:orientation="vertical">
+
                     <TextView
-                        android:layout_width="match_parent"
+                        android:id="@+id/call_number"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="end"
+                        android:gravity="center"
+                        android:text="+420 731 465 931"
+                        android:textColor="@color/black"
+                        android:textSize="18dp" />
+
+                    <TextView
+                        android:id="@+id/call_dir"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text=""
+                        android:textColor="@color/black"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center"
+                    android:layout_margin="8dp"
+                    android:orientation="vertical">
+
+                    <TextView
                         android:id="@+id/call_date"
-                        android:text="11.2.2022" />
-                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="end"
+                        android:text="11.2.2022"
+                        android:textColor="@color/black" />
+
+                    <TextView
                         android:id="@+id/call_time"
-                        android:text="16:07:30" />
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+
+                        android:text="16:07:30"
+                        android:textColor="@color/black" />
                 </LinearLayout>
 
 

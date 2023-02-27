@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#666666"
     tools:context=".activity.MainActivity">
 
     <LinearLayout
@@ -15,7 +16,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@id/call_list"
-        android:background="@color/primary_light"
+        android:background="@color/primary_dark"
         android:elevation="16dp">
         <TextView
             android:layout_width="wrap_content"
@@ -23,11 +24,13 @@
             android:textSize="14sp"
             android:layout_margin="8dp"
             android:gravity="center"
+            android:textColor="@color/white"
             android:text="Filtr dle data od"/>
         <Button
             android:id="@+id/buttonFrom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/white"
             android:text=""/>
         <TextView
             android:layout_width="wrap_content"
@@ -35,10 +38,14 @@
             android:textSize="14sp"
             android:layout_margin="8dp"
             android:gravity="center"
+            android:textColor="@color/white"
+
             android:text="do"/>
         <Button
             android:id="@+id/buttonTo"
             android:layout_width="wrap_content"
+            android:textColor="@color/white"
+
             android:layout_height="wrap_content"
             android:text=""/>
     </LinearLayout>

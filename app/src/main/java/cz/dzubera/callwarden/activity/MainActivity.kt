@@ -22,6 +22,7 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import cz.dzubera.callwarden.*
@@ -121,6 +122,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        supportActionBar?.title = "Záznamy hovorů";
         val telephonyManager: TelephonyManager =
             getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
@@ -248,7 +250,11 @@ class MainActivity : AppCompatActivity() {
         val dpd = DatePickerDialog(this, { view, year, monthOfYear, dayOfMonth ->
 
             c.set(year, monthOfYear, dayOfMonth)
-            App.dateFrom = App.toDate(c)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                App.dateFrom = DateUtils.atStartOfDay(App.toDate(c))
+            } else {
+                App.dateFrom = App.toDate(c)
+            }
             updateButtons()
 
 
@@ -265,7 +271,7 @@ class MainActivity : AppCompatActivity() {
 
             c.set(year, monthOfYear, dayOfMonth )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                App.dateTo = atEndOfDay(App.toDate(c))
+                App.dateTo = DateUtils.atEndOfDay(App.toDate(c))
             } else {
                 App.dateTo = App.toDate(c)
             }
@@ -276,22 +282,7 @@ class MainActivity : AppCompatActivity() {
         dpd.show()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun atEndOfDay(date: Date): Date {
-        val localDateTime: LocalDateTime = dateToLocalDateTime(date)
-        val endOfDay: LocalDateTime = localDateTime.with(LocalTime.MAX)
-        return localDateTimeToDate(endOfDay)
-    }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun dateToLocalDateTime(date: Date): LocalDateTime {
-        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun localDateTimeToDate(localDateTime: LocalDateTime): Date {
-        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant())
-    }
 
     fun updateButtons() {
         val buttonFrom: Button = findViewById(R.id.buttonFrom)

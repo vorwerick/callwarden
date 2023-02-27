@@ -1,6 +1,7 @@
 package cz.dzubera.callwarden
 
 import android.app.Application
+import android.os.Build
 import androidx.room.Room
 import cz.dzubera.callwarden.db.AppDatabase
 import cz.dzubera.callwarden.storage.CacheStorage
@@ -16,8 +17,17 @@ class App : Application() {
         val userSettingsStorage: UserSettingsStorage by lazy { UserSettingsStorage() }
         val transmissionService: TransmissionService<Call> by lazy { TransmissionService() }
         lateinit var appDatabase: AppDatabase
-        var dateFrom = Date()
-        var dateTo = Date()
+        var dateFrom = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            DateUtils.atStartOfDay(Date())
+        } else {
+            Date()
+        }
+
+        var dateTo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            DateUtils.atEndOfDay(Date())
+        } else {
+            Date()
+        }
 
         fun toCalendar(date: Date): Calendar {
             val cal = Calendar.getInstance()

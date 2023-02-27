@@ -13,8 +13,8 @@ android {
         applicationId "cz.dzubera.callwarden"
         minSdkVersion 24
         targetSdkVersion 31
-        versionCode 14
-        versionName "0.19"
+        versionCode 15
+        versionName "0.20"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
