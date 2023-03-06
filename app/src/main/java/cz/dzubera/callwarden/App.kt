@@ -43,14 +43,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val calendar = Calendar.getInstance()
-        calendar[Calendar.YEAR] = 2021 // for 6 hour
-
-        calendar[Calendar.DAY_OF_MONTH] = 1 // for 0 min
-
-        calendar[Calendar.MONTH] = 0 // for 0 sec
-
-        dateFrom = App.toDate(calendar)
         appDatabase = Room.databaseBuilder(this, AppDatabase::class.java, "call_warden").build()
 
     }

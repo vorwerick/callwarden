@@ -10,11 +10,8 @@ class CacheStorage {
 
     private val callItems = mutableListOf<Call>()
 
-    private val callItemsTemp = mutableListOf<Call>()
-
     fun addCallItem(call: Call) {
         callItems.add(call)
-        callItemsTemp.add(call)
         observers.forEach { it.invoke(callItems) }
     }
 
@@ -25,10 +22,9 @@ class CacheStorage {
 
     fun loadFromDatabase() {
         callItems.clear()
-        callItemsTemp.clear()
 
         val calls = mutableListOf<Call>()
-        App.appDatabase.taskCalls()?.getAll()?.forEach {
+        App.appDatabase.taskCalls().getAll().forEach {
             calls.add(
                 Call(
                     it.uid,
@@ -41,8 +37,12 @@ class CacheStorage {
                 )
             )
         }
-        callItemsTemp.addAll(calls)
-        callItems.addAll(calls)
+
+        val newList = calls.filter { call: Call ->
+            App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted))
+        }
+        callItems.clear()
+        callItems.addAll(newList)
 
 
     }
@@ -68,13 +68,4 @@ class CacheStorage {
         observers.forEach { it.invoke(callItems) }
     }
 
-    fun filter() {
-        val newList = callItemsTemp.filter { call: Call ->
-            Date(call.callStarted).before(App.dateTo) && Date(call.callStarted).after(App.dateFrom)
-        }
-        callItems.clear()
-        callItems.addAll(newList)
-
-        notifyItems()
-    }
 }

@@ -26,6 +26,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import cz.dzubera.callwarden.*
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -40,6 +41,7 @@ import java.time.ZoneId
 import java.util.*
 
 
+@DelicateCoroutinesApi
 class MainActivity : AppCompatActivity() {
     private val callViewModel by viewModels<CallViewModel> {
         CallViewModelFactory(this)
@@ -117,7 +119,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -213,6 +214,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateButtons()
+
         GlobalScope.launch {
             App.cacheStorage.loadFromDatabase()
             App.cacheStorage.notifyItems()
@@ -270,6 +272,7 @@ class MainActivity : AppCompatActivity() {
         val dpd = DatePickerDialog(this, { view, year, monthOfYear, dayOfMonth ->
 
             c.set(year, monthOfYear, dayOfMonth )
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 App.dateTo = DateUtils.atEndOfDay(App.toDate(c))
             } else {
@@ -289,7 +292,15 @@ class MainActivity : AppCompatActivity() {
         buttonFrom.text = SimpleDateFormat("d.M.yyyy").format(App.dateFrom)
         val buttonTo: Button = findViewById(R.id.buttonTo)
         buttonTo.text = SimpleDateFormat("d.M.yyyy").format(App.dateTo)
-        App.cacheStorage.filter()
+
+        GlobalScope.launch {
+            App.cacheStorage.loadFromDatabase()
+            App.cacheStorage.notifyItems()
+            /*  val items = App.transmissionService.getAndRemovePendingItems().forEach {
+                  print("CALL: " + it.callStarted)
+                  sendCallToInternet(it)
+              }*/
+        }
     }
 
 
