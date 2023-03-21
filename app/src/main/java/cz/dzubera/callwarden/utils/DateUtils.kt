@@ -1,4 +1,4 @@
-package cz.dzubera.callwarden
+package cz.dzubera.callwarden.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi

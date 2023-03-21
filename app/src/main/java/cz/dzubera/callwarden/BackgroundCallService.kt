@@ -18,6 +18,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import cz.dzubera.callwarden.db.CallEntity
+import cz.dzubera.callwarden.utils.Config
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
@@ -30,7 +31,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class Deamon() : Service() {
+class BackgroundCallService() : Service() {
 
     private val AUTHORITY = BuildConfig.APPLICATION_ID + ".provider"
     private val NOTIFY_ID = 1337
@@ -64,6 +65,7 @@ class Deamon() : Service() {
         }
     }
     private val tlpjc by lazy {
+        @RequiresApi(Build.VERSION_CODES.S)
         object : TelephonyCallback(), TelephonyCallback.CallStateListener {
             override fun onCallStateChanged(state: Int) {
                 resolveCall(state, null)
@@ -86,11 +88,11 @@ class Deamon() : Service() {
             ServiceReceiver.currentCall?.isEnded = true
             ServiceReceiver.currentCall?.callEnded = System.currentTimeMillis()
             if (ServiceReceiver.currentCall?.callAccepted != null && ServiceReceiver.currentCall?.direction == Call.Direction.INCOMING) {
-                ServiceReceiver.currentCall?.callType == Call.Type.ACCEPTED
+                ServiceReceiver.currentCall?.callType = Call.Type.ACCEPTED
             }
 
             if (ServiceReceiver.currentCall?.callAccepted == null && ServiceReceiver.currentCall?.direction == Call.Direction.INCOMING) {
-                ServiceReceiver.currentCall?.callType == Call.Type.MISSED
+                ServiceReceiver.currentCall?.callType = Call.Type.MISSED
             }
             sendCall(ServiceReceiver.currentCall, this)
             ServiceReceiver.currentCall = null
@@ -307,8 +309,8 @@ fun sendCallToInternet(call: Call) {
         }
     }
     val paramMap = mapOf(
-        "userName" to App.userSettingsStorage.userName,
-        "userNumber" to App.userSettingsStorage.userNumber,
+        "userName" to App.userSettingsStorage.credentials!!.domain,
+        "userNumber" to App.userSettingsStorage.credentials!!.user,
         "direction" to dir,
         "status" to status,
         "callerNumber" to call.phoneNumber,
@@ -332,7 +334,7 @@ fun sendCallToInternet(call: Call) {
         index++
         paramBuilder.append(URLEncoder.encode(it.key, "UTF-8"))
         paramBuilder.append("=")
-        paramBuilder.append(URLEncoder.encode(it.value, "UTF-8"))
+        //paramBuilder.append(URLEncoder.encode(it.value, "UTF-8"))
         paramBuilder.append("&")
     }
 

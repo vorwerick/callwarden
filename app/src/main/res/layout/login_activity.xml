@@ -3,18 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="#666666"
     android:layout_height="match_parent"
-    tools:context=".activity.SignInActivity">
+    android:background="#666666"
+    tools:context=".activity.LoginActivity">
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:orientation="vertical"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@id/login_form"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
         <ImageView
             android:layout_width="140dp"
             android:layout_height="140dp"
@@ -22,48 +23,70 @@
     </LinearLayout>
 
 
-
     <LinearLayout
         android:id="@+id/login_form"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="32dp"
+        android:layout_margin="42dp"
+        android:background="#FAFFFFFF"
         android:elevation="16dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+
+        <EditText
+            android:id="@+id/domain_id"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+
+            android:layout_marginTop="32dp"
+            android:backgroundTint="@color/black"
+            android:hint="Doména"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black" />
+
+        <EditText
+            android:id="@+id/user_id"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_margin="16dp"
+            android:backgroundTint="@color/black"
+            android:hint="Uživatel"
+            android:inputType="number"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black" />
+
         <TextView
+            android:id="@+id/error_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+
             android:gravity="center"
-            android:text="Přihlášení"
-            android:textSize="24dp" />
-
-        <EditText
-            android:id="@+id/user_name"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_margin="16dp"
-            android:hint="Jméno" />
-
-        <EditText
-            android:id="@+id/user_number"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_margin="16dp"
-            android:hint="Telefonní číslo" />
+            android:text=""
+            android:textColor="@color/design_default_color_error"
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/user_log_in"
             android:layout_width="match_parent"
             android:layout_height="64dp"
-            android:textColor="@color/white"
-
             android:layout_margin="16dp"
-            android:text="Přihlásit" />
+
+            android:text="Přihlásit"
+            android:textColor="@color/white" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:layout_width="match_parent"
+            android:layout_height="12dp"
+            android:id="@+id/progressbar_indicator"
+
+            />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

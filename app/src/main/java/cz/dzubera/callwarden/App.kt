@@ -5,8 +5,8 @@ import android.os.Build
 import androidx.room.Room
 import cz.dzubera.callwarden.db.AppDatabase
 import cz.dzubera.callwarden.storage.CacheStorage
-import cz.dzubera.callwarden.storage.TransmissionService
 import cz.dzubera.callwarden.storage.UserSettingsStorage
+import cz.dzubera.callwarden.utils.DateUtils
 import java.util.*
 
 
@@ -15,7 +15,6 @@ class App : Application() {
     companion object {
         val cacheStorage: CacheStorage by lazy { CacheStorage() }
         val userSettingsStorage: UserSettingsStorage by lazy { UserSettingsStorage() }
-        val transmissionService: TransmissionService<Call> by lazy { TransmissionService() }
         lateinit var appDatabase: AppDatabase
         var dateFrom = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             DateUtils.atStartOfDay(Date())

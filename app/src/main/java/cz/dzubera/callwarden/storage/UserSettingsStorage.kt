@@ -1,9 +1,8 @@
 package cz.dzubera.callwarden.storage
 
+import cz.dzubera.callwarden.Credentials
+
 class UserSettingsStorage {
 
-    var userName = ""
-    var userNumber = ""
-
-    var callback: ((state: Int) -> Unit)? = null
+    var credentials: Credentials? = null
 }

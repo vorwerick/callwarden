@@ -1,24 +1,25 @@
 package cz.dzubera.callwarden.activity
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.telecom.TelecomManager
 import android.util.Log
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import cz.dzubera.callwarden.Config
-import cz.dzubera.callwarden.R
+import com.google.android.material.progressindicator.LinearProgressIndicator
+import cz.dzubera.callwarden.*
+import cz.dzubera.callwarden.utils.Config
 
 
-class SignInActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity() {
 
     val list = listOf(
         Manifest.permission.READ_PHONE_STATE,
@@ -33,7 +34,7 @@ class SignInActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.sign_activity)
+        setContentView(R.layout.login_activity)
 
         checkPermissions()
         val manger = getSystemService(TELECOM_SERVICE) as TelecomManager
@@ -41,23 +42,19 @@ class SignInActivity : AppCompatActivity() {
         val name: String = manger.defaultDialerPackage
         Log.d("PLS", "isDefault: $name")
 
-        val user = getSharedPreferences("XXX", Context.MODE_PRIVATE).getString("userName", null)
-        val number = getSharedPreferences("XXX", Context.MODE_PRIVATE).getString("userNumber", null)
 
-        if (!user.isNullOrEmpty() && !number.isNullOrEmpty() && !Config.signedOut) {
-            login()
-            return
-        }
 
-        val userName = findViewById<TextView>(R.id.user_name)
-        val userPhone = findViewById<TextView>(R.id.user_number)
 
         val loginButton = findViewById<Button>(R.id.user_log_in)
         loginButton.setOnClickListener {
-            getSharedPreferences("XXX", Context.MODE_PRIVATE).edit()
-                .putString("userName", userName.editableText.toString())
-                .putString("userNumber", userPhone.editableText.toString()).apply()
-            login()
+            val domainId = findViewById<EditText>(R.id.domain_id).text.toString()
+            val userId = findViewById<EditText>(R.id.user_id).text.toString().toIntOrNull()
+            if(domainId.isEmpty() || userId == null){
+                findViewById<TextView>(R.id.error_label).text =
+                    "Zadejte doménu a uživetlské id"
+            } else {
+                login(domainId, userId)
+            }
         }
 
 
@@ -134,9 +131,44 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
-    private fun login() {
+    private fun login(domain: String, user: Int): Unit {
         Config.signedOut = false
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+        findViewById<TextView>(R.id.error_label).text = ""
+        findViewById<LinearProgressIndicator>(R.id.progressbar_indicator).isIndeterminate = false
+        findViewById<Button>(R.id.user_log_in).isEnabled = false
+        HttpRequest.getProjects(domain, user) { response: HttpResponse ->
+            if (response.status == ResponseStatus.SUCCESS) {
+                PreferencesUtils.saveCredentials(this, Credentials(domain, user))
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            } else {
+                when (response.code) {
+                    401 -> {
+                        runOnUiThread {
+                            findViewById<TextView>(R.id.error_label).text =
+                                "Neznámá doména nebo uživatel "+ response.code
+                        }
+                    }
+                    422 -> {
+                        runOnUiThread {
+                            findViewById<TextView>(R.id.error_label).text =
+                                "Uživatel nemá žádný projekt " + response.code
+
+                        }
+                    }
+                    else -> {
+                        runOnUiThread {
+                            findViewById<TextView>(R.id.error_label).text =
+                                "Chyba " + response.code
+
+                        }
+                    }
+                }
+            }
+            runOnUiThread {
+                findViewById<Button>(R.id.user_log_in).isEnabled = true
+            }
+
+        }
     }
 }

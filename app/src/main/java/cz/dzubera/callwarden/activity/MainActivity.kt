@@ -22,10 +22,11 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import cz.dzubera.callwarden.*
+import cz.dzubera.callwarden.utils.Config
+import cz.dzubera.callwarden.utils.DateUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -35,9 +36,6 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.*
 
 
@@ -82,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                     .putString("userName", "")
                     .putString("userNumber", "").apply()
                 Config.signedOut = true
-                val intent = Intent(this, SignInActivity::class.java)
+                val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent)
                 true
             }
@@ -108,7 +106,7 @@ class MainActivity : AppCompatActivity() {
 
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setMessage("Jméno ${App.userSettingsStorage.userName}\nTelefon ${App.userSettingsStorage.userNumber}")
+        builder.setMessage("Doména ${App.userSettingsStorage.credentials!!.domain}\nid uživatele ${App.userSettingsStorage.credentials!!.user}")
             .setTitle("Uživatel").setPositiveButton(
                 "Ok"
             ) { p0, p1 -> p0.dismiss() }
@@ -121,16 +119,20 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val credentials = PreferencesUtils.loadCredentials(this)
+
+        if(credentials == null){
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+        }
+
         setContentView(R.layout.activity_main)
 
         supportActionBar?.title = "Záznamy hovorů";
         val telephonyManager: TelephonyManager =
             getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
-        App.userSettingsStorage.userName =
-            getSharedPreferences("XXX", Context.MODE_PRIVATE).getString("userName", null) ?: ""
-        App.userSettingsStorage.userNumber =
-            getSharedPreferences("XXX", Context.MODE_PRIVATE).getString("userNumber", null) ?: ""
+        App.userSettingsStorage.credentials = credentials
 
 
 
@@ -195,7 +197,7 @@ class MainActivity : AppCompatActivity() {
 
         App.cacheStorage.notifyItems()
 
-        Intent(this, Deamon::class.java).also { intent ->
+        Intent(this, BackgroundCallService::class.java).also { intent ->
             startService(intent)
         }
 
