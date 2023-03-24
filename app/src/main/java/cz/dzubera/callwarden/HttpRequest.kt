@@ -15,7 +15,7 @@ object HttpRequest {
     fun getProjects(domain: String, user: Int, onResponse: (HttpResponse) -> Unit) {
         println("staaaaacgh")
 
-        val url = URL(Config.BASE_URL)
+        val url = URL(Config.PROJECTS_URL)
         val client = OkHttpClient()
 
         val formBody: RequestBody = FormBody.Builder()
@@ -70,7 +70,7 @@ object HttpRequest {
     fun sendEntries(domain: String, user: Int, data: String,onResponse: (HttpResponse) -> Unit) {
         println("staaaaacgh")
 
-        val url = URL(Config.BASE_URL)
+        val url = URL(Config.CALL_URL)
         val client = OkHttpClient()
 
         val formBody: RequestBody = FormBody.Builder()
