@@ -14,6 +14,7 @@ class App : Application() {
 
     companion object {
         val cacheStorage: CacheStorage by lazy { CacheStorage() }
+        val projectStorage: ProjectStorage by lazy { ProjectStorage() }
         val userSettingsStorage: UserSettingsStorage by lazy { UserSettingsStorage() }
         lateinit var appDatabase: AppDatabase
         var dateFrom = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -28,11 +29,6 @@ class App : Application() {
             Date()
         }
 
-        fun toCalendar(date: Date): Calendar {
-            val cal = Calendar.getInstance()
-            cal.time = date
-            return cal
-        }
 
         fun toDate(calendar: Calendar): Date {
             return calendar.time

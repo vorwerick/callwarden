@@ -18,16 +18,11 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import cz.dzubera.callwarden.db.CallEntity
-import cz.dzubera.callwarden.utils.Config
+import cz.dzubera.callwarden.db.PendingCallEntity
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLEncoder
-import java.text.SimpleDateFormat
+import org.json.JSONArray
+import org.json.JSONObject
 import java.util.*
 
 
@@ -88,13 +83,13 @@ class BackgroundCallService() : Service() {
             ServiceReceiver.currentCall?.isEnded = true
             ServiceReceiver.currentCall?.callEnded = System.currentTimeMillis()
             if (ServiceReceiver.currentCall?.callAccepted != null && ServiceReceiver.currentCall?.direction == Call.Direction.INCOMING) {
-                ServiceReceiver.currentCall?.callType = Call.Type.ACCEPTED
+                ServiceReceiver.currentCall?.callType == Call.Type.ACCEPTED
             }
 
             if (ServiceReceiver.currentCall?.callAccepted == null && ServiceReceiver.currentCall?.direction == Call.Direction.INCOMING) {
-                ServiceReceiver.currentCall?.callType = Call.Type.MISSED
+                ServiceReceiver.currentCall?.callType == Call.Type.MISSED
             }
-            sendCall(ServiceReceiver.currentCall, this)
+            recordCall(ServiceReceiver.currentCall, this)
             ServiceReceiver.currentCall = null
         }
 
@@ -199,10 +194,14 @@ class BackgroundCallService() : Service() {
         return channelId
     }
 
-    private fun sendCall(currentCall: ServiceReceiver.CurrentCall?, context: Context?) {
+    private fun recordCall(currentCall: ServiceReceiver.CurrentCall?, context: Context?) {
         if (currentCall != null) {
             val call = Call(
                 currentCall.callStarted,
+                App.userSettingsStorage.credentials!!.user.toString(),
+                App.userSettingsStorage.credentials!!.domain,
+                App.projectStorage.getProject()?.id ?: "-1",
+                App.projectStorage.getProject()?.name ?: "<none>",
                 currentCall.callType,
                 currentCall.direction,
                 currentCall.phoneNumber,
@@ -218,16 +217,15 @@ class BackgroundCallService() : Service() {
                     if (dur.isEmpty() || dur == "0") {
                         call.type = Call.Type.DIALED
                     }
-                    call.dur = dur
+                    call.dur = dur.toIntOrNull() ?: -1
                     App.cacheStorage.addCallItem(call)
-                    saveToAnalytics(call, context)
-                    sendCallToInternet(call)
+                    saveToAnalyticsTryToUpload(call, context)
                 }
             }
         }
     }
 
-    private fun saveToAnalytics(call: Call, context: Context?) {
+    private fun saveToAnalyticsTryToUpload(call: Call, context: Context?) {
         context?.let {
             var accepted =
                 it.getSharedPreferences("XXX", Context.MODE_PRIVATE).getInt("acceptedCount", 0)
@@ -253,122 +251,84 @@ class BackgroundCallService() : Service() {
 
             val entity = CallEntity(
                 call.callStarted,
+                call.userId,
+                call.domainId,
+                call.projectId,
+                call.projectName,
                 call.type.name,
                 call.direction.name,
                 call.phoneNumber,
                 call.callStarted,
                 call.callEnded,
-                call.callAccepted
+                call.callAccepted,
+                call.dur,
             )
 
             GlobalScope.launch {
                 App.appDatabase.taskCalls().insert(entity)
             }
+
+            uploadCall(context, listOf(entity)) { success ->
+                if(!success){
+                    val pendingEntity = PendingCallEntity(entity.callStarted!!)
+                    GlobalScope.launch {
+                        App.appDatabase.pendingCalls().insert(pendingEntity)
+                    }
+                }
+            }
+
         }
 
     }
 }
 
-fun sendCallToInternet(call: Call) {
-    println("INTERNET: " + "SENDING TO INTERNET")
-    val status = when (call.type) {
-        Call.Type.MISSED -> "zmeškaný"
-        Call.Type.ACCEPTED -> "přijatý"
-        Call.Type.CALLBACK -> "volání"
-        Call.Type.DIALED -> "pohyb"
-    }
-    val dir = when (call.direction) {
-        Call.Direction.INCOMING -> "internal"
-        Call.Direction.OUTGOING -> "external"
-    }
-    var callConnectionTime = "0sec"
-    var callRinginTime =
-        (((call.callEnded - call.callStarted) / 1000).toInt()).toString() + "sec"
-    if (call.direction == Call.Direction.INCOMING && call.callAccepted != null && call.type == Call.Type.ACCEPTED) {
-        callConnectionTime =
-            (((call.callAccepted - call.callStarted) / 1000).toInt()).toString() + "sec"
-        callRinginTime =
-            (((call.callEnded - call.callStarted) / 1000).toInt() - ((call.callAccepted - call.callStarted) / 1000).toInt()).toString() + "sec"
-    }
-    if (call.direction == Call.Direction.OUTGOING) {
-        if (call.dur.isEmpty() || call.dur == "0") {
-            callConnectionTime = "vytáčení"
-            callRinginTime =
-                ((((call.callEnded - call.callStarted) / 1000).toInt()) - call.dur.toInt(10)).toString() + "sec"
-        } else {
-            callConnectionTime = call.dur + "sec"
-            callRinginTime =
-                ((((call.callEnded - call.callStarted) / 1000).toInt()) - call.dur.toInt(10)).toString() + "sec"
-        }
-    }
-
-    var coutnryCode = "CZ"
-    Iso2Phone.all.forEach { (k, v) ->
-        if (call.phoneNumber.contains(v)) {
-            coutnryCode = k
-        }
-    }
-    val paramMap = mapOf(
-        "userName" to App.userSettingsStorage.credentials!!.domain,
-        "userNumber" to App.userSettingsStorage.credentials!!.user,
-        "direction" to dir,
-        "status" to status,
-        "callerNumber" to call.phoneNumber,
-        "callingStart" to SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(Date(call.callStarted)),
-        "callingEnd" to SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(Date(call.callEnded)),
-        "callingDuration" to (((call.callEnded - call.callStarted) / 1000).toInt()).toString() + "sec",
-        "callingConnectionTime" to callConnectionTime,
-        "callingRingingTime" to callRinginTime,
-        "countryCode" to coutnryCode,
-        "monthAndYear" to SimpleDateFormat("MM-yyyy").format(Date(call.callStarted)),
-    )
-
-    val paramBuilder = StringBuilder()
-    var index = 0
-
-    paramMap.forEach {
-        if (index == 0) {
-            paramBuilder.append("")
-
-        }
-        index++
-        paramBuilder.append(URLEncoder.encode(it.key, "UTF-8"))
-        paramBuilder.append("=")
-        //paramBuilder.append(URLEncoder.encode(it.value, "UTF-8"))
-        paramBuilder.append("&")
-    }
-
-
-    val mURL =
-        URL(Config.API)
-    println(paramBuilder.toString())
-
-    with(mURL.openConnection() as HttpURLConnection) {
-        // optional default is GET
-        requestMethod = "POST"
-
-        val wr = OutputStreamWriter(outputStream);
-        wr.write(paramBuilder.toString());
-        wr.flush();
-
-        println("URL : $url")
-        println("Response Code : $responseCode")
-
-        /*    if (responseCode > 200) {
-                App.transmissionService.insertItem(call);
-            }*/
-
-        BufferedReader(InputStreamReader(inputStream)).use {
-            val response = StringBuffer()
-
-            var inputLine = it.readLine()
-            while (inputLine != null) {
-                response.append(inputLine)
-                inputLine = it.readLine()
+fun uploadCall(context: Context?, callEntities: List<CallEntity>, success: (Boolean) -> Unit) {
+    val credentials = context?.let { PreferencesUtils.loadCredentials(it) }
+    if (credentials != null) {
+        val recordJson = JSONObject()
+        val jsonArray = JSONArray()
+        callEntities.forEach { callEntity ->
+            var coutnryCode = "CZ"
+            Iso2Phone.all.forEach { (k, v) ->
+                if (callEntity.phoneNumber != null && callEntity.phoneNumber.contains(v)) {
+                    coutnryCode = k
+                }
             }
-/*
-            println("Response : $response")
-*/
+
+            val recordItem = JSONObject()
+            recordItem.put("projectId", callEntity.projectId)
+            recordItem.put("direction", Call.Direction.valueOf(callEntity.direction ?: "").ordinal)
+            recordItem.put("type", Call.Type.valueOf(callEntity.type ?: "").ordinal)
+            recordItem.put("number", callEntity.phoneNumber)
+            recordItem.put("startTimestamp", callEntity.callStarted)
+            recordItem.put("connectTimestamp", callEntity.callAccepted)
+            recordItem.put("endTimestamp", callEntity.callEnded)
+            recordItem.put("callDuration", callEntity.callDuration)
+            recordItem.put("countryCode", coutnryCode)
+
+            jsonArray.put(recordItem)
+
+        }
+
+        recordJson.put("records", jsonArray)
+        HttpRequest.sendEntries(
+            credentials.domain,
+            credentials.user,
+            recordJson.toString()
+        ) { httpResponse ->
+            when (httpResponse.code) {
+                200 -> {
+                    success(true)
+                }
+                422 -> {
+                    success(true)
+                    HttpRequest.getProjects(credentials.domain, credentials.user) {}
+                }
+                else -> {
+                    success(false)
+                }
+            }
+
         }
     }
 }

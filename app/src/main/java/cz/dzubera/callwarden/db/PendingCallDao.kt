@@ -5,16 +5,19 @@ import androidx.room.*
 @Dao
 interface PendingCallDao {
 
-    @Query("SELECT * FROM call")
-    fun getAll(): List<CallEntity>
+    @Query("SELECT * FROM pending_call")
+    fun getAll(): List<PendingCallEntity>
 
     @Insert
-    fun insert(call: CallEntity)
+    fun insert(call: PendingCallEntity)
 
     @Delete
-    fun delete(call: CallEntity)
+    fun delete(call: PendingCallEntity)
+
+    @Query("DELETE FROM pending_call")
+    fun deleteAll()
 
     @Update
-    fun update(call: CallEntity)
+    fun update(call: PendingCallEntity)
 
 }

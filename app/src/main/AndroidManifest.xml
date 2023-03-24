@@ -21,7 +21,7 @@
         android:allowBackup="true"
         android:name=".App"
         android:icon="@mipmap/ic_launcher"
-        android:label="Přihlášení"
+        android:label="Callwarden"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
@@ -29,6 +29,7 @@
         <meta-data android:name="io.sentry.dsn" android:value="https://45b054736dbf4d1a9c7e8b3903afaca2@o1174084.ingest.sentry.io/6269826" />
         <activity
             android:name=".activity.LoginActivity"
+            android:noHistory="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

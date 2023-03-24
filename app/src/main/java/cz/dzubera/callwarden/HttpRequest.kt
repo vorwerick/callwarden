@@ -18,24 +18,16 @@ object HttpRequest {
         val url = URL(Config.BASE_URL)
         val client = OkHttpClient()
 
-        val jo = JSONObject()
-        jo.put("id_domena", domain)
-        jo.put("id_user", user)
         val formBody: RequestBody = FormBody.Builder()
-            .addEncoded("id_domena", domain)
-            .addEncoded("id_user", user.toString())
-            .build()
-        val requestBody: RequestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
-            .addFormDataPart("id_domena", domain)
-            .addFormDataPart("id_user", user.toString())
+            .add("id_domeny", domain)
+            .add("id_user", user.toString())
             .build()
         val request = Request.Builder()
             .addHeader("X-API-KEY", "123")
             .url(url)
-            .post(requestBody)
+            .post(formBody)
             .build()
 
-        println("sulko")
         val call: okhttp3.Call = client.newCall(request)
         call.enqueue(object : Callback {
 
@@ -53,13 +45,19 @@ object HttpRequest {
             override fun onResponse(call: okhttp3.Call, response: Response) {
                 println("resposnzička " + response.code)
                 if (response.code > 200) {
-
                     val httpResponse =
                         HttpResponse(response.message, response.code, ResponseStatus.ERROR)
                     onResponse.invoke(httpResponse)
 
                 } else {
-                    val httpResponse = HttpResponse(response.body.toString())
+                    val body = response.body?.string().toString()
+                    val httpResponse = HttpResponse(body)
+                    if(response.body != null){
+                        val projects = JSONObject(body).getProjectObject()
+                        App.projectStorage.setProjects(projects)
+                        projects.forEach { println(it.name) }
+                    }
+
                     onResponse.invoke(httpResponse)
                 }
 
@@ -69,23 +67,25 @@ object HttpRequest {
 
     }
 
-    fun sendEntries(domain: String, user: Int, onResponse: (HttpResponse) -> Unit) {
+    fun sendEntries(domain: String, user: Int, data: String,onResponse: (HttpResponse) -> Unit) {
         println("staaaaacgh")
 
         val url = URL(Config.BASE_URL)
         val client = OkHttpClient()
 
-        val jo = JSONObject()
-        jo.put("id_domena", domain)
-        jo.put("id_user", user)
-        val body = jo.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val formBody: RequestBody = FormBody.Builder()
+            .add("id_domeny", domain)
+            .add("id_user", user.toString())
+            .add("data", data)
+            .build()
         val request = Request.Builder()
             .addHeader("X-API-KEY", "123")
             .url(url)
-            .post(body)
+            .post(formBody)
             .build()
 
-        println("sulko")
+        println(data)
+
         val call: okhttp3.Call = client.newCall(request)
         call.enqueue(object : Callback {
 

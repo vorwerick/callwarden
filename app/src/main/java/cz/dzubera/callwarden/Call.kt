@@ -2,6 +2,10 @@ package cz.dzubera.callwarden
 
 data class Call(
     val id: Long,
+    val userId: String,
+    val domainId: String,
+    val projectId: String,
+    val projectName: String,
     var type: Type,
     val direction: Direction,
     val phoneNumber: String,
@@ -10,7 +14,7 @@ data class Call(
     val callAccepted: Long?
 ){
 
-    var dur: String = ""
+    var dur: Int = -1
 
     enum class Direction {
         INCOMING, OUTGOING

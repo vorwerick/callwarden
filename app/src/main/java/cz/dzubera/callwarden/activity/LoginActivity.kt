@@ -34,15 +34,31 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val credentials = PreferencesUtils.loadCredentials(this)
+        if(credentials != null){
+            HttpRequest.getProjects(credentials.domain, credentials.user) { response: HttpResponse ->
+                if (response.status == ResponseStatus.SUCCESS) {
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    startActivity(intent)
+                } else {
+
+
+                }
+
+            }
+        }
+
         setContentView(R.layout.login_activity)
-
+        supportActionBar?.title = "Příhlášení";
         checkPermissions()
-        val manger = getSystemService(TELECOM_SERVICE) as TelecomManager
-
-        val name: String = manger.defaultDialerPackage
-        Log.d("PLS", "isDefault: $name")
 
 
+
+        if(credentials != null){
+            findViewById<EditText>(R.id.domain_id).setText(credentials.domain)
+           findViewById<EditText>(R.id.user_id).setText( credentials.user.toString())
+        }
 
 
         val loginButton = findViewById<Button>(R.id.user_log_in)
@@ -138,8 +154,9 @@ class LoginActivity : AppCompatActivity() {
         findViewById<Button>(R.id.user_log_in).isEnabled = false
         HttpRequest.getProjects(domain, user) { response: HttpResponse ->
             if (response.status == ResponseStatus.SUCCESS) {
+                println("KOKO: "+response.data.toString())
                 PreferencesUtils.saveCredentials(this, Credentials(domain, user))
-                val intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this@LoginActivity, MainActivity::class.java)
                 startActivity(intent)
             } else {
                 when (response.code) {

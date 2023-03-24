@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_user"
-        android:title="Uživatel"/>
-    <item android:id="@+id/menu_about"
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/change_project"
+        android:icon="@drawable/ic_change"
+        android:title="Vybrat skupinu"
+        android:visible="true"
+        app:showAsAction="always" />
+    <group android:enabled="true">
+        <item
+            android:id="@+id/analytics"
+            android:title="Analytiky" />
+    </group>
+    <item
+        android:id="@+id/menu_user"
+        android:title="Uživatel" />
+
+    <item
+        android:id="@+id/menu_about"
         android:title="O aplikaci" />
-    <item android:id="@+id/menu_url"
-        android:title="Google sheet"/>
-    <item android:id="@+id/analytics"
-        android:title="Analytiky"/>
-    <item android:id="@+id/signOut"
-        android:title="Odhlásit"/>
+    <group android:enabled="true">
+        <item
+            android:id="@+id/signOut"
+            android:title="Odhlásit" />
+    </group>
+
 </menu>

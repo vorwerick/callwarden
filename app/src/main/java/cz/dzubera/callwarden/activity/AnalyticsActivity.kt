@@ -44,16 +44,22 @@ class AnalyticsActivity : AppCompatActivity() {
         val analytics3 = findViewById<TextView>(R.id.analytics_text_3)
         val analytics4 = findViewById<TextView>(R.id.analytics_text_4)
 
+        val analyticsSum1 = findViewById<TextView>(R.id.analytics_text_sum1)
+        val analyticsSum2 = findViewById<TextView>(R.id.analytics_text_sum2)
+
         val analyticsDate = findViewById<TextView>(R.id.analytics_date)
         analyticsDate.text =
-            SimpleDateFormat("d.M.yyyy").format(App.dateFrom) + " - " + SimpleDateFormat("d.M.yyyy").format(
-                App.dateTo
-            )
+        SimpleDateFormat("dd.MM.yyyy").format(App.dateFrom) + " - " + SimpleDateFormat("dd.MM.yyyy").format(
+            App.dateTo
+        )
 
         analytics1.text = "Počet přijatých hovorů: $accepted"
         analytics2.text = "Počet nepřijatých hovorů: $declined"
         analytics3.text = "Počet odchozích spojených hovorů: $called"
         analytics4.text = "Počet odchozích nespojených hovorů: $dialing"
+
+        analyticsSum1.text = "Počet pohybů: " + (accepted + declined + called + dialing)
+        analyticsSum2.text = "Počet spojených hovorů: " + (accepted + called)
 
 
         val backButton = findViewById<Button>(R.id.button_back)

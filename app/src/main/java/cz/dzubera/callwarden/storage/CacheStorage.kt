@@ -10,6 +10,7 @@ class CacheStorage {
 
     private val callItems = mutableListOf<Call>()
 
+
     fun addCallItem(call: Call) {
         callItems.add(call)
         observers.forEach { it.invoke(callItems) }
@@ -28,6 +29,10 @@ class CacheStorage {
             calls.add(
                 Call(
                     it.uid,
+                    it.userId!!,
+                    it.domainId!!,
+                    it.projectId ?: "-1",
+                    it.projectName ?: "<none>",
                     Call.Type.valueOf(it.type!!),
                     Call.Direction.valueOf(it.direction!!),
                     it.phoneNumber!!,

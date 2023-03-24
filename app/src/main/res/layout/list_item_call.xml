@@ -43,6 +43,14 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="4dp"
                     android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/call_project"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text=""
+                        android:textColor="@color/black"
+                        android:textSize="14dp" />
 
                     <TextView
                         android:id="@+id/call_number"

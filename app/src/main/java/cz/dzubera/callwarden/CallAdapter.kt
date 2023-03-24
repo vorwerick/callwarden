@@ -12,30 +12,33 @@ import androidx.recyclerview.widget.RecyclerView
 import cz.dzubera.callwarden.Call.Type.*
 import java.text.SimpleDateFormat
 
-class CallAdapter(private val onClick: (Call) -> Unit) :
+class CallAdapter() :
     ListAdapter<Call, CallAdapter.ViewHolder>(CallDiffCallback) {
 
     /**
      * Provide a reference to the type of views that you are using
      * (custom ViewHolder).
      */
-    class ViewHolder(view: View, val onClick: (Call) -> Unit) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val imageViewCallType: AppCompatImageView = view.findViewById(R.id.call_type)
         private val textViewPhoneNumber: TextView = view.findViewById(R.id.call_number)
+        private val textViewCallProject: TextView = view.findViewById(R.id.call_project)
         private val textViewCallDate: TextView = view.findViewById(R.id.call_date)
         private val textViewCallTime: TextView = view.findViewById(R.id.call_time)
         private val textViewCallInfo: TextView = view.findViewById(R.id.call_dir)
         private var currentItem: Call? = null
 
-        init {
-            view.setOnClickListener {
-                currentItem?.let { onClick(it) }
-            }
-        }
+
 
         @SuppressLint("SimpleDateFormat")
         fun bind(call: Call) {
-            textViewPhoneNumber.text = call.phoneNumber
+            if(call.phoneNumber.isEmpty()){
+                textViewPhoneNumber.text = call.phoneNumber
+            } else {
+                textViewPhoneNumber.text = "neznámé číslo"
+            }
+
+            textViewCallProject.text = call.projectName
             textViewCallDate.text = SimpleDateFormat("dd.MM.yyyy").format(call.callStarted)
             textViewCallTime.text = SimpleDateFormat("HH:mm:ss").format(call.callStarted)
             val imageIcon = when (call.type) {
@@ -60,13 +63,16 @@ class CallAdapter(private val onClick: (Call) -> Unit) :
         val view = LayoutInflater.from(viewGroup.context)
             .inflate(R.layout.list_item_call, viewGroup, false)
 
-        return ViewHolder(view, onClick)
+        return ViewHolder(view)
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val call = getItem(position)
-        viewHolder.bind(call)
+        if(call != null){
+            viewHolder.bind(call)
+
+        }
     }
 }
 

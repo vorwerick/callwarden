@@ -5,7 +5,6 @@ import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -28,13 +27,8 @@ import cz.dzubera.callwarden.*
 import cz.dzubera.callwarden.utils.Config
 import cz.dzubera.callwarden.utils.DateUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -58,40 +52,75 @@ class MainActivity : AppCompatActivity() {
                 showAboutDialog()
                 true
             }
+            R.id.change_project -> {
+                val creds = App.userSettingsStorage.credentials
+                if(creds != null){
+                    GlobalScope.launch {
+                        HttpRequest.getProjects(creds.domain, creds.user){
+                            if(it.code == 200){
+                                runOnUiThread { showProjectDialog(true) }
+                            }
+                        }
+                    }
+                   return true
+                }
+                return false
+
+            }
             R.id.menu_user -> {
                 showUserDialog()
                 true
             }
-            R.id.menu_url -> {
-                val browserIntent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://docs.google.com/spreadsheets/d/1VhwBDR4XjCSH13asJAcyaLz3XEBIQDFYCZUDq4w3P3I/edit#gid=0")
-                )
-                startActivity(browserIntent)
-                true
-            }
+
             R.id.analytics -> {
                 val intent = Intent(this, AnalyticsActivity::class.java)
                 startActivity(intent)
+                finish()
+
                 true
             }
             R.id.signOut -> {
-                getSharedPreferences("XXX", Context.MODE_PRIVATE).edit()
-                    .putString("userName", "")
-                    .putString("userNumber", "").apply()
+                PreferencesUtils.clearCredentials(this)
                 Config.signedOut = true
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent)
+                finish()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
+    private fun showProjectDialog(cancelable: Boolean) {
+        val builderSingle = AlertDialog.Builder(this)
+        builderSingle.setTitle("Vybrat skupinu")
+        builderSingle.setCancelable(cancelable)
+        val arrayAdapter =
+            ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
+        arrayAdapter.addAll(App.projectStorage.projects.map { it.name })
+        builderSingle.setAdapter(
+            arrayAdapter
+        ) { _, p1 ->
+            println(p1.toString())
+            App.projectStorage.setProject(App.projectStorage.projects[p1])
+            PreferencesUtils.saveProjectId(this@MainActivity, App.projectStorage.getProject()!!.id)
+            supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
+        }
+        if (cancelable) {
+            builderSingle.setNegativeButton(
+                "Zpět"
+            ) { dialog, which -> dialog.dismiss() }
+        }
+
+
+
+        builderSingle.show()
+    }
+
     private fun showAboutDialog() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setMessage("Vytvořil Aleš Džubera\n" + "Verze " + BuildConfig.VERSION_NAME + " " + BuildConfig.BUILD_TYPE + "\n" + "Číslo sestavení " + BuildConfig.VERSION_CODE + "\n" + "Identifikátor " + BuildConfig.APPLICATION_ID)
+        builder.setMessage("Vytvořil Aleš Džubera\n" + "Verze " + BuildConfig.VERSION_NAME)
             .setTitle("O aplikaci").setPositiveButton(
                 "Ok"
             ) { p0, p1 -> p0.dismiss() }
@@ -106,7 +135,7 @@ class MainActivity : AppCompatActivity() {
 
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setMessage("Doména ${App.userSettingsStorage.credentials!!.domain}\nid uživatele ${App.userSettingsStorage.credentials!!.user}")
+        builder.setMessage("ID domény ${App.userSettingsStorage.credentials!!.domain}\nID uživatele ${App.userSettingsStorage.credentials!!.user}\nProjekt ${App.projectStorage.getProject()?.name ?: "<žádný>"}")
             .setTitle("Uživatel").setPositiveButton(
                 "Ok"
             ) { p0, p1 -> p0.dismiss() }
@@ -121,9 +150,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val credentials = PreferencesUtils.loadCredentials(this)
 
-        if(credentials == null){
+        if (credentials == null) {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
+        }
+
+        val projectId = PreferencesUtils.loadProjectId(this)
+        if (projectId != null) {
+            val projectObject = App.projectStorage.projects.find { it.id == projectId }
+            if (projectObject != null) {
+                App.projectStorage.setProject(projectObject)
+            }
         }
 
         setContentView(R.layout.activity_main)
@@ -141,7 +178,7 @@ class MainActivity : AppCompatActivity() {
         App.cacheStorage.notifyItems()
 
 
-        val callAdapter = CallAdapter { call -> adapterOnClick(call) }
+        val callAdapter = CallAdapter()
 
         val recyclerView: RecyclerView = findViewById(R.id.call_list)
 
@@ -168,32 +205,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        val mURL =
-            URL(Config.API)
-
-        GlobalScope.launch(Dispatchers.IO) {
-            with(mURL.openConnection() as HttpURLConnection) {
-                // optional default is GET
-                requestMethod = "GET"
-
-                println("URL : $url")
-                println("Response Code : $responseCode")
-
-                BufferedReader(InputStreamReader(inputStream)).use {
-                    val response = StringBuffer()
-
-                    var inputLine = it.readLine()
-                    while (inputLine != null) {
-                        response.append(inputLine)
-                        inputLine = it.readLine()
-                    }
-/*
-                    println("Response : $response")
-*/
-                }
-            }
-        }
-
 
         App.cacheStorage.notifyItems()
 
@@ -201,15 +212,34 @@ class MainActivity : AppCompatActivity() {
             startService(intent)
         }
 
+        if (App.projectStorage.getProject() != null) {
+            supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
+        } else {
+            supportActionBar!!.subtitle = "<žádný projekt>"
+        }
 
-        /*    val mediaUri = CallLog.Calls.CONTENT_URI
-            Log.d(
-                "PhoneService", "The Encoded path of the media Uri is "
-                        + mediaUri.encodedPath
-            )
-            val custObser = CustomContentObserver(Handler.createAsync(Looper.myLooper()!!), contentResolver)
-            contentResolver.registerContentObserver(mediaUri, false, custObser)
-    */
+
+    }
+
+    private fun checkPendingCallsForSend() {
+
+
+        GlobalScope.launch {
+            val pendingCalls = App.appDatabase.pendingCalls().getAll()
+            if (pendingCalls.isEmpty()) {
+                return@launch
+            }
+            println("Pending calls to upload: " + pendingCalls.size.toString())
+            val callEntities = pendingCalls.mapNotNull { App.appDatabase.taskCalls().get(it.uid) }
+            uploadCall(this@MainActivity, callEntities) { success ->
+                if (success) {
+                    GlobalScope.launch {
+                        App.appDatabase.pendingCalls().deleteAll()
+                    }
+                }
+
+            }
+        }
     }
 
 
@@ -220,22 +250,23 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch {
             App.cacheStorage.loadFromDatabase()
             App.cacheStorage.notifyItems()
-          /*  val items = App.transmissionService.getAndRemovePendingItems().forEach {
-                print("CALL: " + it.callStarted)
-                sendCallToInternet(it)
-            }*/
+            /*  val items = App.transmissionService.getAndRemovePendingItems().forEach {
+                  print("CALL: " + it.callStarted)
+                  sendCallToInternet(it)
+              }*/
         }
+
+        if (App.projectStorage.getProject() == null) {
+            showProjectDialog(false)
+        }
+
+        checkPendingCallsForSend()
 
     }
 
     override fun onDestroy() {
         super.onDestroy()
         App.cacheStorage.unregisterObserver(::callObserver)
-    }
-
-
-    private fun adapterOnClick(call: Call) {
-
     }
 
 
@@ -273,7 +304,7 @@ class MainActivity : AppCompatActivity() {
 
         val dpd = DatePickerDialog(this, { view, year, monthOfYear, dayOfMonth ->
 
-            c.set(year, monthOfYear, dayOfMonth )
+            c.set(year, monthOfYear, dayOfMonth)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 App.dateTo = DateUtils.atEndOfDay(App.toDate(c))
@@ -286,7 +317,6 @@ class MainActivity : AppCompatActivity() {
 
         dpd.show()
     }
-
 
 
     fun updateButtons() {
