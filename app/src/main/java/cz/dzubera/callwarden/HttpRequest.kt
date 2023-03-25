@@ -4,9 +4,13 @@ import cz.dzubera.callwarden.utils.Config
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import okio.ByteString.Companion.decodeBase64
 import org.json.JSONObject
 import java.io.IOException
 import java.net.URL
+import java.security.MessageDigest
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 object HttpRequest {
@@ -23,7 +27,7 @@ object HttpRequest {
             .add("id_user", user.toString())
             .build()
         val request = Request.Builder()
-            .addHeader("X-API-KEY", "123")
+            .addHeader("X-API-KEY", getApiKey(domain).toString())
             .url(url)
             .post(formBody)
             .build()
@@ -67,8 +71,22 @@ object HttpRequest {
 
     }
 
+    fun getApiKey(domain: String): String {
+        val date = SimpleDateFormat("d.M.yyyy").format(Date(System.currentTimeMillis()))
+        val str = domain + date
+        val digest = MessageDigest.getInstance("SHA-256").apply { reset() }
+        val byteData: ByteArray = digest.digest(str.toByteArray())
+        val result = StringBuffer().apply {
+            byteData.forEach {
+                append(((it.toInt() and 0xff) + 0x100).toString(16).substring(1))
+            }
+        }.toString()
+        println("APIK: " + result)
+        return result
+    }
+
     fun sendEntries(domain: String, user: Int, data: String,onResponse: (HttpResponse) -> Unit) {
-        println("staaaaacgh")
+
 
         val url = URL(Config.CALL_URL)
         val client = OkHttpClient()
@@ -79,7 +97,7 @@ object HttpRequest {
             .add("data", data)
             .build()
         val request = Request.Builder()
-            .addHeader("X-API-KEY", "123")
+            .addHeader("X-API-KEY", getApiKey(domain).toString())
             .url(url)
             .post(formBody)
             .build()

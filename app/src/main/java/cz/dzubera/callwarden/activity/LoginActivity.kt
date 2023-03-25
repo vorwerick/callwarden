@@ -163,7 +163,7 @@ class LoginActivity : AppCompatActivity() {
                     401 -> {
                         runOnUiThread {
                             findViewById<TextView>(R.id.error_label).text =
-                                "Neznámá doména nebo uživatel "+ response.code
+                                "Neznámé ID nebo uživatel "+ response.code
                         }
                     }
                     422 -> {

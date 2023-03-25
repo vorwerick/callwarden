@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showProjectDialog(cancelable: Boolean) {
         val builderSingle = AlertDialog.Builder(this)
-        builderSingle.setTitle("Vybrat skupinu")
+        builderSingle.setTitle("Vybrat projekt")
         builderSingle.setCancelable(cancelable)
         val arrayAdapter =
             ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)

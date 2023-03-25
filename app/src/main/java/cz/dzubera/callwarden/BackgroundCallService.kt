@@ -194,30 +194,40 @@ class BackgroundCallService() : Service() {
         return channelId
     }
 
-    private fun recordCall(currentCall: ServiceReceiver.CurrentCall?, context: Context?) {
+    private fun recordCall(currentCall: ServiceReceiver.CurrentCall?, context: Context) {
         if (currentCall != null) {
-            val call = Call(
-                currentCall.callStarted,
-                App.userSettingsStorage.credentials!!.user.toString(),
-                App.userSettingsStorage.credentials!!.domain,
-                App.projectStorage.getProject()?.id ?: "-1",
-                App.projectStorage.getProject()?.name ?: "<none>",
-                currentCall.callType,
-                currentCall.direction,
-                currentCall.phoneNumber,
-                currentCall.callStarted,
-                currentCall.callEnded,
-                currentCall.callAccepted
-            )
 
             ServiceReceiver.ex.submit {
-                Thread.sleep(5000)
+                Thread.sleep(4500)
                 synchronized(ServiceReceiver.ex) {
-                    val dur = LLL.getCallLogs(context)
-                    if (dur.isEmpty() || dur == "0") {
+                    val history = CallHistory.getCallLogs(context)
+
+
+                    val call = Call(
+                        currentCall.callStarted,
+                        App.userSettingsStorage.credentials!!.user.toString(),
+                        App.userSettingsStorage.credentials!!.domain,
+                        App.projectStorage.getProject()?.id ?: "-1",
+                        App.projectStorage.getProject()?.name ?: "<none>",
+                        currentCall.callType,
+                        currentCall.direction,
+                        currentCall.phoneNumber,
+                        currentCall.callStarted,
+                        currentCall.callEnded,
+                        currentCall.callAccepted
+                    )
+
+
+
+                    val durationX= history.callDuration?.toIntOrNull()?: -1
+                    if (durationX <= 0) {
                         call.type = Call.Type.DIALED
                     }
-                    call.dur = dur.toIntOrNull() ?: -1
+                    call.dur =durationX
+                    if(!history.phoneNumber.isNullOrEmpty()){
+                        call.phoneNumber = history.phoneNumber
+                    }
+                    println("XAVIER: " + call.phoneNumber)
                     App.cacheStorage.addCallItem(call)
                     saveToAnalyticsTryToUpload(call, context)
                 }

@@ -45,7 +45,7 @@ class CacheStorage {
 
         val newList = calls.filter { call: Call ->
             App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted))
-        }
+        }.sortedByDescending { it.callStarted }
         callItems.clear()
         callItems.addAll(newList)
 

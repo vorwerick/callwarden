@@ -32,7 +32,7 @@ class CallAdapter() :
 
         @SuppressLint("SimpleDateFormat")
         fun bind(call: Call) {
-            if(call.phoneNumber.isEmpty()){
+            if(call.phoneNumber.isNotEmpty()){
                 textViewPhoneNumber.text = call.phoneNumber
             } else {
                 textViewPhoneNumber.text = "neznámé číslo"
@@ -44,14 +44,14 @@ class CallAdapter() :
             val imageIcon = when (call.type) {
                 MISSED -> R.drawable.ic_call_missed
                 CALLBACK -> R.drawable.ic_call_back
-                DIALED -> R.drawable.ic_call_back
-                ACCEPTED -> R.drawable.ic_call_answered
+                DIALED -> R.drawable.ic_outgoing_missed
+                ACCEPTED -> R.drawable.ic_incoming_connected
             }
             textViewCallInfo.text = when(call.type){
-                MISSED -> "zmeškaný"
-                ACCEPTED -> "přijatý"
-                CALLBACK -> "volaný"
-                DIALED -> "volaný"
+                MISSED -> "příchozí - nepřijatý"
+                ACCEPTED -> "příchozí - přijatý"
+                CALLBACK -> "odchozí - přijatý"
+                DIALED -> "odchozí - nepřijatý"
             }
             imageViewCallType.setImageResource(imageIcon)
         }

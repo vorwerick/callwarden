@@ -8,7 +8,7 @@ data class Call(
     val projectName: String,
     var type: Type,
     val direction: Direction,
-    val phoneNumber: String,
+    var phoneNumber: String,
     val callStarted: Long,
     val callEnded: Long,
     val callAccepted: Long?
