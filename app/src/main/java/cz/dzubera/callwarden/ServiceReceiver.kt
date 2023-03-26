@@ -1,13 +1,21 @@
 package cz.dzubera.callwarden
 
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
 class ServiceReceiver {
 
     companion object {
+        var ex: ExecutorService? = null
+        fun initialize() {
+            if(ex == null){
+                ex = Executors.newSingleThreadExecutor()
+            }
+        }
+
         var currentCall: CurrentCall? = null
-        val ex = Executors.newSingleThreadExecutor()
+
     }
 
     class CurrentCall(val direction: Call.Direction) {

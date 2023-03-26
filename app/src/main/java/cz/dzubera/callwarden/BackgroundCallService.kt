@@ -76,7 +76,7 @@ class BackgroundCallService() : Service() {
         }
 
         val telecomManager = getSystemService(TELECOM_SERVICE) as TelecomManager
-        Log.d("EXTREMISMUS", telecomManager.isInCall.toString())
+        Log.d("is In call", telecomManager.isInCall.toString())
 
 
         if (state == TelephonyManager.CALL_STATE_IDLE) {
@@ -126,6 +126,8 @@ class BackgroundCallService() : Service() {
 
         val telecomManager: TelecomManager =
             getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+
+        ServiceReceiver.initialize()
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -195,20 +197,31 @@ class BackgroundCallService() : Service() {
     }
 
     private fun recordCall(currentCall: ServiceReceiver.CurrentCall?, context: Context) {
+        println("HAJDOS: " + currentCall.toString())
         if (currentCall != null) {
+            println("XX: " )
 
-            ServiceReceiver.ex.submit {
+            ServiceReceiver.ex!!.submit {
+                println("HOHO: " )
+
                 Thread.sleep(4500)
-                synchronized(ServiceReceiver.ex) {
+                println("JOJO: " )
+
+                synchronized(ServiceReceiver.ex!!) {
+                    println("KAKA: " )
+
                     val history = CallHistory.getCallLogs(context)
+                    println("CUCUC: " )
 
-
+                    val credentails = PreferencesUtils.loadCredentials(context)
+                    val projectId = PreferencesUtils.loadProjectId(context)
+                    val projectName =  PreferencesUtils.loadProjectName(context)
                     val call = Call(
                         currentCall.callStarted,
-                        App.userSettingsStorage.credentials!!.user.toString(),
-                        App.userSettingsStorage.credentials!!.domain,
-                        App.projectStorage.getProject()?.id ?: "-1",
-                        App.projectStorage.getProject()?.name ?: "<none>",
+                       credentails?.user.toString() ?: "",
+                        credentails?.domain ?: "",
+                        projectId ?: "-1",
+                        projectName ?: "<none>",
                         currentCall.callType,
                         currentCall.direction,
                         currentCall.phoneNumber,
@@ -219,15 +232,18 @@ class BackgroundCallService() : Service() {
 
 
 
+
                     val durationX= history.callDuration?.toIntOrNull()?: -1
                     if (durationX <= 0) {
                         call.type = Call.Type.DIALED
                     }
                     call.dur =durationX
+                    println("CALL DURATION:" + call.dur.toString())
                     if(!history.phoneNumber.isNullOrEmpty()){
                         call.phoneNumber = history.phoneNumber
                     }
                     println("XAVIER: " + call.phoneNumber)
+                    println("IRA: " )
                     App.cacheStorage.addCallItem(call)
                     saveToAnalyticsTryToUpload(call, context)
                 }
@@ -308,7 +324,6 @@ fun uploadCall(context: Context?, callEntities: List<CallEntity>, success: (Bool
             val recordItem = JSONObject()
             recordItem.put("projectId", callEntity.projectId)
             recordItem.put("direction", Call.Direction.valueOf(callEntity.direction ?: "").ordinal)
-            recordItem.put("type", Call.Type.valueOf(callEntity.type ?: "").ordinal)
             recordItem.put("number", callEntity.phoneNumber)
             recordItem.put("startTimestamp", callEntity.callStarted)
             recordItem.put("connectTimestamp", callEntity.callAccepted)

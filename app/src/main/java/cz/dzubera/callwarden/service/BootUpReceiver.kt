@@ -3,16 +3,20 @@ package cz.dzubera.callwarden.service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import cz.dzubera.callwarden.BackgroundCallService
 
 
 class BootUpReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
-        val i = Intent(
-            context,
-            BackgroundCallService::class.java
-        ) //MyActivity can be anything which you want to start on bootup...
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(i)
+        if (Intent.ACTION_BOOT_COMPLETED == intent?.action) {
+            val i = Intent(context, BackgroundCallService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(i)
+            } else {
+                context.startService(i)
+            }
+        }
+
     }
 }

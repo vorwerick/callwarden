@@ -8,7 +8,7 @@ object PreferencesUtils {
     const val DOMAIN_KEY = "DOMAIN"
     const val USER_KEY = "USER"
     const val PROJECT_ID = "PROJECT"
-
+    const val PROJECT_NAME = "PROJECT_NAME"
     fun saveProjectId(context: Context, id: String) {
         context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().putString(
             PROJECT_ID, id
@@ -18,6 +18,17 @@ object PreferencesUtils {
     fun loadProjectId(context: Context): String? {
         return context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
             .getString(PROJECT_ID, null)
+    }
+
+    fun loadProjectName(context: Context): String? {
+        return context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+            .getString(PROJECT_NAME, null)
+    }
+
+    fun saveProjectName(context: Context, name: String) {
+        context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().putString(
+            PROJECT_NAME, name
+        ).apply()
     }
 
     fun saveCredentials(context: Context, credentials: Credentials) {
@@ -40,4 +51,6 @@ object PreferencesUtils {
     fun clearCredentials(context: Context) {
         context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().clear().apply()
     }
+
+
 }

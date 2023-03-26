@@ -104,6 +104,7 @@ class MainActivity : AppCompatActivity() {
             println(p1.toString())
             App.projectStorage.setProject(App.projectStorage.projects[p1])
             PreferencesUtils.saveProjectId(this@MainActivity, App.projectStorage.getProject()!!.id)
+            PreferencesUtils.saveProjectName(this@MainActivity, App.projectStorage.getProject()!!.name)
             supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
         }
         if (cancelable) {
