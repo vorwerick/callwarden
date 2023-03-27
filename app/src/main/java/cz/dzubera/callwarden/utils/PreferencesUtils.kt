@@ -1,6 +1,7 @@
-package cz.dzubera.callwarden
+package cz.dzubera.callwarden.utils
 
 import android.content.Context
+import cz.dzubera.callwarden.model.Credentials
 
 object PreferencesUtils {
 

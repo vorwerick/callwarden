@@ -1,4 +1,4 @@
-package cz.dzubera.callwarden
+package cz.dzubera.callwarden.model
 
 data class Call(
     val id: Long,

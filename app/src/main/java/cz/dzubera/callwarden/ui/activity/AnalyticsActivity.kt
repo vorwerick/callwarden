@@ -1,4 +1,4 @@
-package cz.dzubera.callwarden.activity
+package cz.dzubera.callwarden.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import cz.dzubera.callwarden.App
-import cz.dzubera.callwarden.Call
+import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.R
 import java.text.SimpleDateFormat
 

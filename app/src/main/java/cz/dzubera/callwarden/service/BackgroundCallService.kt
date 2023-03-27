@@ -1,6 +1,5 @@
-package cz.dzubera.callwarden
+package cz.dzubera.callwarden.service
 
-import android.R
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
@@ -17,8 +16,16 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_MIN
-import cz.dzubera.callwarden.db.CallEntity
-import cz.dzubera.callwarden.db.PendingCallEntity
+import androidx.core.content.ContextCompat
+import cz.dzubera.callwarden.App
+import cz.dzubera.callwarden.BuildConfig
+import cz.dzubera.callwarden.utils.Iso2Phone
+import cz.dzubera.callwarden.R
+import cz.dzubera.callwarden.service.db.CallEntity
+import cz.dzubera.callwarden.service.db.PendingCallEntity
+import cz.dzubera.callwarden.model.Call
+import cz.dzubera.callwarden.model.CallHistory
+import cz.dzubera.callwarden.utils.PreferencesUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONArray
@@ -167,7 +174,7 @@ class BackgroundCallService() : Service() {
     private fun startForeground() {
         val channelId =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                createNotificationChannel("my_service", "My Background Service")
+                createNotificationChannel("my_service", "Callwarden")
             } else {
                 // If earlier version channel ID is not used
                 // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
@@ -176,8 +183,10 @@ class BackgroundCallService() : Service() {
 
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
         val notification = notificationBuilder.setOngoing(true)
-            .setSmallIcon(R.drawable.btn_dialog)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setColor(ContextCompat.getColor(this, R.color.primary))
             .setPriority(PRIORITY_MIN)
+            .setSubText("Evidence hovorů")
             .setCategory(Notification.CATEGORY_SERVICE)
             .build()
         startForeground(101, notification)
@@ -190,6 +199,7 @@ class BackgroundCallService() : Service() {
             channelName, NotificationManager.IMPORTANCE_NONE
         )
         chan.lightColor = Color.BLUE
+        chan.description = "Evidence hovorů"
         chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
         val service = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         service.createNotificationChannel(chan)

@@ -1,11 +1,9 @@
-package cz.dzubera.callwarden.activity
+package cz.dzubera.callwarden.ui.activity
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.telecom.TelecomManager
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -16,7 +14,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import cz.dzubera.callwarden.*
+import cz.dzubera.callwarden.model.Credentials
+import cz.dzubera.callwarden.service.HttpRequest
+import cz.dzubera.callwarden.service.HttpResponse
+import cz.dzubera.callwarden.service.ResponseStatus
 import cz.dzubera.callwarden.utils.Config
+import cz.dzubera.callwarden.utils.PreferencesUtils
 
 
 class LoginActivity : AppCompatActivity() {
@@ -30,6 +33,7 @@ class LoginActivity : AppCompatActivity() {
         Manifest.permission.CALL_PHONE,
         Manifest.permission.GET_ACCOUNTS,
         Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.POST_NOTIFICATIONS
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

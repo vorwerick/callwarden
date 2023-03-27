@@ -1,7 +1,7 @@
 package cz.dzubera.callwarden.storage
 
 import cz.dzubera.callwarden.App
-import cz.dzubera.callwarden.Call
+import cz.dzubera.callwarden.model.Call
 import java.util.*
 
 class CacheStorage {

@@ -1,10 +1,9 @@
-package cz.dzubera.callwarden
+package cz.dzubera.callwarden.service
 
+import cz.dzubera.callwarden.App
+import cz.dzubera.callwarden.storage.getProjectObject
 import cz.dzubera.callwarden.utils.Config
 import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
-import okio.ByteString.Companion.decodeBase64
 import org.json.JSONObject
 import java.io.IOException
 import java.net.URL

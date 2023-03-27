@@ -1,8 +1,9 @@
-package cz.dzubera.callwarden
+package cz.dzubera.callwarden.ui
 
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import cz.dzubera.callwarden.model.Call
 
 class DataSource(resources: Resources) {
 

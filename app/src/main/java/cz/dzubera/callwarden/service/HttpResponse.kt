@@ -1,4 +1,4 @@
-package cz.dzubera.callwarden
+package cz.dzubera.callwarden.service
 
 enum class ResponseStatus{
     SUCCESS, ERROR

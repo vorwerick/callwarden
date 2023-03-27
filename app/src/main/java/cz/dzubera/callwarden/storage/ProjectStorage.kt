@@ -1,4 +1,4 @@
-package cz.dzubera.callwarden
+package cz.dzubera.callwarden.storage
 
 import org.json.JSONObject
 

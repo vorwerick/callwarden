@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="cz.dzubera.callwarden">
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -16,6 +15,7 @@
     <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -28,7 +28,7 @@
 
         <meta-data android:name="io.sentry.dsn" android:value="https://45b054736dbf4d1a9c7e8b3903afaca2@o1174084.ingest.sentry.io/6269826" />
         <activity
-            android:name=".activity.LoginActivity"
+            android:name=".ui.activity.LoginActivity"
             android:noHistory="true"
             android:exported="true">
             <intent-filter>
@@ -40,15 +40,15 @@
         </activity>
         <activity
             android:enabled="true"
-            android:name=".activity.MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:exported="true" >
         </activity>
         <activity
-            android:name=".activity.AnalyticsActivity"
+            android:name=".ui.activity.AnalyticsActivity"
             android:exported="true" />
 
 
-        <service android:name=".BackgroundCallService" android:exported="false" android:enabled="true"/>
+        <service android:name=".service.BackgroundCallService" android:exported="false" android:enabled="true"/>
         <meta-data android:name="io.sentry.traces.sample-rate" android:value="1.0" />
 
         <receiver android:enabled="true" android:name=".service.BootUpReceiver"

@@ -1,4 +1,4 @@
-package cz.dzubera.callwarden
+package cz.dzubera.callwarden.utils
 
 object Iso2Phone {
     fun getPhone(code: String): String? {

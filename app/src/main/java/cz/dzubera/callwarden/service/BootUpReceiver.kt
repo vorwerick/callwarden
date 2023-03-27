@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import cz.dzubera.callwarden.BackgroundCallService
 
 
 class BootUpReceiver : BroadcastReceiver() {

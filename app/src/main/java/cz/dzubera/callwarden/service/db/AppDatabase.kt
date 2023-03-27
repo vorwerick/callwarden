@@ -1,4 +1,4 @@
-package cz.dzubera.callwarden.db
+package cz.dzubera.callwarden.service.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

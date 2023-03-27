@@ -1,4 +1,4 @@
-package cz.dzubera.callwarden
+package cz.dzubera.callwarden.ui
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -9,7 +9,9 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import cz.dzubera.callwarden.Call.Type.*
+import cz.dzubera.callwarden.R
+import cz.dzubera.callwarden.model.Call
+import cz.dzubera.callwarden.model.Call.Type.*
 import java.text.SimpleDateFormat
 
 class CallAdapter() :

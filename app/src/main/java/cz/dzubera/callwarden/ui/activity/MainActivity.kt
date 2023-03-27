@@ -1,4 +1,4 @@
-package cz.dzubera.callwarden.activity
+package cz.dzubera.callwarden.ui.activity
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
@@ -24,8 +24,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import cz.dzubera.callwarden.*
+import cz.dzubera.callwarden.model.Call
+import cz.dzubera.callwarden.service.BackgroundCallService
+import cz.dzubera.callwarden.service.HttpRequest
+import cz.dzubera.callwarden.service.uploadCall
+import cz.dzubera.callwarden.ui.CallAdapter
+import cz.dzubera.callwarden.ui.CallViewModel
+import cz.dzubera.callwarden.ui.CallViewModelFactory
 import cz.dzubera.callwarden.utils.Config
 import cz.dzubera.callwarden.utils.DateUtils
+import cz.dzubera.callwarden.utils.PreferencesUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

@@ -1,6 +1,6 @@
 package cz.dzubera.callwarden.storage
 
-import cz.dzubera.callwarden.Credentials
+import cz.dzubera.callwarden.model.Credentials
 
 class UserSettingsStorage {
 

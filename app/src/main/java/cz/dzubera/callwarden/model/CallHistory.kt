@@ -1,4 +1,4 @@
-package cz.dzubera.callwarden
+package cz.dzubera.callwarden.model
 
 import android.content.Context
 import android.provider.CallLog

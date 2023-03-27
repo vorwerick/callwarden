@@ -1,8 +1,9 @@
-package cz.dzubera.callwarden
+package cz.dzubera.callwarden.ui
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import cz.dzubera.callwarden.model.Call
 import java.util.*
 
 class CallViewModel(val dataSource: DataSource) : ViewModel() {
