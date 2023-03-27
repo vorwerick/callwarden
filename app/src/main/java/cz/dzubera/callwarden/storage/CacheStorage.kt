@@ -4,10 +4,7 @@ import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.model.Call
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.util.*
-import java.util.concurrent.locks.ReentrantReadWriteLock
 
 class CacheStorage {
 
@@ -15,16 +12,20 @@ class CacheStorage {
 
     private val callItems = mutableListOf<Call>()
 
+    private lateinit var lock: String
+    fun initialize() {
+        lock = String()
+    }
 
 
     fun addCallItem(call: Call) {
-        synchronized(callItems){
+        synchronized(lock){
             if (!callItems.any {
                     it.id == call.id
                 }) {
                 callItems.add(call)
             }
-            notifyObservers()
+            notifyObservers(callItems)
         }
     }
 
@@ -54,15 +55,14 @@ class CacheStorage {
     }
 
     fun loadFromDatabase() {
-        synchronized(callItems){
-            callItems.clear()
+        synchronized(lock){
             getFromDB{ calls ->
                 val newList = calls.filter { call: Call ->
                     App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted))
                 }.sortedByDescending { it.callStarted }
                 callItems.clear()
                 callItems.addAll(newList)
-                notifyObservers()
+                notifyObservers(newList.toList())
             }
         }
     }
@@ -83,22 +83,21 @@ class CacheStorage {
 
 
     fun editCallItem(call: Call) {
-       synchronized(callItems){
+       synchronized(lock){
            callItems.removeIf { call.id == it.id }
            if (!callItems.any {
                    it.id == call.id
                }) {
                callItems.add(call)
            }
-           notifyObservers()
+           notifyObservers(callItems)
        }
 
 
     }
 
-    private fun notifyObservers() {
-
-        synchronized(callItems){
+    private fun notifyObservers(callItems: List<Call>) {
+        synchronized(lock){
             val newList = callItems.filter { call: Call ->
                 App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted))
             }.sortedByDescending { it.callStarted }

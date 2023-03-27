@@ -53,6 +53,8 @@ class App : Application() {
         appDatabase = Room.databaseBuilder(this, AppDatabase::class.java, "call_warden")
             .addMigrations(MIGRATION_1_2).build()
 
+        App.cacheStorage.initialize()
+
     }
 }
 
