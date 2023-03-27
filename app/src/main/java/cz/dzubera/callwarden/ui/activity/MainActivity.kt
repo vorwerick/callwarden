@@ -27,6 +27,8 @@ import cz.dzubera.callwarden.*
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.service.BackgroundCallService
 import cz.dzubera.callwarden.service.HttpRequest
+import cz.dzubera.callwarden.service.db.CallEntity
+import cz.dzubera.callwarden.service.db.PendingCallEntity
 import cz.dzubera.callwarden.service.uploadCall
 import cz.dzubera.callwarden.ui.CallAdapter
 import cz.dzubera.callwarden.ui.CallViewModel
@@ -62,15 +64,15 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.change_project -> {
                 val creds = App.userSettingsStorage.credentials
-                if(creds != null){
+                if (creds != null) {
                     GlobalScope.launch {
-                        HttpRequest.getProjects(creds.domain, creds.user){
-                            if(it.code == 200){
+                        HttpRequest.getProjects(creds.domain, creds.user) {
+                            if (it.code == 200) {
                                 runOnUiThread { showProjectDialog(true) }
                             }
                         }
                     }
-                   return true
+                    return true
                 }
                 return false
 
@@ -79,7 +81,13 @@ class MainActivity : AppCompatActivity() {
                 showUserDialog()
                 true
             }
+            R.id.menu_settings -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                finish()
 
+                true
+            }
             R.id.analytics -> {
                 val intent = Intent(this, AnalyticsActivity::class.java)
                 startActivity(intent)
@@ -112,7 +120,10 @@ class MainActivity : AppCompatActivity() {
             println(p1.toString())
             App.projectStorage.setProject(App.projectStorage.projects[p1])
             PreferencesUtils.saveProjectId(this@MainActivity, App.projectStorage.getProject()!!.id)
-            PreferencesUtils.saveProjectName(this@MainActivity, App.projectStorage.getProject()!!.name)
+            PreferencesUtils.saveProjectName(
+                this@MainActivity,
+                App.projectStorage.getProject()!!.name
+            )
             supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
         }
         if (cancelable) {
@@ -120,6 +131,62 @@ class MainActivity : AppCompatActivity() {
                 "Zpět"
             ) { dialog, which -> dialog.dismiss() }
         }
+
+
+
+        builderSingle.show()
+    }
+
+    private fun showProjectEditDialog(callEntity: CallEntity) {
+
+        val builderSingle = AlertDialog.Builder(this)
+        builderSingle.setTitle("Změna projektu")
+        builderSingle.setCancelable(true)
+        val arrayAdapter =
+            ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
+        arrayAdapter.addAll(App.projectStorage.projects.map { it.name })
+        builderSingle.setAdapter(
+            arrayAdapter
+        ) { _, p1 ->
+            println(p1.toString())
+
+            val selectedProject = App.projectStorage.projects[p1]
+            callEntity.projectIdOld = String(callEntity.projectId!!.toByteArray())
+            callEntity.projectId = selectedProject.id
+            callEntity.projectName = selectedProject.name
+            App.cacheStorage.editCallItem(
+                Call(
+                    callEntity.uid,
+                    callEntity.userId!!,
+                    callEntity.domainId!!,
+                    callEntity.projectId ?: "-1",
+                    callEntity.projectName ?: "<none>",
+                    Call.Type.valueOf(callEntity.type!!),
+                    Call.Direction.valueOf(callEntity.direction!!),
+                    callEntity.phoneNumber!!,
+                    callEntity.callStarted!!,
+                    callEntity.callEnded!!,
+                    callEntity.callAccepted
+                )
+            )
+
+            GlobalScope.launch {
+                App.appDatabase.taskCalls().update(callEntity)
+                uploadCall(this@MainActivity, listOf(callEntity)) { success ->
+                    if(!success){
+                        val pendingEntity = PendingCallEntity(callEntity.callStarted)
+                        GlobalScope.launch {
+                            App.appDatabase.pendingCalls().insert(pendingEntity)
+                        }
+                    }
+                }
+
+            }
+
+        }
+        builderSingle.setNegativeButton(
+            "Zpět"
+        ) { dialog, which -> dialog.dismiss() }
 
 
 
@@ -174,6 +241,12 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
+        val firstStart = PreferencesUtils.loadFirstStart(this)
+        if (!firstStart) {
+            showAutoRestartDialog()
+            PreferencesUtils.saveFirstStart(this, true)
+        }
+
         supportActionBar?.title = "Záznamy hovorů";
         val telephonyManager: TelephonyManager =
             getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
@@ -184,10 +257,16 @@ class MainActivity : AppCompatActivity() {
 
         App.cacheStorage.registerObserver(::callObserver)
 
-        App.cacheStorage.notifyItems()
 
+        val callAdapter = CallAdapter {
+            GlobalScope.launch {
+                val item = App.appDatabase.taskCalls().get(it)
+                if (item != null) {
+                    runOnUiThread { showProjectEditDialog(item) }
+                }
+            }
 
-        val callAdapter = CallAdapter()
+        }
 
         val recyclerView: RecyclerView = findViewById(R.id.call_list)
 
@@ -202,7 +281,7 @@ class MainActivity : AppCompatActivity() {
 
         val emptyView: TextView = findViewById(R.id.call_list_empty_message)
 
-        callViewModel.callsLiveData.observe(this, {
+        callViewModel.callsLiveData.observe(this) {
             println(it.size)
             it?.let {
                 callAdapter.submitList(it)
@@ -212,10 +291,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 callAdapter.notifyDataSetChanged()
             }
-        })
+        }
 
 
-        App.cacheStorage.notifyItems()
 
         Intent(this, BackgroundCallService::class.java).also { intent ->
             startService(intent)
@@ -228,6 +306,22 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    private fun showAutoRestartDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Automatické spuštění")
+        builder.setMessage("Chcete nastavit automatické spuštění po zapnutí telefonu?")
+        builder.setPositiveButton("Ano") { dialog, which ->
+            PreferencesUtils.saveAutoRestartValue(this@MainActivity, true)
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("Ne") { dialog, which ->
+            PreferencesUtils.saveAutoRestartValue(this@MainActivity, false)
+            dialog.dismiss()
+        }
+        val dialog = builder.create()
+        dialog.show()
     }
 
     private fun checkPendingCallsForSend() {
@@ -256,14 +350,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         updateButtons()
 
-        GlobalScope.launch {
-            App.cacheStorage.loadFromDatabase()
-            App.cacheStorage.notifyItems()
-            /*  val items = App.transmissionService.getAndRemovePendingItems().forEach {
-                  print("CALL: " + it.callStarted)
-                  sendCallToInternet(it)
-              }*/
-        }
+        App.cacheStorage.loadFromDatabase()
 
         if (App.projectStorage.getProject() == null) {
             showProjectDialog(false)
@@ -334,14 +421,7 @@ class MainActivity : AppCompatActivity() {
         val buttonTo: Button = findViewById(R.id.buttonTo)
         buttonTo.text = SimpleDateFormat("d.M.yyyy").format(App.dateTo)
 
-        GlobalScope.launch {
-            App.cacheStorage.loadFromDatabase()
-            App.cacheStorage.notifyItems()
-            /*  val items = App.transmissionService.getAndRemovePendingItems().forEach {
-                  print("CALL: " + it.callStarted)
-                  sendCallToInternet(it)
-              }*/
-        }
+        App.cacheStorage.loadFromDatabase()
     }
 
 

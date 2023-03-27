@@ -10,6 +10,30 @@ object PreferencesUtils {
     const val USER_KEY = "USER"
     const val PROJECT_ID = "PROJECT"
     const val PROJECT_NAME = "PROJECT_NAME"
+    const val AUTORESTART = "AUTORESTART"
+    const val FIRST_START = "FIRST_START"
+
+    fun saveFirstStart(context: Context, value: Boolean) {
+        context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().putBoolean(
+            FIRST_START, value
+        ).apply()
+    }
+
+    fun loadFirstStart(context: Context): Boolean {
+        return context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+            .getBoolean(FIRST_START, false)
+    }
+    fun saveAutoRestartValue(context: Context, value: Boolean) {
+        context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().putBoolean(
+            AUTORESTART, value
+        ).apply()
+    }
+
+    fun loadAutoRestartValue(context: Context): Boolean {
+        return context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+            .getBoolean(AUTORESTART, false)
+    }
+
     fun saveProjectId(context: Context, id: String) {
         context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().putString(
             PROJECT_ID, id

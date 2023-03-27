@@ -6,6 +6,7 @@ class ProjectStorage {
     fun setProjects(newProjects: List<ProjectObject>) {
         projects.clear()
         projects.addAll(newProjects)
+        projects.add(0, ProjectObject("","<žádný>"))
     }
 
     fun setProject(po: ProjectObject){

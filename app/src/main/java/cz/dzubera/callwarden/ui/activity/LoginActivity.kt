@@ -106,10 +106,10 @@ class LoginActivity : AppCompatActivity() {
     // Show alert dialog to request permissions
     private fun showAlert() {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Need permission(s)")
-        builder.setMessage("Some permissions are required to do the task.")
-        builder.setPositiveButton("OK") { dialog, which -> requestPermissions() }
-        builder.setNeutralButton("Cancel", null)
+        builder.setTitle("Oprávnění")
+        builder.setMessage("Pro správné fungování aplikace je potřeba potvrdit některá oprávnění.")
+        builder.setPositiveButton("Další") { dialog, which -> requestPermissions() }
+        builder.setNeutralButton("Ukončit") { dialog, which -> finish() }
         val dialog = builder.create()
         dialog.show()
     }

@@ -3,21 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="#00FFFFFF">
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradient"
+
+    tools:context=".ui.activity.SettingsActivity">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
+
         android:elevation="16dp"
         app:cardCornerRadius="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:padding="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/secondary_light"
@@ -31,90 +34,66 @@
                 android:orientation="horizontal"
                 tools:ignore="MissingPrefix">
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/call_type"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:alpha="0.7"
-                    android:layout_margin="8dp"
-                    android:src="@drawable/ic_call_missed" />
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="0.8"
                     android:layout_height="wrap_content"
                     android:layout_margin="4dp"
+                    android:layout_gravity="center"
                     android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/call_project"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=""
-                        android:textColor="@color/black"
-                        android:textSize="14dp" />
 
                     <TextView
                         android:id="@+id/call_number"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="+420 731 465 931"
-                        android:textStyle="bold"
+                        android:text="Automatické spuštění"
                         android:textColor="@color/black"
-                        android:textSize="16dp" />
+                        android:textSize="18dp" />
 
                     <TextView
                         android:id="@+id/call_dir"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text=""
-                        android:textColor="@color/black"
+                        android:text="Aplikace je aktivní a eviduje hovory i po restartu telefonu"
+                        android:textColor="#aa000000"
                         android:textSize="14sp" />
 
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_weight="0.4"
+                    android:layout_weight="0.2"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end|center"
-                    android:layout_margin="2dp"
-
+                    android:layout_margin="8dp"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/call_date"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:text="11.2.2022"
-                        android:textColor="@color/black" />
-
-                    <TextView
-                        android:id="@+id/call_time"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-
-                        android:text="16:07:30"
-                        android:textColor="@color/black" />
+                   <androidx.appcompat.widget.SwitchCompat
+                       android:id="@+id/auto_restart_value"
+                       android:layout_width="match_parent"
+                       app:trackTint="#88000000"
+                       android:layout_height="wrap_content"/>
                 </LinearLayout>
 
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/edit_call"
-                    android:layout_width="48dp"
-
-                    android:layout_height="match_parent"
-                    android:layout_margin="0dp"
-                    android:backgroundTint="#00FFFFFF"
-                    android:src="@drawable/ic_edit" />
             </LinearLayout>
 
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/button_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:text="Zpět"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/primary_dark"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

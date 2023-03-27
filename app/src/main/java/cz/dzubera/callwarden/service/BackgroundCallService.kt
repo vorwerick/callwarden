@@ -214,7 +214,7 @@ class BackgroundCallService() : Service() {
             ServiceReceiver.ex!!.submit {
                 println("HOHO: " )
 
-                Thread.sleep(4500)
+                Thread.sleep(3500)
                 println("JOJO: " )
 
                 synchronized(ServiceReceiver.ex!!) {
@@ -290,6 +290,7 @@ class BackgroundCallService() : Service() {
                 call.userId,
                 call.domainId,
                 call.projectId,
+                "",
                 call.projectName,
                 call.type.name,
                 call.direction.name,
@@ -333,6 +334,7 @@ fun uploadCall(context: Context?, callEntities: List<CallEntity>, success: (Bool
 
             val recordItem = JSONObject()
             recordItem.put("projectId", callEntity.projectId)
+            recordItem.put("projectIdOld", callEntity.projectIdOld)
             recordItem.put("direction", Call.Direction.valueOf(callEntity.direction ?: "").ordinal)
             recordItem.put("number", callEntity.phoneNumber)
             recordItem.put("startTimestamp", callEntity.callStarted)
