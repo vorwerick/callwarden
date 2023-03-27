@@ -49,6 +49,8 @@ class MainActivity : AppCompatActivity() {
         CallViewModelFactory(this)
     }
 
+    var pendingRequests =0
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
@@ -124,7 +126,14 @@ class MainActivity : AppCompatActivity() {
                 this@MainActivity,
                 App.projectStorage.getProject()!!.name
             )
-            supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
+            val id =App.projectStorage.getProject()!!.id
+            if(id.isEmpty()){
+                supportActionBar!!.subtitle = "Všechny projekty"
+            } else {
+                supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
+
+            }
+            App.cacheStorage.loadFromDatabase {  }
         }
         if (cancelable) {
             builderSingle.setNegativeButton(
@@ -196,7 +205,7 @@ class MainActivity : AppCompatActivity() {
     private fun showAboutDialog() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setMessage("Vytvořil Aleš Džubera\n" + "Verze " + BuildConfig.VERSION_NAME)
+        builder.setMessage("RAMICALL " + BuildConfig.VERSION_NAME+"\n2023 RAMICORP s.r.o. \nVšechna práva vyhrazena")
             .setTitle("O aplikaci").setPositiveButton(
                 "Ok"
             ) { p0, p1 -> p0.dismiss() }
@@ -211,7 +220,7 @@ class MainActivity : AppCompatActivity() {
 
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setMessage("ID domény ${App.userSettingsStorage.credentials!!.domain}\nID uživatele ${App.userSettingsStorage.credentials!!.user}\nProjekt ${App.projectStorage.getProject()?.name ?: "<žádný>"}")
+        builder.setMessage("ID domény ${App.userSettingsStorage.credentials!!.domain}\nID uživatele ${App.userSettingsStorage.credentials!!.user}\nProjekt ${App.projectStorage.getProject()?.name ?: "<žádný>"}\nNeodeslaných požadavků: ${pendingRequests}")
             .setTitle("Uživatel").setPositiveButton(
                 "Ok"
             ) { p0, p1 -> p0.dismiss() }
@@ -221,7 +230,6 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val credentials = PreferencesUtils.loadCredentials(this)
@@ -237,6 +245,15 @@ class MainActivity : AppCompatActivity() {
             if (projectObject != null) {
                 App.projectStorage.setProject(projectObject)
             }
+            val id =App.projectStorage.getProject()!!.id
+            if(id.isEmpty()){
+                supportActionBar!!.subtitle = "Všechny projekty"
+            } else {
+                supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
+
+            }
+        } else {
+            showProjectDialog(false)
         }
 
         setContentView(R.layout.activity_main)
@@ -299,11 +316,8 @@ class MainActivity : AppCompatActivity() {
             startService(intent)
         }
 
-        if (App.projectStorage.getProject() != null) {
-            supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
-        } else {
-            supportActionBar!!.subtitle = "<žádný projekt>"
-        }
+
+
 
 
     }
@@ -329,6 +343,7 @@ class MainActivity : AppCompatActivity() {
 
         GlobalScope.launch {
             val pendingCalls = App.appDatabase.pendingCalls().getAll()
+            pendingRequests =pendingCalls.size
             if (pendingCalls.isEmpty()) {
                 return@launch
             }
@@ -422,86 +437,6 @@ class MainActivity : AppCompatActivity() {
         buttonTo.text = SimpleDateFormat("d.M.yyyy").format(App.dateTo)
 
         App.cacheStorage.loadFromDatabase()
-    }
-
-
-    @SuppressLint("Range")
-    private fun getContactList(): MutableList<Pair<String, String>> {
-        val mm: MutableList<Pair<String, String>> = mutableListOf()
-        val cr = contentResolver
-        val cur: Cursor? = cr.query(
-            ContactsContract.Contacts.CONTENT_URI,
-            null, null, null, null
-        )
-        if ((cur?.count ?: 0) > 0) {
-            while (cur != null && cur.moveToNext()) {
-                val id: String = cur.getString(
-                    cur.getColumnIndex(ContactsContract.Contacts._ID)
-                )
-                val name: String = cur.getString(
-                    cur.getColumnIndex(
-                        ContactsContract.Contacts.DISPLAY_NAME
-                    )
-                )
-                if (cur.getInt(
-                        cur.getColumnIndex(
-                            ContactsContract.Contacts.HAS_PHONE_NUMBER
-                        )
-                    ) > 0
-                ) {
-                    val pCur: Cursor? = cr.query(
-                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                        null,
-                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                        arrayOf(id),
-                        null
-                    )
-                    while (pCur?.moveToNext() == true) {
-                        val phoneNo: String = pCur.getString(
-                            pCur.getColumnIndex(
-                                ContactsContract.CommonDataKinds.Phone.NUMBER
-                            )
-                        )
-                        Log.i("XXX", "Name: $name")
-                        Log.i("XXX", "Phone Number: $phoneNo")
-                        mm.add(phoneNo to name)
-                    }
-
-
-                    pCur?.close()
-                }
-            }
-        }
-        cur?.close()
-        return mm
-    }
-
-    fun showContacts() {
-        val builderSingle = AlertDialog.Builder(this)
-        builderSingle.setTitle("Vyberte kontakt")
-
-        val x = getContactList()
-
-        val arrayAdapter =
-            ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice)
-        x.forEach {
-            arrayAdapter.add(it.second)
-        }
-
-        builderSingle.setNegativeButton(
-            "cancel"
-        ) { dialog, which -> dialog.dismiss() }
-
-        builderSingle.setAdapter(
-            arrayAdapter
-        ) { dialog, which ->
-            val strName = arrayAdapter.getItem(which)
-            val entry = x.first { it.second == strName }
-            val uri = "tel:${entry.first}".toUri()
-            startActivity(Intent(Intent.ACTION_CALL, uri))
-            dialog.dismiss()
-        }
-        builderSingle.show()
     }
 }
 

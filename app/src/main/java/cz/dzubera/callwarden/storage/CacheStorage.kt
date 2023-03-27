@@ -19,7 +19,7 @@ class CacheStorage {
 
 
     fun addCallItem(call: Call) {
-        synchronized(lock){
+        synchronized(lock) {
             if (!callItems.any {
                     it.id == call.id
                 }) {
@@ -29,7 +29,7 @@ class CacheStorage {
         }
     }
 
-    fun getFromDB(result: (List<Call>) -> Unit){
+    fun getFromDB(result: (List<Call>) -> Unit) {
         val calls = mutableListOf<Call>()
         GlobalScope.launch {
 
@@ -54,14 +54,15 @@ class CacheStorage {
         }
     }
 
-    fun loadFromDatabase() {
-        synchronized(lock){
-            getFromDB{ calls ->
+    fun loadFromDatabase(result: ((List<Call>) -> Unit)? = null) {
+        synchronized(lock) {
+            getFromDB { calls ->
                 val newList = calls.filter { call: Call ->
-                    App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted))
+                    App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted)) && (App.projectStorage.getProject()!!.id == call.projectId || (App.projectStorage.getProject()!!.id.isEmpty() && !call.projectId.isEmpty()))
                 }.sortedByDescending { it.callStarted }
                 callItems.clear()
                 callItems.addAll(newList)
+                result?.invoke(newList)
                 notifyObservers(newList.toList())
             }
         }
@@ -81,7 +82,6 @@ class CacheStorage {
     }
 
 
-
     fun editCallItem(call: Call) {
        synchronized(lock){
            callItems.removeIf { call.id == it.id }
@@ -97,9 +97,9 @@ class CacheStorage {
     }
 
     private fun notifyObservers(callItems: List<Call>) {
-        synchronized(lock){
+        synchronized(lock) {
             val newList = callItems.filter { call: Call ->
-                App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted))
+                App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted)) && (App.projectStorage.getProject()!!.id == call.projectId || (App.projectStorage.getProject()!!.id.isEmpty() && !call.projectId.isEmpty()))
             }.sortedByDescending { it.callStarted }
             observers.forEach { it.invoke(newList) }
         }
