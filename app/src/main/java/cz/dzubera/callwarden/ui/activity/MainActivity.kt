@@ -1,15 +1,11 @@
 package cz.dzubera.callwarden.ui.activity
 
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.os.Build
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.telephony.TelephonyManager
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -18,12 +14,12 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
-import cz.dzubera.callwarden.*
+import cz.dzubera.callwarden.App
+import cz.dzubera.callwarden.BuildConfig
+import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.service.BackgroundCallService
 import cz.dzubera.callwarden.service.HttpRequest
@@ -49,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         CallViewModelFactory(this)
     }
 
-    var pendingRequests =0
+    var pendingRequests = 0
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -126,23 +122,20 @@ class MainActivity : AppCompatActivity() {
                 this@MainActivity,
                 App.projectStorage.getProject()!!.name
             )
-            val id =App.projectStorage.getProject()!!.id
-            if(id.isEmpty()){
-                supportActionBar!!.subtitle = "Všechny projekty"
+            val id = App.projectStorage.getProject()!!.id
+            if (id.isEmpty()) {
+                supportActionBar!!.subtitle = "<žádný>"
             } else {
                 supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
 
             }
-            App.cacheStorage.loadFromDatabase {  }
+
         }
         if (cancelable) {
             builderSingle.setNegativeButton(
                 "Zpět"
             ) { dialog, which -> dialog.dismiss() }
         }
-
-
-
         builderSingle.show()
     }
 
@@ -182,7 +175,7 @@ class MainActivity : AppCompatActivity() {
             GlobalScope.launch {
                 App.appDatabase.taskCalls().update(callEntity)
                 uploadCall(this@MainActivity, listOf(callEntity)) { success ->
-                    if(!success){
+                    if (!success) {
                         val pendingEntity = PendingCallEntity(callEntity.callStarted)
                         GlobalScope.launch {
                             App.appDatabase.pendingCalls().insert(pendingEntity)
@@ -205,7 +198,7 @@ class MainActivity : AppCompatActivity() {
     private fun showAboutDialog() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setMessage("RAMICALL " + BuildConfig.VERSION_NAME+"\n2023 RAMICORP s.r.o. \nVšechna práva vyhrazena")
+        builder.setMessage("RAMICALL " + BuildConfig.VERSION_NAME + "\n2023 RAMICORP s.r.o. \nVšechna práva vyhrazena")
             .setTitle("O aplikaci").setPositiveButton(
                 "Ok"
             ) { p0, p1 -> p0.dismiss() }
@@ -245,15 +238,13 @@ class MainActivity : AppCompatActivity() {
             if (projectObject != null) {
                 App.projectStorage.setProject(projectObject)
             }
-            val id =App.projectStorage.getProject()!!.id
-            if(id.isEmpty()){
-                supportActionBar!!.subtitle = "Všechny projekty"
+            val id = App.projectStorage.getProject()!!.id
+            if (id.isEmpty()) {
+                supportActionBar!!.subtitle = "<žádný>"
             } else {
                 supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
 
             }
-        } else {
-            showProjectDialog(false)
         }
 
         setContentView(R.layout.activity_main)
@@ -291,8 +282,13 @@ class MainActivity : AppCompatActivity() {
         buttonFrom.setOnClickListener { showDateFromPicker() }
         val buttonTo: Button = findViewById(R.id.buttonTo)
         buttonTo.setOnClickListener { showDateToPicker() }
-
-
+        val buttonProject: Button = findViewById(R.id.buttonProject)
+        buttonProject.setOnClickListener { selectProjectFilter() }
+        if (App.projectFilter == null) {
+            buttonProject.text = "Všechny projekty"
+        } else {
+            buttonProject.text = App.projectFilter!!.name
+        }
 
         recyclerView.adapter = callAdapter
 
@@ -317,9 +313,42 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+    }
 
+    private fun selectProjectFilter() {
+        val builderSingle = AlertDialog.Builder(this)
+        builderSingle.setTitle("Vybrat filtr")
+        builderSingle.setCancelable(true)
+        val arrayAdapter =
+            ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
+        arrayAdapter.addAll(App.projectStorage.projects.map {
+            if (it.id == "") {
+                "Všechny projekty"
+            } else {
+                it.name
 
+            }
+        })
+        builderSingle.setAdapter(
+            arrayAdapter
+        ) { _, p1 ->
+            println(p1.toString())
+            val p = App.projectStorage.projects[p1]
+            val buttonProject: Button = findViewById(R.id.buttonProject)
+            if (p.id == "") {
+                App.projectFilter = null
+                buttonProject.text = "Všechny projekty"
+            } else {
+                App.projectFilter = p
+                buttonProject.text = App.projectFilter!!.name
+            }
 
+            App.cacheStorage.loadFromDatabase { }
+        }
+        builderSingle.setNegativeButton(
+            "Zpět"
+        ) { dialog, which -> dialog.dismiss() }
+        builderSingle.show()
     }
 
     private fun showAutoRestartDialog() {
@@ -343,7 +372,7 @@ class MainActivity : AppCompatActivity() {
 
         GlobalScope.launch {
             val pendingCalls = App.appDatabase.pendingCalls().getAll()
-            pendingRequests =pendingCalls.size
+            pendingRequests = pendingCalls.size
             if (pendingCalls.isEmpty()) {
                 return@launch
             }
@@ -364,7 +393,13 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateButtons()
-
+        val buttonProject: Button = findViewById(R.id.buttonProject)
+        buttonProject.setOnClickListener { selectProjectFilter() }
+        if (App.projectFilter == null) {
+            buttonProject.text = "Všechny projekty"
+        } else {
+            buttonProject.text = App.projectFilter!!.name
+        }
         App.cacheStorage.loadFromDatabase()
 
         if (App.projectStorage.getProject() == null) {
@@ -435,7 +470,8 @@ class MainActivity : AppCompatActivity() {
         buttonFrom.text = SimpleDateFormat("d.M.yyyy").format(App.dateFrom)
         val buttonTo: Button = findViewById(R.id.buttonTo)
         buttonTo.text = SimpleDateFormat("d.M.yyyy").format(App.dateTo)
-
+        val buttonProjects = findViewById<Button>(R.id.buttonProject)
+        buttonProjects.text = App.projectStorage.getProject()?.name ?: "Všechny"
         App.cacheStorage.loadFromDatabase()
     }
 }

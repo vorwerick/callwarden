@@ -58,7 +58,7 @@ class CacheStorage {
         synchronized(lock) {
             getFromDB { calls ->
                 val newList = calls.filter { call: Call ->
-                    App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted)) && (App.projectStorage.getProject()!!.id == call.projectId || (App.projectStorage.getProject()!!.id.isEmpty() && !call.projectId.isEmpty()))
+                    App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted)) && (App.projectFilter?.id == call.projectId || (App.projectFilter == null && !call.projectId.isEmpty()))
                 }.sortedByDescending { it.callStarted }
                 callItems.clear()
                 callItems.addAll(newList)
@@ -83,15 +83,15 @@ class CacheStorage {
 
 
     fun editCallItem(call: Call) {
-       synchronized(lock){
-           callItems.removeIf { call.id == it.id }
-           if (!callItems.any {
-                   it.id == call.id
-               }) {
-               callItems.add(call)
-           }
-           notifyObservers(callItems)
-       }
+        synchronized(lock) {
+            callItems.removeIf { call.id == it.id }
+            if (!callItems.any {
+                    it.id == call.id
+                }) {
+                callItems.add(call)
+            }
+            notifyObservers(callItems)
+        }
 
 
     }
@@ -99,7 +99,7 @@ class CacheStorage {
     private fun notifyObservers(callItems: List<Call>) {
         synchronized(lock) {
             val newList = callItems.filter { call: Call ->
-                App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted)) && (App.projectStorage.getProject()!!.id == call.projectId || (App.projectStorage.getProject()!!.id.isEmpty() && !call.projectId.isEmpty()))
+                App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted)) && (App.projectFilter?.id == call.projectId || (App.projectFilter == null && !call.projectId.isEmpty()))
             }.sortedByDescending { it.callStarted }
             observers.forEach { it.invoke(newList) }
         }

@@ -21,7 +21,7 @@
         android:allowBackup="true"
         android:name=".App"
         android:icon="@mipmap/ic_launcher"
-        android:label="RAMITEL"
+        android:label="RAMICALL"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">

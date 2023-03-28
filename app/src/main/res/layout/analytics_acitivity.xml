@@ -23,6 +23,13 @@
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:textSize="18sp" />
+        <TextView
+            android:id="@+id/analytics_project"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
 
         <View
             android:layout_marginVertical="16dp"

@@ -17,13 +17,7 @@ class AnalyticsActivity : AppCompatActivity() {
         setContentView(R.layout.analytics_acitivity)
 
         supportActionBar?.title = "Analytiky";
-        val id =App.projectStorage.getProject()!!.id
-        if(id.isEmpty()){
-            supportActionBar!!.subtitle = "Všechny projekty"
-        } else {
-            supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
 
-        }
 
         val analytics1 = findViewById<TextView>(R.id.analytics_text_1)
         val analytics2 = findViewById<TextView>(R.id.analytics_text_2)
@@ -34,7 +28,12 @@ class AnalyticsActivity : AppCompatActivity() {
         val analyticsSum2 = findViewById<TextView>(R.id.analytics_text_sum2)
 
         val analyticsDate = findViewById<TextView>(R.id.analytics_date)
-
+        val analyticsProject = findViewById<TextView>(R.id.analytics_project)
+        if ( App.projectFilter == null) {
+            analyticsProject.text =  "Všechny projekty"
+        } else {
+            analyticsProject.text =   App.projectFilter!!.name
+        }
 
 
         App.cacheStorage.loadFromDatabase {

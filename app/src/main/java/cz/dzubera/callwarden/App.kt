@@ -8,6 +8,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import cz.dzubera.callwarden.service.db.AppDatabase
 import cz.dzubera.callwarden.storage.CacheStorage
+import cz.dzubera.callwarden.storage.ProjectObject
 import cz.dzubera.callwarden.storage.ProjectStorage
 import cz.dzubera.callwarden.storage.UserSettingsStorage
 import cz.dzubera.callwarden.utils.DateUtils
@@ -17,6 +18,7 @@ import java.util.*
 class App : Application() {
 
     companion object {
+
         val cacheStorage: CacheStorage by lazy { CacheStorage() }
         val projectStorage: ProjectStorage by lazy { ProjectStorage() }
         val userSettingsStorage: UserSettingsStorage by lazy { UserSettingsStorage() }
@@ -33,6 +35,7 @@ class App : Application() {
             Date()
         }
 
+        var projectFilter: ProjectObject? = null
 
         fun toDate(calendar: Calendar): Date {
             return calendar.time
