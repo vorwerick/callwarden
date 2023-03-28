@@ -66,13 +66,13 @@
                 android:layout_height="match_parent"
                 android:layout_margin="8dp"
                 android:gravity="center"
-                android:text="Projekt"
+                android:text="Filtr projektu"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
 
             <Button
                 android:id="@+id/buttonProject"
-                android:layout_width="150dp"
+                android:layout_width="200dp"
                 android:layout_height="38dp"
                 android:text=""
                 android:textAllCaps="false"
