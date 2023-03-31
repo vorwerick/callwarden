@@ -22,7 +22,8 @@ class CallAdapter(private val onItemClick: (Long) -> Unit) :
      * Provide a reference to the type of views that you are using
      * (custom ViewHolder).
      */
-    class ViewHolder(view: View, private val onItemClick: (Long) -> Unit) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(view: View, private val onItemClick: (Long) -> Unit) :
+        RecyclerView.ViewHolder(view) {
         private val imageViewCallType: AppCompatImageView = view.findViewById(R.id.call_type)
         private val textViewPhoneNumber: TextView = view.findViewById(R.id.call_number)
         private val textViewCallProject: TextView = view.findViewById(R.id.call_project)
@@ -34,7 +35,7 @@ class CallAdapter(private val onItemClick: (Long) -> Unit) :
 
         @SuppressLint("SimpleDateFormat")
         fun bind(call: Call) {
-            if(call.phoneNumber.isNotEmpty()){
+            if (call.phoneNumber.isNotEmpty()) {
                 textViewPhoneNumber.text = call.phoneNumber
             } else {
                 textViewPhoneNumber.text = "neznámé číslo"
@@ -47,17 +48,26 @@ class CallAdapter(private val onItemClick: (Long) -> Unit) :
             textViewCallProject.text = call.projectName
             textViewCallDate.text = SimpleDateFormat("dd.MM.yyyy").format(call.callStarted)
             textViewCallTime.text = SimpleDateFormat("HH:mm:ss").format(call.callStarted)
-            val imageIcon = when (call.type) {
-                MISSED -> R.drawable.ic_call_missed
-                CALLBACK -> R.drawable.ic_call_back
-                DIALED -> R.drawable.ic_outgoing_missed
-                ACCEPTED -> R.drawable.ic_incoming_connected
-            }
-            textViewCallInfo.text = when(call.type){
-                MISSED -> "příchozí - nepřijatý"
-                ACCEPTED -> "příchozí - přijatý"
-                CALLBACK -> "odchozí - přijatý"
-                DIALED -> "odchozí - nepřijatý"
+
+            var imageIcon = R.drawable.ic_call_missed
+            if (call.direction == Call.Direction.INCOMING) {
+                if (call.dur <= 0) {
+                    imageIcon = R.drawable.ic_call_missed
+                    textViewCallInfo.text = "příchozí - nepřijatý"
+                } else {
+                    imageIcon = R.drawable.ic_incoming_connected
+                    textViewCallInfo.text = "příchozí - přijatý"
+
+                }
+            } else {
+                if (call.dur <= 0) {
+                    imageIcon = R.drawable.ic_outgoing_missed
+                    textViewCallInfo.text = "odchozí - nepřijatý"
+                } else {
+                    imageIcon = R.drawable.ic_call_back
+                    textViewCallInfo.text = "odchozí - přijatý"
+
+                }
             }
             imageViewCallType.setImageResource(imageIcon)
         }
@@ -69,13 +79,13 @@ class CallAdapter(private val onItemClick: (Long) -> Unit) :
         val view = LayoutInflater.from(viewGroup.context)
             .inflate(R.layout.list_item_call, viewGroup, false)
 
-        return ViewHolder(view,onItemClick)
+        return ViewHolder(view, onItemClick)
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val call = getItem(position)
-        if(call != null){
+        if (call != null) {
             viewHolder.bind(call)
 
         }
