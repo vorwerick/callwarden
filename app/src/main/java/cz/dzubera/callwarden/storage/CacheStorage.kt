@@ -41,7 +41,7 @@ class CacheStorage {
                         it.domainId!!,
                         it.projectId ?: "-1",
                         it.projectName ?: "<none>",
-                        Call.Type.valueOf(it.type!!),
+                        it.callDuration ?: -1,
                         Call.Direction.valueOf(it.direction!!),
                         it.phoneNumber!!,
                         it.callStarted!!,
@@ -55,8 +55,8 @@ class CacheStorage {
     }
 
     fun loadFromDatabase(result: ((List<Call>) -> Unit)? = null) {
-        synchronized(lock) {
-            getFromDB { calls ->
+        getFromDB { calls ->
+            synchronized(lock) {
                 val newList = calls.filter { call: Call ->
                     App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted)) && (App.projectFilter?.id == call.projectId || (App.projectFilter == null && !call.projectId.isEmpty()))
                 }.sortedByDescending { it.callStarted }
@@ -66,6 +66,7 @@ class CacheStorage {
                 notifyObservers(newList.toList())
             }
         }
+
     }
 
     fun getCallItems(): MutableList<Call> {

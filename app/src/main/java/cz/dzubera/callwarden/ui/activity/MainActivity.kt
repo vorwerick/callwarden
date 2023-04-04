@@ -163,7 +163,7 @@ class MainActivity : AppCompatActivity() {
                     callEntity.domainId!!,
                     callEntity.projectId ?: "-1",
                     callEntity.projectName ?: "<none>",
-                    Call.Type.valueOf(callEntity.type!!),
+                    callEntity.callDuration!!,
                     Call.Direction.valueOf(callEntity.direction!!),
                     callEntity.phoneNumber!!,
                     callEntity.callStarted!!,
@@ -238,8 +238,8 @@ class MainActivity : AppCompatActivity() {
             if (projectObject != null) {
                 App.projectStorage.setProject(projectObject)
             }
-            val id = App.projectStorage.getProject()!!.id
-            if (id.isEmpty()) {
+            val id = App.projectStorage.getProject()?.id
+            if (id.isNullOrEmpty()) {
                 supportActionBar!!.subtitle = "<žádný>"
             } else {
                 supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name

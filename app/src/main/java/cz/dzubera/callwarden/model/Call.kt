@@ -6,22 +6,21 @@ data class Call(
     val domainId: String,
     val projectId: String,
     val projectName: String,
-    var type: Type,
+    val duration: Int,
     val direction: Direction,
-    var phoneNumber: String,
+    val phoneNumber: String,
     val callStarted: Long,
     val callEnded: Long,
     val callAccepted: Long?
-){
-
-    var dur: Int = -1
+) {
 
     enum class Direction {
         INCOMING, OUTGOING
     }
 
-    enum class Type {
-        MISSED, ACCEPTED, CALLBACK, DIALED
+    override fun toString(): String {
+        return StringBuilder().append("record: ").append(phoneNumber).append(" duration: ")
+            .append(duration.toString()).append(" dir: ").append(direction.name).toString()
     }
 }
 

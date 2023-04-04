@@ -1,16 +1,21 @@
 package cz.dzubera.callwarden
 
+import android.app.AlarmManager
 import android.app.Application
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import cz.dzubera.callwarden.service.BackgroundCallService
 import cz.dzubera.callwarden.service.db.AppDatabase
 import cz.dzubera.callwarden.storage.CacheStorage
 import cz.dzubera.callwarden.storage.ProjectObject
 import cz.dzubera.callwarden.storage.ProjectStorage
 import cz.dzubera.callwarden.storage.UserSettingsStorage
+import cz.dzubera.callwarden.ui.activity.MainActivity
 import cz.dzubera.callwarden.utils.DateUtils
 import java.util.*
 
@@ -57,6 +62,8 @@ class App : Application() {
             .addMigrations(MIGRATION_1_2).build()
 
         App.cacheStorage.initialize()
+
+
 
     }
 }

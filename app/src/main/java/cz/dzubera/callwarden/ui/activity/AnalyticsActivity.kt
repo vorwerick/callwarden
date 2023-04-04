@@ -18,7 +18,6 @@ class AnalyticsActivity : AppCompatActivity() {
 
         supportActionBar?.title = "Analytiky";
 
-
         val analytics1 = findViewById<TextView>(R.id.analytics_text_1)
         val analytics2 = findViewById<TextView>(R.id.analytics_text_2)
         val analytics3 = findViewById<TextView>(R.id.analytics_text_3)
@@ -45,16 +44,16 @@ class AnalyticsActivity : AppCompatActivity() {
 
                 it.forEach { call ->
                     if (call.direction == Call.Direction.INCOMING) {
-                        if (call.dur > 0) {
-                            accepted++
-                        } else {
+                        if (call.duration <= 0) {
                             declined++
-                        }
-                    } else if (call.direction == Call.Direction.OUTGOING) {
-                        if (call.dur > 0) {
-                            called++
                         } else {
-                            dialing++
+                            accepted++
+                        }
+                    } else {
+                        if (call.duration <= 0) {
+                           dialing++
+                        } else {
+                            called++
                         }
                     }
                 }

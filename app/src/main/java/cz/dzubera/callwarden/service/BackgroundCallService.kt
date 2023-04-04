@@ -1,10 +1,7 @@
 package cz.dzubera.callwarden.service
 
 import android.annotation.SuppressLint
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -25,6 +22,7 @@ import cz.dzubera.callwarden.service.db.CallEntity
 import cz.dzubera.callwarden.service.db.PendingCallEntity
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.model.CallHistory
+import cz.dzubera.callwarden.ui.activity.MainActivity
 import cz.dzubera.callwarden.utils.PreferencesUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -78,9 +76,6 @@ class BackgroundCallService() : Service() {
 
     @SuppressLint("MissingPermission")
     fun resolveCall(state: Int, phoneNumber: String?) {
-        if (phoneNumber != null) {
-            ServiceReceiver.currentCall?.phoneNumber = phoneNumber
-        }
 
         val telecomManager = getSystemService(TELECOM_SERVICE) as TelecomManager
         Log.d("is In call", telecomManager.isInCall.toString())
@@ -89,13 +84,7 @@ class BackgroundCallService() : Service() {
         if (state == TelephonyManager.CALL_STATE_IDLE) {
             ServiceReceiver.currentCall?.isEnded = true
             ServiceReceiver.currentCall?.callEnded = System.currentTimeMillis()
-            if (ServiceReceiver.currentCall?.callAccepted != null && ServiceReceiver.currentCall?.direction == Call.Direction.INCOMING) {
-                ServiceReceiver.currentCall?.callType == Call.Type.ACCEPTED
-            }
 
-            if (ServiceReceiver.currentCall?.callAccepted == null && ServiceReceiver.currentCall?.direction == Call.Direction.INCOMING) {
-                ServiceReceiver.currentCall?.callType == Call.Type.MISSED
-            }
             recordCall(ServiceReceiver.currentCall, this)
             ServiceReceiver.currentCall = null
         }
@@ -104,7 +93,6 @@ class BackgroundCallService() : Service() {
             if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
                 ServiceReceiver.currentCall =
                     ServiceReceiver.CurrentCall(Call.Direction.OUTGOING)
-                ServiceReceiver.currentCall!!.callType = Call.Type.CALLBACK
                 ServiceReceiver.currentCall!!.callStarted = System.currentTimeMillis()
 
             }
@@ -117,7 +105,6 @@ class BackgroundCallService() : Service() {
             }
         } else {
             if (state == TelephonyManager.CALL_STATE_OFFHOOK && ServiceReceiver.currentCall!!.direction == Call.Direction.INCOMING) {
-                ServiceReceiver.currentCall!!.callType = Call.Type.ACCEPTED
                 ServiceReceiver.currentCall!!.callAccepted = System.currentTimeMillis()
             }
         }
@@ -127,6 +114,18 @@ class BackgroundCallService() : Service() {
     override fun onCreate() {
         super.onCreate()
         Log.d("RURURU", "CREATED")
+
+        val defaultHandler: Thread.UncaughtExceptionHandler? = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { p0, p1 ->
+            val i = Intent(baseContext, BackgroundCallService::class.java)
+            val pending = PendingIntent.getActivity(
+                applicationContext, 0,
+                i, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val mgr = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            mgr[AlarmManager.RTC, System.currentTimeMillis() + 5000] = pending
+            defaultHandler?.uncaughtException(p0, p1)
+        }
 
         val telephonyManager: TelephonyManager =
             getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
@@ -145,27 +144,19 @@ class BackgroundCallService() : Service() {
         } else {
             telephonyManager.listen(psl, PhoneStateListener.LISTEN_CALL_STATE)
         }
-
-
     }
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-
         Log.d("RURURU", "START COMMAND")
-
         startForeground()
-
         return START_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d("RURURU", "DESTROYED")
-
     }
-
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
@@ -207,53 +198,33 @@ class BackgroundCallService() : Service() {
     }
 
     private fun recordCall(currentCall: ServiceReceiver.CurrentCall?, context: Context) {
-        println("HAJDOS: " + currentCall.toString())
         if (currentCall != null) {
-            println("XX: " )
-
             ServiceReceiver.ex!!.submit {
-                println("HOHO: " )
-
                 Thread.sleep(3500)
-                println("JOJO: " )
-
                 synchronized(ServiceReceiver.ex!!) {
-                    println("KAKA: " )
-
                     val history = CallHistory.getCallLogs(context)
-                    println("CUCUC: " )
+                    val duration = history.callDuration?.toIntOrNull() ?: -1
+                    val number = history.phoneNumber ?: ""
 
                     val credentails = PreferencesUtils.loadCredentials(context)
                     val projectId = PreferencesUtils.loadProjectId(context)
-                    val projectName =  PreferencesUtils.loadProjectName(context)
+                    val projectName = PreferencesUtils.loadProjectName(context)
+
                     val call = Call(
                         currentCall.callStarted,
-                       credentails?.user.toString() ?: "",
+                        credentails?.user.toString() ?: "",
                         credentails?.domain ?: "",
                         projectId ?: "-1",
                         projectName ?: "<none>",
-                        currentCall.callType,
+                        duration,
                         currentCall.direction,
-                        currentCall.phoneNumber,
+                        number,
                         currentCall.callStarted,
                         currentCall.callEnded,
                         currentCall.callAccepted
                     )
 
 
-
-
-                    val durationX= history.callDuration?.toIntOrNull()?: -1
-                    if (durationX <= 0) {
-                        call.type = Call.Type.DIALED
-                    }
-                    call.dur =durationX
-                    println("CALL DURATION:" + call.dur.toString())
-                    if(!history.phoneNumber.isNullOrEmpty()){
-                        call.phoneNumber = history.phoneNumber
-                    }
-                    println("XAVIER: " + call.phoneNumber)
-                    println("IRA: " )
                     App.cacheStorage.addCallItem(call)
                     saveToAnalyticsTryToUpload(call, context)
                 }
@@ -263,27 +234,8 @@ class BackgroundCallService() : Service() {
 
     private fun saveToAnalyticsTryToUpload(call: Call, context: Context?) {
         context?.let {
-            var accepted =
-                it.getSharedPreferences("XXX", Context.MODE_PRIVATE).getInt("acceptedCount", 0)
-            var declined =
-                it.getSharedPreferences("XXX", Context.MODE_PRIVATE).getInt("declinedCount", 0)
-            var called =
-                it.getSharedPreferences("XXX", Context.MODE_PRIVATE).getInt("calledCount", 0)
-            var dialed =
-                it.getSharedPreferences("XXX", Context.MODE_PRIVATE).getInt("dialedCount", 0)
 
-            when (call.type) {
-                Call.Type.ACCEPTED -> accepted += 1
-                Call.Type.MISSED -> declined += 1
-                Call.Type.CALLBACK -> called += 1
-                Call.Type.DIALED -> dialed += 1
-            }
 
-            it.getSharedPreferences("XXX", Context.MODE_PRIVATE).edit()
-                .putInt("acceptedCount", accepted)
-                .putInt("declinedCount", declined)
-                .putInt("dialedCount", dialed)
-                .putInt("calledCount", called).apply()
 
             val entity = CallEntity(
                 call.callStarted,
@@ -292,13 +244,13 @@ class BackgroundCallService() : Service() {
                 call.projectId,
                 "",
                 call.projectName,
-                call.type.name,
+                null,
                 call.direction.name,
                 call.phoneNumber,
                 call.callStarted,
                 call.callEnded,
                 call.callAccepted,
-                call.dur,
+                call.duration,
             )
 
             GlobalScope.launch {
@@ -306,7 +258,7 @@ class BackgroundCallService() : Service() {
             }
 
             uploadCall(context, listOf(entity)) { success ->
-                if(!success){
+                if (!success) {
                     val pendingEntity = PendingCallEntity(entity.callStarted!!)
                     GlobalScope.launch {
                         App.appDatabase.pendingCalls().insert(pendingEntity)

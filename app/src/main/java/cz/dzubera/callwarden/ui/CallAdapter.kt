@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.model.Call
-import cz.dzubera.callwarden.model.Call.Type.*
 import java.text.SimpleDateFormat
 
 class CallAdapter(private val onItemClick: (Long) -> Unit) :
@@ -51,7 +50,7 @@ class CallAdapter(private val onItemClick: (Long) -> Unit) :
 
             var imageIcon = R.drawable.ic_call_missed
             if (call.direction == Call.Direction.INCOMING) {
-                if (call.dur <= 0) {
+                if (call.duration <= 0) {
                     imageIcon = R.drawable.ic_call_missed
                     textViewCallInfo.text = "příchozí - nepřijatý"
                 } else {
@@ -60,7 +59,7 @@ class CallAdapter(private val onItemClick: (Long) -> Unit) :
 
                 }
             } else {
-                if (call.dur <= 0) {
+                if (call.duration <= 0) {
                     imageIcon = R.drawable.ic_outgoing_missed
                     textViewCallInfo.text = "odchozí - nepřijatý"
                 } else {
