@@ -1,6 +1,7 @@
 package cz.dzubera.callwarden.ui.activity
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -25,6 +26,7 @@ import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.HttpResponse
 import cz.dzubera.callwarden.service.ResponseStatus
 import cz.dzubera.callwarden.utils.Config
+import cz.dzubera.callwarden.utils.PowerSaveUtils
 import cz.dzubera.callwarden.utils.PreferencesUtils
 
 
@@ -62,21 +64,8 @@ class LoginActivity : AppCompatActivity() {
 
         setContentView(R.layout.login_activity)
         supportActionBar?.title = "Příhlášení";
+
         checkPermissions()
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val manager = this.getSystemService(Context.POWER_SERVICE) as PowerManager
-            val isIgnoringOptimizations = manager.isIgnoringBatteryOptimizations(packageName)
-            if (!isIgnoringOptimizations) {
-                startActivity(
-                    Intent(
-                        Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                        Uri.parse("package:$packageName")
-                    )
-                )
-            }
-        }
 
         if (credentials != null) {
             findViewById<EditText>(R.id.domain_id).setText(credentials.domain)

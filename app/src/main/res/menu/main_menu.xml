@@ -16,6 +16,9 @@
         android:id="@+id/menu_user"
         android:title="Uživatel" />
     <item
+        android:id="@+id/menu_settings"
+        android:title="Nastavení" />
+    <item
         android:id="@+id/menu_about"
         android:title="O aplikaci" />
     <group android:enabled="true">

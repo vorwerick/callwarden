@@ -36,9 +36,10 @@ class PhoneStateReceiver : BroadcastReceiver() {
 
         Log.d(tag, "Phone state received: $extraState, phone number $extraPhoneNumber")
 
-        if (phoneIntent == intent?.action && isExtraStateValid(extraState) && extraPhoneNumber == null) {
-            // to no start service twice
-            if (!isServiceRunning(context)) {
+        // to no start service twice
+        if (!isServiceRunning(context)) {
+            if (phoneIntent == intent?.action && isExtraStateValid(extraState) && extraPhoneNumber == null) {
+
                 Log.d(tag, "Conditions for staring service ale valid")
 
                 val i = Intent(context, BackgroundCallService::class.java)
@@ -47,11 +48,17 @@ class PhoneStateReceiver : BroadcastReceiver() {
                 } else {
                     context.startService(i)
                 }
+
             } else {
-                Log.d(tag, "Service is already running")
+                Log.d(tag, "Invalid conditions for starting service")
+
             }
-        }else{
-            Log.d(tag, "Invalid conditions for starting service")
+        } else {
+            Log.d(tag, "Service is already running")
+            if(phoneIntent == intent?.action && extraState.equals(TelephonyManager.EXTRA_STATE_IDLE)){
+                Log.d(tag, "Broadcasting idle state")
+                context.sendBroadcast(Intent(IdleStateReceiverForService.ACTION_SERVICE_IDLE_STATE))
+            }
         }
     }
 

@@ -20,7 +20,7 @@ object CallHistory {
             CallLog.Calls.DATE
         )
 
-        // crete pointer to columns
+        // create pointer to columns
         val number = managedCursor!!.getColumnIndex(CallLog.Calls.NUMBER)
         val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
         val date = managedCursor.getColumnIndex(CallLog.Calls.DATE)
@@ -45,10 +45,12 @@ object CallHistory {
             CallLog.Calls.MISSED_TYPE -> callDirection =  Call.Direction.INCOMING
         }
 
+        val isMissed = CallLog.Calls.MISSED_TYPE == direction
+
         // close cursor safely
         managedCursor.close()
 
-        return History(callDuration, phNumber, callDateTimestamp.toLong(), callDirection)
+        return History(callDuration, phNumber, callDateTimestamp.toLong(), callDirection, isMissed)
     }
 }
 
@@ -56,5 +58,6 @@ data class History(
     val callDuration: String?,
     val phoneNumber: String?,
     val callStartedTimestamp: Long,
-    val direction: Call.Direction
+    val direction: Call.Direction,
+    val isMissed: Boolean
 )

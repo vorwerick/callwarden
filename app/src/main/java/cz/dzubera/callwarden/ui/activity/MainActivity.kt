@@ -28,6 +28,7 @@ import cz.dzubera.callwarden.ui.CallViewModel
 import cz.dzubera.callwarden.ui.CallViewModelFactory
 import cz.dzubera.callwarden.utils.Config
 import cz.dzubera.callwarden.utils.DateUtils
+import cz.dzubera.callwarden.utils.PowerSaveUtils
 import cz.dzubera.callwarden.utils.PreferencesUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -77,6 +78,11 @@ class MainActivity : AppCompatActivity() {
                 true
             }
 
+            R.id.menu_settings -> {
+                navigateToSetting()
+                true
+            }
+
             R.id.analytics -> {
                 val intent = Intent(this, AnalyticsActivity::class.java)
                 startActivity(intent)
@@ -94,6 +100,12 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun navigateToSetting() {
+        val intent = Intent(this, SettingsActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun showProjectDialog(cancelable: Boolean) {
@@ -284,6 +296,25 @@ class MainActivity : AppCompatActivity() {
                 callAdapter.notifyDataSetChanged()
             }
         }
+
+        // only for first start
+        // go to setting for optimization
+        if (!PreferencesUtils.loadFirstStart(this)) {
+            PreferencesUtils.saveFirstStart(this, true);
+            showSettingDialog()
+        }
+    }
+
+
+    // Show alert dialog to request permissions
+    private fun showSettingDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Nastavení")
+        builder.setMessage("Pro správné fungování aplikace je potřeba zkontrolovat nastavení.")
+        builder.setPositiveButton("Přejít do nastavení") { dialog, which -> navigateToSetting() }
+        builder.setNeutralButton("Zrušit") { dialog, which -> { } }
+        val dialog = builder.create()
+        dialog.show()
     }
 
     private fun selectProjectFilter() {

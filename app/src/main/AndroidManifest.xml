@@ -46,6 +46,9 @@
         <activity
             android:name=".ui.activity.AnalyticsActivity"
             android:exported="true" />
+        <activity
+            android:name=".ui.activity.SettingsActivity"
+            android:exported="true" />
 
         <service android:name=".service.BackgroundCallService" android:exported="false" android:enabled="true"/>
         <meta-data android:name="io.sentry.traces.sample-rate" android:value="1.0" />
