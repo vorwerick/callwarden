@@ -32,8 +32,6 @@ import java.util.*
 
 class BackgroundCallService : Service(), IdleStateCallback { // class end
 
-    private var telephonyManager: TelephonyManager? = null
-
     private val tag = javaClass.name
 
     private var receiver: IdleStateReceiverForService? = null
@@ -44,23 +42,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         super.onCreate()
         Log.d(tag, "CREATED")
 
-        val defaultHandler: Thread.UncaughtExceptionHandler? =
-            Thread.getDefaultUncaughtExceptionHandler()
-        Thread.setDefaultUncaughtExceptionHandler { p0, p1 ->
-            val i = Intent(baseContext, BackgroundCallService::class.java)
-            val pending = PendingIntent.getActivity(
-                applicationContext, 0,
-                i, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            val mgr = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            mgr[AlarmManager.RTC, System.currentTimeMillis() + 5000] = pending
-            defaultHandler?.uncaughtException(p0, p1)
-        }
-
-        telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-
         ServiceReceiver.initialize()
-
 
         receiver = IdleStateReceiverForService(this)
 
