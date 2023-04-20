@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
+import kotlin.math.log
 
 
 class BackgroundCallService() : Service(), PhoneStateCallback {
@@ -238,6 +239,7 @@ class BackgroundCallService() : Service(), PhoneStateCallback {
 
         // call end
         if (state == TelephonyManager.CALL_STATE_IDLE) {
+            Log.d(tag, "Call finished, prepare to store it ")
             unregisterPhoneListener() // unregister listeners, state may come twice
             recordCall(System.currentTimeMillis(), this)
         }
