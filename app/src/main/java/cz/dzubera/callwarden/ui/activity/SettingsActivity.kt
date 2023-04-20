@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.cardview.widget.CardView
 import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.utils.PowerSaveUtils
 
@@ -24,8 +25,8 @@ class SettingsActivity : AppCompatActivity() {
 
         supportActionBar?.title = "Nastavení";
 
-        val btnAutoStart = findViewById<AppCompatButton>(R.id.autoStartButton)
-        val btnBatterySetting = findViewById<AppCompatButton>(R.id.batteryButton)
+        val btnAutoStart = findViewById<CardView>(R.id.autostartView)
+        val btnBatterySetting = findViewById<CardView>(R.id.batteryView)
 
 
         // Xiaomi redmi autostart

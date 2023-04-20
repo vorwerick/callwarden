@@ -310,8 +310,8 @@ class MainActivity : AppCompatActivity() {
     private fun showSettingDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Nastavení")
-        builder.setMessage("Pro správné fungování aplikace je potřeba zkontrolovat nastavení.")
-        builder.setPositiveButton("Přejít do nastavení") { dialog, which -> navigateToSetting() }
+        builder.setMessage("Pro správné fungování aplikace a zaznamenávání hovorů je nutné zkontrolovat nastavení.")
+        builder.setPositiveButton("Nastavení") { dialog, which -> navigateToSetting() }
         builder.setNeutralButton("Zrušit") { dialog, which -> { } }
         val dialog = builder.create()
         dialog.show()

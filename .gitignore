@@ -1,7 +1,8 @@
-
+local.properties
 /.gradle
 /build
 /.idea/assetWizardSettings.xml
 /shelf/
 /workspace.xml
 /jarRepositories.xml
+/gr
