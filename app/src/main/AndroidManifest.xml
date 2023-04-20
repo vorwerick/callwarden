@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 
     <application
         android:allowBackup="true"
@@ -45,20 +46,15 @@
         <activity
             android:name=".ui.activity.AnalyticsActivity"
             android:exported="true" />
-        <activity
-            android:name=".ui.activity.SettingsActivity"
-            android:exported="true" />
 
         <service android:name=".service.BackgroundCallService" android:exported="false" android:enabled="true"/>
         <meta-data android:name="io.sentry.traces.sample-rate" android:value="1.0" />
 
-        <receiver android:enabled="true" android:name=".service.BootUpReceiver"
-            android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
+        <receiver android:enabled="true" android:name=".service.PhoneStateReceiver"
             android:exported="true">
 
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
 

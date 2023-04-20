@@ -1,11 +1,9 @@
 package cz.dzubera.callwarden.ui.activity
 
 import android.app.DatePickerDialog
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.telephony.TelephonyManager
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -21,7 +19,6 @@ import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.BuildConfig
 import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.model.Call
-import cz.dzubera.callwarden.service.BackgroundCallService
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.db.CallEntity
 import cz.dzubera.callwarden.service.db.PendingCallEntity
@@ -79,13 +76,7 @@ class MainActivity : AppCompatActivity() {
                 showUserDialog()
                 true
             }
-            R.id.menu_settings -> {
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
-                finish()
 
-                true
-            }
             R.id.analytics -> {
                 val intent = Intent(this, AnalyticsActivity::class.java)
                 startActivity(intent)
@@ -249,22 +240,11 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        val firstStart = PreferencesUtils.loadFirstStart(this)
-        if (!firstStart) {
-            showAutoRestartDialog()
-            PreferencesUtils.saveFirstStart(this, true)
-        }
-
         supportActionBar?.title = "Záznamy hovorů";
-        val telephonyManager: TelephonyManager =
-            getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
         App.userSettingsStorage.credentials = credentials
 
-
-
         App.cacheStorage.registerObserver(::callObserver)
-
 
         val callAdapter = CallAdapter {
             GlobalScope.launch {
@@ -273,7 +253,6 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread { showProjectEditDialog(item) }
                 }
             }
-
         }
 
         val recyclerView: RecyclerView = findViewById(R.id.call_list)
@@ -305,14 +284,6 @@ class MainActivity : AppCompatActivity() {
                 callAdapter.notifyDataSetChanged()
             }
         }
-
-
-
-        Intent(this, BackgroundCallService::class.java).also { intent ->
-            startService(intent)
-        }
-
-
     }
 
     private fun selectProjectFilter() {
@@ -349,22 +320,6 @@ class MainActivity : AppCompatActivity() {
             "Zpět"
         ) { dialog, which -> dialog.dismiss() }
         builderSingle.show()
-    }
-
-    private fun showAutoRestartDialog() {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Automatické spuštění")
-        builder.setMessage("Chcete nastavit automatické spuštění po zapnutí telefonu?")
-        builder.setPositiveButton("Ano") { dialog, which ->
-            PreferencesUtils.saveAutoRestartValue(this@MainActivity, true)
-            dialog.dismiss()
-        }
-        builder.setNegativeButton("Ne") { dialog, which ->
-            PreferencesUtils.saveAutoRestartValue(this@MainActivity, false)
-            dialog.dismiss()
-        }
-        val dialog = builder.create()
-        dialog.show()
     }
 
     private fun checkPendingCallsForSend() {
