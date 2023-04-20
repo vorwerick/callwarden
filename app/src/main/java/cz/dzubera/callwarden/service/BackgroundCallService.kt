@@ -27,7 +27,6 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
-import kotlin.math.log
 
 
 class BackgroundCallService() : Service(), PhoneStateCallback {
