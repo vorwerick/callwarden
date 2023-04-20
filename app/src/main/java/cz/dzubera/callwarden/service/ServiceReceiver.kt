@@ -15,18 +15,18 @@ class ServiceReceiver {
             }
         }
 
-        var currentCall: CurrentCall? = null
+//        var currentCall: CurrentCall? = null
 
     }
 
-    class CurrentCall(val direction: Call.Direction) {
-
-        var callStarted: Long = 0
-        var callEnded: Long = 0
-        var callAccepted: Long? = 0
-        var isEnded: Boolean = false
-
-    }
+//    class CurrentCall(val direction: Call.Direction) {
+//
+//        var callStarted: Long = 0
+//        var callEnded: Long = 0
+//        var callAccepted: Long? = 0
+//        var isEnded: Boolean = false
+//
+//    }
 
 
 }

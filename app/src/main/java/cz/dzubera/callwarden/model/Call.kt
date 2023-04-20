@@ -16,6 +16,7 @@ data class Call(
 
     enum class Direction {
         INCOMING, OUTGOING
+
     }
 
     override fun toString(): String {

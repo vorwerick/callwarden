@@ -1,9 +1,16 @@
 package cz.dzubera.callwarden.ui.activity
 
 import android.Manifest
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -13,12 +20,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.progressindicator.LinearProgressIndicator
-import cz.dzubera.callwarden.*
+import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.model.Credentials
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.HttpResponse
 import cz.dzubera.callwarden.service.ResponseStatus
 import cz.dzubera.callwarden.utils.Config
+import cz.dzubera.callwarden.utils.PowerSaveUtils
 import cz.dzubera.callwarden.utils.PreferencesUtils
 
 
@@ -40,28 +48,28 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val credentials = PreferencesUtils.loadCredentials(this)
-        if(credentials != null){
-            HttpRequest.getProjects(credentials.domain, credentials.user) { response: HttpResponse ->
+        if (credentials != null) {
+            HttpRequest.getProjects(
+                credentials.domain,
+                credentials.user
+            ) { response: HttpResponse ->
                 if (response.status == ResponseStatus.SUCCESS) {
                     val intent = Intent(this@LoginActivity, MainActivity::class.java)
                     startActivity(intent)
                 } else {
-
-
+                    Log.d(javaClass.name, "Credential failed")
                 }
-
             }
         }
 
         setContentView(R.layout.login_activity)
         supportActionBar?.title = "Příhlášení";
+
         checkPermissions()
 
-
-
-        if(credentials != null){
+        if (credentials != null) {
             findViewById<EditText>(R.id.domain_id).setText(credentials.domain)
-           findViewById<EditText>(R.id.user_id).setText( credentials.user.toString())
+            findViewById<EditText>(R.id.user_id).setText(credentials.user.toString())
         }
 
 
@@ -69,7 +77,7 @@ class LoginActivity : AppCompatActivity() {
         loginButton.setOnClickListener {
             val domainId = findViewById<EditText>(R.id.domain_id).text.toString()
             val userId = findViewById<EditText>(R.id.user_id).text.toString().toIntOrNull()
-            if(domainId.isEmpty() || userId == null){
+            if (domainId.isEmpty() || userId == null) {
                 findViewById<TextView>(R.id.error_label).text =
                     "Zadejte doménu a uživetlské id"
             } else {
@@ -158,7 +166,7 @@ class LoginActivity : AppCompatActivity() {
         findViewById<Button>(R.id.user_log_in).isEnabled = false
         HttpRequest.getProjects(domain, user) { response: HttpResponse ->
             if (response.status == ResponseStatus.SUCCESS) {
-                println("KOKO: "+response.data.toString())
+                println("KOKO: " + response.data.toString())
                 PreferencesUtils.saveCredentials(this, Credentials(domain, user))
                 val intent = Intent(this@LoginActivity, MainActivity::class.java)
                 startActivity(intent)
@@ -167,7 +175,7 @@ class LoginActivity : AppCompatActivity() {
                     401 -> {
                         runOnUiThread {
                             findViewById<TextView>(R.id.error_label).text =
-                                "Neznámé ID nebo uživatel "+ response.code
+                                "Neznámé ID nebo uživatel " + response.code
                         }
                     }
                     422 -> {

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
@@ -15,14 +16,12 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import androidx.core.content.ContextCompat
 import cz.dzubera.callwarden.App
-import cz.dzubera.callwarden.BuildConfig
-import cz.dzubera.callwarden.utils.Iso2Phone
 import cz.dzubera.callwarden.R
-import cz.dzubera.callwarden.service.db.CallEntity
-import cz.dzubera.callwarden.service.db.PendingCallEntity
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.model.CallHistory
-import cz.dzubera.callwarden.ui.activity.MainActivity
+import cz.dzubera.callwarden.service.db.CallEntity
+import cz.dzubera.callwarden.service.db.PendingCallEntity
+import cz.dzubera.callwarden.utils.Iso2Phone
 import cz.dzubera.callwarden.utils.PreferencesUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -31,91 +30,22 @@ import org.json.JSONObject
 import java.util.*
 
 
-class BackgroundCallService() : Service() {
+class BackgroundCallService : Service(), IdleStateCallback { // class end
 
-    private val AUTHORITY = BuildConfig.APPLICATION_ID + ".provider"
-    private val NOTIFY_ID = 1337
-    private val FOREGROUND_ID = 1338
+    private var telephonyManager: TelephonyManager? = null
 
-    private val psl by lazy {
-        object : PhoneStateListener() {
-            override fun onBarringInfoChanged(barringInfo: BarringInfo) {
-                println("barring: " + barringInfo.toString())
-            }
+    private val tag = javaClass.name
 
-            override fun onCallDisconnectCauseChanged(
-                disconnectCause: Int,
-                preciseDisconnectCause: Int
-            ) {
-                println("cdcc: " + disconnectCause.toString() + " " + preciseDisconnectCause.toString())
+    private var receiver: IdleStateReceiverForService? = null
 
-            }
-
-            override fun onDataConnectionStateChanged(state: Int, networkType: Int) {
-                println("dcsc: " + state.toString())
-            }
-
-            override fun onDisplayInfoChanged(telephonyDisplayInfo: TelephonyDisplayInfo) {
-                println("display: " + telephonyDisplayInfo.toString())
-            }
-
-            override fun onCallStateChanged(state: Int, phoneNumber: String?) {
-                resolveCall(state, phoneNumber)
-            }
-        }
-    }
-    private val tlpjc by lazy {
-        @RequiresApi(Build.VERSION_CODES.S)
-        object : TelephonyCallback(), TelephonyCallback.CallStateListener {
-            override fun onCallStateChanged(state: Int) {
-                resolveCall(state, null)
-            }
-        }
-    }
-
-
-    @SuppressLint("MissingPermission")
-    fun resolveCall(state: Int, phoneNumber: String?) {
-
-        val telecomManager = getSystemService(TELECOM_SERVICE) as TelecomManager
-        Log.d("is In call", telecomManager.isInCall.toString())
-
-
-        if (state == TelephonyManager.CALL_STATE_IDLE) {
-            ServiceReceiver.currentCall?.isEnded = true
-            ServiceReceiver.currentCall?.callEnded = System.currentTimeMillis()
-
-            recordCall(ServiceReceiver.currentCall, this)
-            ServiceReceiver.currentCall = null
-        }
-
-        if (ServiceReceiver.currentCall == null) {
-            if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
-                ServiceReceiver.currentCall =
-                    ServiceReceiver.CurrentCall(Call.Direction.OUTGOING)
-                ServiceReceiver.currentCall!!.callStarted = System.currentTimeMillis()
-
-            }
-            if (state == TelephonyManager.CALL_STATE_RINGING) {
-                ServiceReceiver.currentCall =
-                    ServiceReceiver.CurrentCall(Call.Direction.INCOMING)
-                ServiceReceiver.currentCall!!.callStarted = System.currentTimeMillis()
-
-
-            }
-        } else {
-            if (state == TelephonyManager.CALL_STATE_OFFHOOK && ServiceReceiver.currentCall!!.direction == Call.Direction.INCOMING) {
-                ServiceReceiver.currentCall!!.callAccepted = System.currentTimeMillis()
-            }
-        }
-    }
 
     @SuppressLint("InlinedApi")
     override fun onCreate() {
         super.onCreate()
-        Log.d("RURURU", "CREATED")
+        Log.d(tag, "CREATED")
 
-        val defaultHandler: Thread.UncaughtExceptionHandler? = Thread.getDefaultUncaughtExceptionHandler()
+        val defaultHandler: Thread.UncaughtExceptionHandler? =
+            Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { p0, p1 ->
             val i = Intent(baseContext, BackgroundCallService::class.java)
             val pending = PendingIntent.getActivity(
@@ -127,35 +57,26 @@ class BackgroundCallService() : Service() {
             defaultHandler?.uncaughtException(p0, p1)
         }
 
-        val telephonyManager: TelephonyManager =
-            getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-
-        val telecomManager: TelecomManager =
-            getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+        telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
 
         ServiceReceiver.initialize()
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            telephonyManager.registerTelephonyCallback(
-                mainExecutor,
-                tlpjc
-            )
-        } else {
-            telephonyManager.listen(psl, PhoneStateListener.LISTEN_CALL_STATE)
-        }
+        receiver = IdleStateReceiverForService(this)
+
+        registerPhoneListener()
     }
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("RURURU", "START COMMAND")
+        Log.d(tag, "START COMMAND")
         startForeground()
         return START_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("RURURU", "DESTROYED")
+        Log.d(tag, "DESTROYED")
     }
 
     override fun onBind(p0: Intent?): IBinder? {
@@ -171,6 +92,7 @@ class BackgroundCallService() : Service() {
                 // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
                 ""
             }
+
 
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
         val notification = notificationBuilder.setOngoing(true)
@@ -197,45 +119,74 @@ class BackgroundCallService() : Service() {
         return channelId
     }
 
-    private fun recordCall(currentCall: ServiceReceiver.CurrentCall?, context: Context) {
-        if (currentCall != null) {
-            ServiceReceiver.ex!!.submit {
-                Thread.sleep(3500)
-                synchronized(ServiceReceiver.ex!!) {
-                    val history = CallHistory.getCallLogs(context)
-                    val duration = history.callDuration?.toIntOrNull() ?: -1
-                    val number = history.phoneNumber ?: ""
 
-                    val credentails = PreferencesUtils.loadCredentials(context)
-                    val projectId = PreferencesUtils.loadProjectId(context)
-                    val projectName = PreferencesUtils.loadProjectName(context)
+    private fun registerPhoneListener() {
+        Log.d(tag, "registering phone listeners")
 
-                    val call = Call(
-                        currentCall.callStarted,
-                        credentails?.user.toString() ?: "",
-                        credentails?.domain ?: "",
-                        projectId ?: "-1",
-                        projectName ?: "<none>",
-                        duration,
-                        currentCall.direction,
-                        number,
-                        currentCall.callStarted,
-                        currentCall.callEnded,
-                        currentCall.callAccepted
-                    )
+        registerReceiver(
+            receiver,
+            IntentFilter(IdleStateReceiverForService.ACTION_SERVICE_IDLE_STATE)
+        )
 
 
-                    App.cacheStorage.addCallItem(call)
-                    saveToAnalyticsTryToUpload(call, context)
+    }
+
+    private fun unregisterPhoneListener() {
+        Log.d(tag, "unregistering phone listeners")
+        unregisterReceiver(receiver)
+
+    }
+
+    private fun recordCall(callEndTimestamp: Long, context: Context) {
+        ServiceReceiver.ex!!.submit {
+            Thread.sleep(200)
+            synchronized(ServiceReceiver.ex!!) {
+
+                // prepare data
+                val history = CallHistory.getCallLogs(context)
+                var duration = history.callDuration?.toIntOrNull() ?: -1
+                val number = history.phoneNumber ?: ""
+                val callStarted = history.callStartedTimestamp
+                val callDirection = history.direction
+
+                // if for xiaomi - it is sending duration >0, call is missed
+                if (history.isMissed) {
+                    duration = 0
                 }
+
+                var callAccepted: Long =
+                    if (duration > 0) (callEndTimestamp - duration * 1000) else 0
+
+
+                // prepare credentials
+                val credentials = PreferencesUtils.loadCredentials(context)
+                val projectId = PreferencesUtils.loadProjectId(context)
+                val projectName = PreferencesUtils.loadProjectName(context)
+
+                // store data
+                val call = Call(
+                    callStarted,
+                    credentials?.user.toString() ?: "",
+                    credentials?.domain ?: "",
+                    projectId ?: "-1",
+                    projectName ?: "<none>",
+                    duration,
+                    callDirection,
+                    number,
+                    callStarted,
+                    callEndTimestamp,
+                    callAccepted
+                )
+
+                App.cacheStorage.addCallItem(call)
+                saveToAnalyticsTryToUpload(call, context)
+                stopSelf()
             }
         }
     }
 
     private fun saveToAnalyticsTryToUpload(call: Call, context: Context?) {
         context?.let {
-
-
 
             val entity = CallEntity(
                 call.callStarted,
@@ -265,9 +216,15 @@ class BackgroundCallService() : Service() {
                     }
                 }
             }
-
         }
+    }
 
+    override fun onIdleCalled() {
+        Log.d(tag, "Service is informed about idle state from broadcast")
+        unregisterPhoneListener() // unregister listeners, state may come twice
+
+        Log.d(tag, "Call finished, prepare to store it ")
+        recordCall(System.currentTimeMillis(), this)
     }
 }
 
@@ -291,6 +248,7 @@ fun uploadCall(context: Context?, callEntities: List<CallEntity>, success: (Bool
             recordItem.put("number", callEntity.phoneNumber)
             recordItem.put("startTimestamp", callEntity.callStarted)
             recordItem.put("connectTimestamp", callEntity.callAccepted)
+
             recordItem.put("endTimestamp", callEntity.callEnded)
             recordItem.put("callDuration", callEntity.callDuration)
             recordItem.put("countryCode", coutnryCode)
@@ -320,5 +278,109 @@ fun uploadCall(context: Context?, callEntities: List<CallEntity>, success: (Bool
 
         }
     }
+
 }
+
+
+/* back up of call state logic
+
+@SuppressLint("MissingPermission")
+private fun resolveCall(state: Int) {
+
+    val telecomManager = getSystemService(Service.TELECOM_SERVICE) as TelecomManager
+    Log.d("is In call", telecomManager.isInCall.toString())
+
+
+    if (state == TelephonyManager.CALL_STATE_IDLE) {
+        ServiceReceiver.currentCall?.isEnded = true
+        ServiceReceiver.currentCall?.callEnded = System.currentTimeMillis()
+
+        recordCall(ServiceReceiver.currentCall, this)
+        ServiceReceiver.currentCall = null
+    }
+
+    if (ServiceReceiver.currentCall == null) {
+        if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
+            ServiceReceiver.currentCall =
+                ServiceReceiver.CurrentCall(Call.Direction.OUTGOING)
+            ServiceReceiver.currentCall!!.callStarted = System.currentTimeMillis()
+
+        }
+        if (state == TelephonyManager.CALL_STATE_RINGING) {
+            ServiceReceiver.currentCall =
+                ServiceReceiver.CurrentCall(Call.Direction.INCOMING)
+            ServiceReceiver.currentCall!!.callStarted = System.currentTimeMillis()
+
+
+        }
+    } else {
+        if (state == TelephonyManager.CALL_STATE_OFFHOOK && ServiceReceiver.currentCall!!.direction == Call.Direction.INCOMING) {
+            ServiceReceiver.currentCall!!.callAccepted = System.currentTimeMillis()
+        }
+    }
+}
+
+private val psl by lazy {
+    object : PhoneStateListener() {
+        override fun onBarringInfoChanged(barringInfo: BarringInfo) {
+            println("barring: " + barringInfo.toString())
+        }
+
+        override fun onCallDisconnectCauseChanged(
+            disconnectCause: Int,
+            preciseDisconnectCause: Int
+        ) {
+            println("cdcc: " + disconnectCause.toString() + " " + preciseDisconnectCause.toString())
+
+        }
+
+        override fun onDataConnectionStateChanged(state: Int, networkType: Int) {
+            println("dcsc: " + state.toString())
+        }
+
+        override fun onDisplayInfoChanged(telephonyDisplayInfo: TelephonyDisplayInfo) {
+            println("display: " + telephonyDisplayInfo.toString())
+        }
+
+        override fun onCallStateChanged(state: Int, phoneNumber: String?) {
+//                resolveCall(state, phoneNumber)
+        }
+    }
+}
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            telephonyManager?.registerTelephonyCallback(
+//                mainExecutor,
+//                tlpjc
+//            )
+//        } else {
+//            telephonyManager?.listen(
+//                ServicePhoneStateListener(this),
+//                PhoneStateListener.LISTEN_CALL_STATE
+//            )
+//        }
+
+
+    //callback for newer API
+    private val tlpjc by lazy {
+        @RequiresApi(Build.VERSION_CODES.S)
+        object : TelephonyCallback(), TelephonyCallback.CallStateListener {
+            override fun onCallStateChanged(state: Int) {
+                resolveCall(state)
+            }
+        }
+    }
+
+    //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            telephonyManager?.unregisterTelephonyCallback(tlpjc)
+//        } else {
+//            //https://developer.android.com/reference/android/telephony/TelephonyManager#listen(android.telephony.PhoneStateListener,%20int)
+//            telephonyManager?.listen(
+//                ServicePhoneStateListener(this),
+//                PhoneStateListener.LISTEN_NONE
+//            )
+//        }
+
+*/
+
 

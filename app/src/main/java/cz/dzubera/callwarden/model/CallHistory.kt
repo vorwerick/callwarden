@@ -2,54 +2,62 @@ package cz.dzubera.callwarden.model
 
 import android.content.Context
 import android.provider.CallLog
-import java.util.*
+
+/*
+* Example src
+* https://gist.github.com/kannansuresh/57945c9ee3fc29e04f62dc991449d595
+ */
 
 object CallHistory {
 
-
     fun getCallLogs(context: Context): History {
-        var callDurati: String? = ""
-        var phone: String? = ""
+
+        // create cursor
         val managedCursor = context.contentResolver.query(
             CallLog.Calls.CONTENT_URI, null,
             null,
             null,
             CallLog.Calls.DATE
         )
-        val calllogsBuffer = ArrayList<String>()
-        calllogsBuffer.clear()
+
+        // create pointer to columns
         val number = managedCursor!!.getColumnIndex(CallLog.Calls.NUMBER)
         val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
         val date = managedCursor.getColumnIndex(CallLog.Calls.DATE)
         val duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION)
-        val missedReason = managedCursor.getColumnIndex(CallLog.Calls.MISSED_REASON)
-        while (managedCursor.moveToNext()) {
-            val phNumber = managedCursor.getString(number)
-            val callType = managedCursor.getString(type)
-            val callDate = managedCursor.getString(date)
-            val callDayTime = Date(java.lang.Long.valueOf(callDate))
-            val callDuration = managedCursor.getString(duration)
-            var dir: String? = null
-            val dircode = callType.toInt()
-            when (dircode) {
-                CallLog.Calls.OUTGOING_TYPE -> dir = "OUTGOING"
-                CallLog.Calls.INCOMING_TYPE -> dir = "INCOMING"
-                CallLog.Calls.MISSED_TYPE -> dir = "MISSED"
-            }
-            calllogsBuffer.add(
-                """
-Phone Number: $phNumber 
-Call Type: $dir 
-Call Date: $callDayTime 
-Call duration in sec : $callDuration
- Missed type:$missedReason"""
-            )
-            callDurati = callDuration
-            phone = phNumber
+
+        //we need last only last call
+        managedCursor.moveToLast()
+
+        // load last call
+        val phNumber = managedCursor.getString(number)
+        val callType = managedCursor.getString(type)
+        val callDateTimestamp = managedCursor.getString(date)
+        val callDuration = managedCursor.getString(duration)
+        val direction: Int = callType.toInt()
+
+        var callDirection = Call.Direction.OUTGOING;
+
+        // Convert direction
+        when (direction) {
+            CallLog.Calls.OUTGOING_TYPE -> callDirection = Call.Direction.OUTGOING
+            CallLog.Calls.INCOMING_TYPE -> callDirection =  Call.Direction.INCOMING
+            CallLog.Calls.MISSED_TYPE -> callDirection =  Call.Direction.INCOMING
         }
+
+        val isMissed = CallLog.Calls.MISSED_TYPE == direction
+
+        // close cursor safely
         managedCursor.close()
-        return History(callDurati, phone)
+
+        return History(callDuration, phNumber, callDateTimestamp.toLong(), callDirection, isMissed)
     }
 }
 
- class History(val callDuration: String?, val phoneNumber: String?)
+data class History(
+    val callDuration: String?,
+    val phoneNumber: String?,
+    val callStartedTimestamp: Long,
+    val direction: Call.Direction,
+    val isMissed: Boolean
+)

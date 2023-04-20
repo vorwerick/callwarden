@@ -23,6 +23,7 @@ object PreferencesUtils {
         return context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
             .getBoolean(FIRST_START, false)
     }
+
     fun saveAutoRestartValue(context: Context, value: Boolean) {
         context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().putBoolean(
             AUTORESTART, value

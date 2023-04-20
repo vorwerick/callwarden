@@ -31,51 +31,36 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
+                android:gravity="center"
                 tools:ignore="MissingPrefix">
 
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="0.8"
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/batteryButton"
+                    android:layout_width="250dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="4dp"
-                    android:layout_gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/call_number"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="Automatické spuštění"
-                        android:textColor="@color/black"
-                        android:textSize="18dp" />
-
-                    <TextView
-                        android:id="@+id/call_dir"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Aplikace je aktivní a eviduje hovory i po restartu telefonu"
-                        android:textColor="#aa000000"
-                        android:textSize="14sp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="0.2"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:gravity="center"
+                    android:textAllCaps="false"
+                    android:text="Nastavení baterie"
+                    android:textColor="@color/black"
+                    android:textSize="18dp"
+                    />
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/autoStartButton"
+                    android:layout_width="250dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end|center"
-                    android:layout_margin="8dp"
-                    android:orientation="vertical">
+                    android:layout_marginBottom="15dp"
+                    android:gravity="center"
+                    android:textAllCaps="false"
+                    android:text="Automatické spuštění"
+                    android:textColor="@color/black"
+                    android:textSize="18dp"
+                    />
 
-                   <androidx.appcompat.widget.SwitchCompat
-                       android:id="@+id/auto_restart_value"
-                       android:layout_width="match_parent"
-                       app:trackTint="#88000000"
-                       android:layout_height="wrap_content"/>
-                </LinearLayout>
+
+
 
 
             </LinearLayout>
