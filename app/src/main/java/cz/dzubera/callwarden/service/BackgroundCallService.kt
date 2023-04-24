@@ -120,52 +120,53 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
     }
 
     private fun recordCall(callEndTimestamp: Long, context: Context) {
-        ServiceReceiver.ex!!.submit {
-            Thread.sleep(200)
-            synchronized(ServiceReceiver.ex!!) {
-
-                // prepare data
-                val history = CallHistory.getCallLogs(context)
-                var duration = history.callDuration?.toIntOrNull() ?: -1
-                val number = history.phoneNumber ?: ""
-                val callStarted = history.callStartedTimestamp
-                val callDirection = history.direction
-
-                // if for xiaomi - it is sending duration >0, call is missed
-                if (history.isMissed) {
-                    duration = 0
-                }
-
-                var callAccepted: Long =
-                    if (duration > 0) (callEndTimestamp - duration * 1000) else 0
+//        ServiceReceiver.ex!!.submit {
+//            Thread.sleep(10000)
+//            synchronized(ServiceReceiver.ex!!) {
 
 
-                // prepare credentials
-                val credentials = PreferencesUtils.loadCredentials(context)
-                val projectId = PreferencesUtils.loadProjectId(context)
-                val projectName = PreferencesUtils.loadProjectName(context)
+        // prepare data
+        val history = CallHistory.getCallLogs(context)
+        var duration = history.callDuration?.toIntOrNull() ?: -1
+        val number = history.phoneNumber ?: ""
+        val callStarted = history.callStartedTimestamp
+        val callDirection = history.direction
 
-                // store data
-                val call = Call(
-                    callStarted,
-                    credentials?.user.toString() ?: "",
-                    credentials?.domain ?: "",
-                    projectId ?: "-1",
-                    projectName ?: "<none>",
-                    duration,
-                    callDirection,
-                    number,
-                    callStarted,
-                    callEndTimestamp,
-                    callAccepted
-                )
-
-                App.cacheStorage.addCallItem(call)
-                saveToAnalyticsTryToUpload(call, context)
-                stopSelf()
-            }
+        // if for xiaomi - it is sending duration >0, call is missed
+        if (history.isMissed) {
+            duration = 0
         }
+
+        var callAccepted: Long =
+            if (duration > 0) (callEndTimestamp - duration * 1000) else 0
+
+
+        // prepare credentials
+        val credentials = PreferencesUtils.loadCredentials(context)
+        val projectId = PreferencesUtils.loadProjectId(context)
+        val projectName = PreferencesUtils.loadProjectName(context)
+
+        // store data
+        val call = Call(
+            callStarted,
+            credentials?.user.toString() ?: "",
+            credentials?.domain ?: "",
+            projectId ?: "-1",
+            projectName ?: "<none>",
+            duration,
+            callDirection,
+            number,
+            callStarted,
+            callEndTimestamp,
+            callAccepted
+        )
+
+        App.cacheStorage.addCallItem(call)
+        saveToAnalyticsTryToUpload(call, context)
+//                stopSelf()
     }
+//        }
+//    }
 
     private fun saveToAnalyticsTryToUpload(call: Call, context: Context?) {
         context?.let {
@@ -204,6 +205,8 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
     override fun onIdleCalled() {
         Log.d(tag, "Service is informed about idle state from broadcast")
         unregisterPhoneListener() // unregister listeners, state may come twice
+
+        stopSelf()
 
         Log.d(tag, "Call finished, prepare to store it ")
         recordCall(System.currentTimeMillis(), this)
