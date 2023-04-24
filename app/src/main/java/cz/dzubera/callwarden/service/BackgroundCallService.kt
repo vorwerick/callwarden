@@ -5,10 +5,10 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.database.sqlite.SQLiteConstraintException
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
-import android.telecom.TelecomManager
 import android.telephony.*
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -23,7 +23,9 @@ import cz.dzubera.callwarden.service.db.CallEntity
 import cz.dzubera.callwarden.service.db.PendingCallEntity
 import cz.dzubera.callwarden.utils.Iso2Phone
 import cz.dzubera.callwarden.utils.PreferencesUtils
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
@@ -119,11 +121,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
 
     }
 
-    private fun recordCall(callEndTimestamp: Long, context: Context) {
-//        ServiceReceiver.ex!!.submit {
-//            Thread.sleep(10000)
-//            synchronized(ServiceReceiver.ex!!) {
-
+    private fun recordCall(callEndTimestamp: Long, context: Context): Boolean {
 
         // prepare data
         val history = CallHistory.getCallLogs(context)
@@ -137,7 +135,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
             duration = 0
         }
 
-        var callAccepted: Long =
+        val callAccepted: Long =
             if (duration > 0) (callEndTimestamp - duration * 1000) else 0
 
 
@@ -149,7 +147,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         // store data
         val call = Call(
             callStarted,
-            credentials?.user.toString() ?: "",
+            credentials?.user.toString(),
             credentials?.domain ?: "",
             projectId ?: "-1",
             projectName ?: "<none>",
@@ -161,47 +159,37 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
             callAccepted
         )
 
-        App.cacheStorage.addCallItem(call)
-        saveToAnalyticsTryToUpload(call, context)
-//                stopSelf()
-    }
-//        }
-//    }
 
-    private fun saveToAnalyticsTryToUpload(call: Call, context: Context?) {
-        context?.let {
+        val entity = CallEntity(
+            call.callStarted,
+            call.userId,
+            call.domainId,
+            call.projectId,
+            "",
+            call.projectName,
+            null,
+            call.direction.name,
+            call.phoneNumber,
+            call.callStarted,
+            call.callEnded,
+            call.callAccepted,
+            call.duration,
+        )
 
-            val entity = CallEntity(
-                call.callStarted,
-                call.userId,
-                call.domainId,
-                call.projectId,
-                "",
-                call.projectName,
-                null,
-                call.direction.name,
-                call.phoneNumber,
-                call.callStarted,
-                call.callEnded,
-                call.callAccepted,
-                call.duration,
-            )
-
-            GlobalScope.launch {
-                App.appDatabase.taskCalls().insert(entity)
-            }
-
+        return try {
+            App.appDatabase.taskCalls().insert(entity)
+            App.cacheStorage.addCallItem(call)
             uploadCall(context, listOf(entity)) { success ->
                 if (!success) {
                     val pendingEntity = PendingCallEntity(entity.callStarted!!)
-                    GlobalScope.launch {
-                        App.appDatabase.pendingCalls().insert(pendingEntity)
-                    }
+                    App.appDatabase.pendingCalls().insert(pendingEntity)
                 }
             }
+            true
+        } catch (sqlException: SQLiteConstraintException){
+            false
         }
     }
-
     override fun onIdleCalled() {
         Log.d(tag, "Service is informed about idle state from broadcast")
         unregisterPhoneListener() // unregister listeners, state may come twice
@@ -209,7 +197,18 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         stopSelf()
 
         Log.d(tag, "Call finished, prepare to store it ")
-        recordCall(System.currentTimeMillis(), this)
+        val idleCallTimestamp = System.currentTimeMillis()
+        // run in coroutine
+        GlobalScope.launch {
+            // repeat 3 times until success
+            repeat(3){
+                val success = recordCall(idleCallTimestamp, this@BackgroundCallService)
+                if(success){
+                    return@launch
+                }
+                delay(400)
+            }
+        }
     }
 }
 
