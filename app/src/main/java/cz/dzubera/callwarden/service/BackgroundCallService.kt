@@ -135,9 +135,12 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         if (history.isMissed) {
             duration = 0
         }
+        Log.d("CallWarden", "Call dir: ${callDirection.name}")
+        Log.d("CallWarden", "Is missed: ${history.isMissed}")
+        Log.d("CallWarden", "Call duration: $duration")
 
         val callAccepted: Long =
-            if (duration > 0) (callEndTimestamp - duration * 1000) else 0
+            if (duration > 0) (callEndTimestamp - duration * 1_000_000) else 0
 
 
         // prepare credentials
@@ -203,14 +206,8 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         val idleCallTimestamp = System.currentTimeMillis()
         // run in coroutine
         GlobalScope.launch {
-            // repeat 3 times until success
-            repeat(3){
-                val success = recordCall(idleCallTimestamp, this@BackgroundCallService)
-                if(success){
-                    return@launch
-                }
-                delay(400)
-            }
+            delay(1200)
+            recordCall(idleCallTimestamp, this@BackgroundCallService)
         }
     }
 }
