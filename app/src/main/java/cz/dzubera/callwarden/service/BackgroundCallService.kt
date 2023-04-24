@@ -122,7 +122,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
 
     }
 
-    private fun recordCall(callEndTimestamp: Long, context: Context): Boolean {
+    private fun recordCall(callEndTimestamp: Long, context: Context): Unit {
 
         // prepare data
         val history = CallHistory.getCallLogs(context)
@@ -180,20 +180,13 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
             call.duration,
         )
 
-        return try {
-            App.appDatabase.taskCalls().insert(entity)
-            App.cacheStorage.addCallItem(call)
-            uploadCall(context, listOf(entity)) { success ->
-                if (!success) {
-                    val pendingEntity = PendingCallEntity(entity.callStarted!!)
-                    App.appDatabase.pendingCalls().insert(pendingEntity)
-                }
+        App.appDatabase.taskCalls().insert(entity)
+        App.cacheStorage.addCallItem(call)
+        uploadCall(context, listOf(entity)) { success ->
+            if (!success) {
+                val pendingEntity = PendingCallEntity(entity.callStarted!!)
+                App.appDatabase.pendingCalls().insert(pendingEntity)
             }
-            true
-        } catch (sqlException: SQLiteConstraintException){
-            sqlException.printStackTrace()
-            Sentry.captureException(sqlException)
-            false
         }
     }
     override fun onIdleCalled() {
