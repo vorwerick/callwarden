@@ -23,6 +23,7 @@ import cz.dzubera.callwarden.service.db.CallEntity
 import cz.dzubera.callwarden.service.db.PendingCallEntity
 import cz.dzubera.callwarden.utils.Iso2Phone
 import cz.dzubera.callwarden.utils.PreferencesUtils
+import io.sentry.Sentry
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -187,6 +188,8 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
             }
             true
         } catch (sqlException: SQLiteConstraintException){
+            sqlException.printStackTrace()
+            Sentry.captureException(sqlException)
             false
         }
     }
