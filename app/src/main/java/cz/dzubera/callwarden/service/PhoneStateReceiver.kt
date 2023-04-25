@@ -55,7 +55,7 @@ class PhoneStateReceiver : BroadcastReceiver() {
             }
         } else {
             Log.d(tag, "Service is already running")
-            if(phoneIntent == intent?.action && extraState.equals(TelephonyManager.EXTRA_STATE_IDLE) && extraPhoneNumber !=null){
+            if(phoneIntent == intent?.action && extraState.equals(TelephonyManager.EXTRA_STATE_IDLE)){
                 Log.d(tag, "Broadcasting idle state")
                 context.sendBroadcast(Intent(IdleStateReceiverForService.ACTION_SERVICE_IDLE_STATE))
             }

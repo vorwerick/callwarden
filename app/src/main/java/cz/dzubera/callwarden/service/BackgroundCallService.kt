@@ -124,11 +124,13 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         Log.d(tag, "Service is informed about idle state from broadcast")
         unregisterPhoneListener() // unregister listeners, state may come twice
 
+        stopSelf()
+
         Log.d(tag, "Call finished, prepare to store it ")
         val callEndTimestamp = System.currentTimeMillis()
 
         GlobalScope.launch {
-            delay(1000)
+            delay(1400)
             recordCall(callEndTimestamp)
         }
     }
@@ -201,8 +203,6 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
                     }
                 }
             }
-
-            stopSelf()
         }
     }
 }
