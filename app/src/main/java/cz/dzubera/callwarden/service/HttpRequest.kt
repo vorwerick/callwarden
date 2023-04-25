@@ -10,6 +10,7 @@ import java.net.URL
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 object HttpRequest {
@@ -19,7 +20,7 @@ object HttpRequest {
         println("staaaaacgh")
 
         val url = URL(Config.PROJECTS_URL)
-        val client = OkHttpClient()
+        val client = OkHttpClient().newBuilder().connectTimeout(3, TimeUnit.SECONDS).build()
 
         val formBody: RequestBody = FormBody.Builder()
             .add("id_domeny", domain)

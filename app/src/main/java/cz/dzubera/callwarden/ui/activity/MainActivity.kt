@@ -201,7 +201,7 @@ class MainActivity : AppCompatActivity() {
     private fun showAboutDialog() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setMessage("RAMICALL " + BuildConfig.VERSION_NAME + "\n2023 RAMICORP s.r.o. \nVšechna práva vyhrazena")
+        builder.setMessage("RAMICALL " + BuildConfig.VERSION_NAME + "("+ BuildConfig.VERSION_CODE +")"+ "\n2023 RAMICORP s.r.o. \nVšechna práva vyhrazena")
             .setTitle("O aplikaci").setPositiveButton(
                 "Ok"
             ) { p0, p1 -> p0.dismiss() }

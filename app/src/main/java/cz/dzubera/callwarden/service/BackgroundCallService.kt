@@ -121,7 +121,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
 
     private fun recordCall(callEndTimestamp: Long, context: Context) {
         ServiceReceiver.ex!!.submit {
-            Thread.sleep(200)
+            Thread.sleep(1500)
             synchronized(ServiceReceiver.ex!!) {
 
                 // prepare data
@@ -162,7 +162,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
 
                 App.cacheStorage.addCallItem(call)
                 saveToAnalyticsTryToUpload(call, context)
-                stopSelf()
+
             }
         }
     }
@@ -204,6 +204,8 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
     override fun onIdleCalled() {
         Log.d(tag, "Service is informed about idle state from broadcast")
         unregisterPhoneListener() // unregister listeners, state may come twice
+
+        stopSelf() // stops service
 
         Log.d(tag, "Call finished, prepare to store it ")
         recordCall(System.currentTimeMillis(), this)
@@ -262,107 +264,3 @@ fun uploadCall(context: Context?, callEntities: List<CallEntity>, success: (Bool
     }
 
 }
-
-
-/* back up of call state logic
-
-@SuppressLint("MissingPermission")
-private fun resolveCall(state: Int) {
-
-    val telecomManager = getSystemService(Service.TELECOM_SERVICE) as TelecomManager
-    Log.d("is In call", telecomManager.isInCall.toString())
-
-
-    if (state == TelephonyManager.CALL_STATE_IDLE) {
-        ServiceReceiver.currentCall?.isEnded = true
-        ServiceReceiver.currentCall?.callEnded = System.currentTimeMillis()
-
-        recordCall(ServiceReceiver.currentCall, this)
-        ServiceReceiver.currentCall = null
-    }
-
-    if (ServiceReceiver.currentCall == null) {
-        if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
-            ServiceReceiver.currentCall =
-                ServiceReceiver.CurrentCall(Call.Direction.OUTGOING)
-            ServiceReceiver.currentCall!!.callStarted = System.currentTimeMillis()
-
-        }
-        if (state == TelephonyManager.CALL_STATE_RINGING) {
-            ServiceReceiver.currentCall =
-                ServiceReceiver.CurrentCall(Call.Direction.INCOMING)
-            ServiceReceiver.currentCall!!.callStarted = System.currentTimeMillis()
-
-
-        }
-    } else {
-        if (state == TelephonyManager.CALL_STATE_OFFHOOK && ServiceReceiver.currentCall!!.direction == Call.Direction.INCOMING) {
-            ServiceReceiver.currentCall!!.callAccepted = System.currentTimeMillis()
-        }
-    }
-}
-
-private val psl by lazy {
-    object : PhoneStateListener() {
-        override fun onBarringInfoChanged(barringInfo: BarringInfo) {
-            println("barring: " + barringInfo.toString())
-        }
-
-        override fun onCallDisconnectCauseChanged(
-            disconnectCause: Int,
-            preciseDisconnectCause: Int
-        ) {
-            println("cdcc: " + disconnectCause.toString() + " " + preciseDisconnectCause.toString())
-
-        }
-
-        override fun onDataConnectionStateChanged(state: Int, networkType: Int) {
-            println("dcsc: " + state.toString())
-        }
-
-        override fun onDisplayInfoChanged(telephonyDisplayInfo: TelephonyDisplayInfo) {
-            println("display: " + telephonyDisplayInfo.toString())
-        }
-
-        override fun onCallStateChanged(state: Int, phoneNumber: String?) {
-//                resolveCall(state, phoneNumber)
-        }
-    }
-}
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            telephonyManager?.registerTelephonyCallback(
-//                mainExecutor,
-//                tlpjc
-//            )
-//        } else {
-//            telephonyManager?.listen(
-//                ServicePhoneStateListener(this),
-//                PhoneStateListener.LISTEN_CALL_STATE
-//            )
-//        }
-
-
-    //callback for newer API
-    private val tlpjc by lazy {
-        @RequiresApi(Build.VERSION_CODES.S)
-        object : TelephonyCallback(), TelephonyCallback.CallStateListener {
-            override fun onCallStateChanged(state: Int) {
-                resolveCall(state)
-            }
-        }
-    }
-
-    //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            telephonyManager?.unregisterTelephonyCallback(tlpjc)
-//        } else {
-//            //https://developer.android.com/reference/android/telephony/TelephonyManager#listen(android.telephony.PhoneStateListener,%20int)
-//            telephonyManager?.listen(
-//                ServicePhoneStateListener(this),
-//                PhoneStateListener.LISTEN_NONE
-//            )
-//        }
-
-*/
-
-
