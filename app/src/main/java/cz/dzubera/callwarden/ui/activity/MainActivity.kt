@@ -372,14 +372,16 @@ class MainActivity : AppCompatActivity() {
 
         App.cacheStorage.registerObserver(::callObserver)
 
-        val callAdapter = CallAdapter {
+        val callAdapter = CallAdapter ({
             GlobalScope.launch {
                 val item = App.appDatabase.taskCalls().get(it)
                 if (item != null) {
                     runOnUiThread { showProjectEditDialog(item) }
                 }
             }
-        }
+        }, {calls ->
+            findViewById<TextView>(R.id.call_list_result_count).text = "Výsledků "+calls.size.toString()
+        })
 
         val recyclerView: RecyclerView = findViewById(R.id.call_list)
 

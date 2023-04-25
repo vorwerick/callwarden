@@ -14,7 +14,7 @@ import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.model.Call
 import java.text.SimpleDateFormat
 
-class CallAdapter(private val onItemClick: (Long) -> Unit) :
+class CallAdapter(private val onItemClick: (Long) -> Unit,private val calls: (List<Call>) -> Unit) :
     ListAdapter<Call, CallAdapter.ViewHolder>(CallDiffCallback) {
 
     /**
@@ -88,6 +88,14 @@ class CallAdapter(private val onItemClick: (Long) -> Unit) :
             viewHolder.bind(call)
 
         }
+    }
+
+    override fun onCurrentListChanged(
+        previousList: MutableList<Call>,
+        currentList: MutableList<Call>
+    ) {
+        super.onCurrentListChanged(previousList, currentList)
+        calls.invoke(currentList)
     }
 }
 
