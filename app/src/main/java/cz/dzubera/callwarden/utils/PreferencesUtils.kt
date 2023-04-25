@@ -12,6 +12,20 @@ object PreferencesUtils {
     const val PROJECT_NAME = "PROJECT_NAME"
     const val AUTORESTART = "AUTORESTART"
     const val FIRST_START = "FIRST_START"
+    const val SYNC_COUNT = "SYNC_COUNT"
+
+    // save sync count value to shared preferences
+    fun saveSyncCount(context: Context, value: Int) {
+        context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().putInt(
+            SYNC_COUNT, value
+        ).apply()
+    }
+
+    // load sync count value from shared preferences
+    fun loadSyncCount(context: Context): Int {
+        return context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+            .getInt(SYNC_COUNT, 100)
+    }
 
     fun saveFirstStart(context: Context, value: Boolean) {
         context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().putBoolean(

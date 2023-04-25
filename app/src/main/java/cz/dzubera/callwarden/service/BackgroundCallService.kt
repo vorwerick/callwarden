@@ -139,16 +139,12 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         synchronized(ServiceReceiver.ex!!) {
 
             // prepare data
-            val history = CallHistory.getCallLogs(this@BackgroundCallService)
-            var duration = history.callDuration?.toIntOrNull() ?: -1
+            val history = CallHistory.getLastCallHistory(this@BackgroundCallService)
+            val duration = history.callDuration?.toIntOrNull() ?: -1
             val number = history.phoneNumber ?: ""
             val callStarted = history.callStartedTimestamp
             val callDirection = history.direction
 
-            // if for xiaomi - it is sending duration >0, call is missed
-            if (history.isMissed) {
-                duration = 0
-            }
 
             var callAccepted: Long =
                 if (duration > 0) (callEndTimestamp - duration * 1000) else 0

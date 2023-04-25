@@ -9,8 +9,12 @@
         app:showAsAction="always" />
     <group android:enabled="true">
         <item
+            android:id="@+id/sync"
+            android:title="Synchronizovat historii" />
+        <item
             android:id="@+id/analytics"
             android:title="Analytiky" />
+
     </group>
     <item
         android:id="@+id/menu_user"

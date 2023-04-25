@@ -8,14 +8,20 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
+import android.text.InputType
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.cardview.widget.CardView
 import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.utils.PowerSaveUtils
+import cz.dzubera.callwarden.utils.PreferencesUtils
+import java.lang.Math.abs
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -27,12 +33,19 @@ class SettingsActivity : AppCompatActivity() {
 
         val btnAutoStart = findViewById<CardView>(R.id.autostartView)
         val btnBatterySetting = findViewById<CardView>(R.id.batteryView)
+        val btnSyncCount = findViewById<CardView>(R.id.syncCount)
+        val syncCount = findViewById<TextView>(R.id.syncCountText)
 
+        syncCount.text = PreferencesUtils.loadSyncCount(this).toString()
+
+        btnSyncCount.setOnClickListener {
+            showSyncCountDialog()
+        }
 
         // Xiaomi redmi autostart
         if (PowerSaveUtils.checkIfIsRedmi()) {
             btnAutoStart.setOnClickListener {
-               PowerSaveUtils.navigateToAutoStartSetting(this)
+                PowerSaveUtils.navigateToAutoStartSetting(this)
             }
         } else {
             btnAutoStart.visibility = View.GONE
@@ -65,4 +78,34 @@ class SettingsActivity : AppCompatActivity() {
         }
 
     }
+
+    //show native alert dialog with edit text to change sync count
+    private fun showSyncCountDialog() {
+        val currentVal = PreferencesUtils.loadSyncCount(this)
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Počet záznamů 1 - 500")
+
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_NUMBER
+        input.setText(currentVal.toString())
+        builder.setView(input)
+
+        builder.setPositiveButton("Uložit") { dialog, which ->
+            var x = kotlin.math.abs(input.text.toString().toIntOrNull() ?: 100)
+            if(x == 0){
+                x = 1
+            }
+            if(x >= 500){
+                x = 500
+            }
+            PreferencesUtils.saveSyncCount(this, x)
+            Toast.makeText(this, "Nastaveno $x záznamů", Toast.LENGTH_SHORT).show()
+            findViewById<TextView>(R.id.syncCountText).text = x.toString()
+            dialog.cancel()
+        }
+        builder.setNegativeButton("Zrušit") { dialog, _ -> dialog.cancel() }
+
+        builder.show()
+    }
+
 }

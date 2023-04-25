@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -11,6 +12,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +21,7 @@ import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.BuildConfig
 import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.model.Call
+import cz.dzubera.callwarden.model.CallHistory
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.db.CallEntity
 import cz.dzubera.callwarden.service.db.PendingCallEntity
@@ -82,7 +85,14 @@ class MainActivity : AppCompatActivity() {
                 navigateToSetting()
                 true
             }
-
+            R.id.sync -> {
+                //show toast
+                Toast.makeText(this@MainActivity, "Synchronizace probíhá...", Toast.LENGTH_SHORT)
+                    .show()
+                //get calls from history
+                startSynchronization()
+                true
+            }
             R.id.analytics -> {
                 val intent = Intent(this, AnalyticsActivity::class.java)
                 startActivity(intent)
@@ -100,6 +110,110 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun startSynchronization() {
+        val calls = CallHistory.getCallsHistory(
+            this@MainActivity,
+            PreferencesUtils.loadSyncCount(this@MainActivity)
+        ).toMutableList()
+        GlobalScope.launch {
+            val callsFromDB = App.appDatabase.taskCalls().getAll()
+
+            val syncCalls = mutableListOf<CallEntity>()
+            val uiCalls = mutableListOf<Call>()
+            calls.forEach {
+                if (callsFromDB.any { entityDb -> entityDb.uid == it.callStartedTimestamp }) {
+                    return@forEach
+                }
+                //log callstarted
+                Log.d("Need to be synchronized", it.callStartedTimestamp.toString())
+
+                // prepare data
+                val duration = it.callDuration?.toIntOrNull() ?: -1
+                val number = it.phoneNumber ?: ""
+                val callStarted = it.callStartedTimestamp
+                val callDirection = it.direction
+
+                // prepare credentials
+                val credentials = PreferencesUtils.loadCredentials(this@MainActivity)
+                val projectId = PreferencesUtils.loadProjectId(this@MainActivity)
+                val projectName = PreferencesUtils.loadProjectName(this@MainActivity)
+
+                // store data
+                val call = Call(
+                    callStarted,
+                    credentials?.user.toString() ?: "",
+                    credentials?.domain ?: "",
+                    projectId ?: "-1",
+                    projectName ?: "<none>",
+                    duration,
+                    callDirection,
+                    number,
+                    callStarted,
+                    0,
+                    0
+                )
+
+                uiCalls.add(call)
+                val entity = CallEntity(
+                    call.callStarted,
+                    call.userId,
+                    call.domainId,
+                    call.projectId,
+                    "",
+                    call.projectName,
+                    null,
+                    call.direction.name,
+                    call.phoneNumber,
+                    call.callStarted,
+                    call.callEnded,
+                    call.callAccepted,
+                    call.duration,
+                )
+
+                syncCalls.add(entity)
+            }
+            if (syncCalls.isEmpty()) {
+                runOnUiThread {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Synchornizace není potřeba, záznamy jsou aktuální.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                return@launch
+            }
+            //upload calls
+            uploadCall(this@MainActivity, syncCalls) { success ->
+                if (!success) {
+                    runOnUiThread {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Synchronizace se nezdařila, zkontrolujte připojení k internetu.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } else {
+                    //toast sync success
+                    syncCalls.forEach {
+                        App.appDatabase.taskCalls().insert(it)
+                    }
+                    uiCalls.forEach { App.cacheStorage.addCallItem(it) }
+                    runOnUiThread {
+
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Synchronizace proběhla úspěšně, nahráno a uloženo ${syncCalls.size} záznamů.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+
+
+        }
+
     }
 
     private fun navigateToSetting() {
@@ -201,7 +315,7 @@ class MainActivity : AppCompatActivity() {
     private fun showAboutDialog() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setMessage("RAMICALL " + BuildConfig.VERSION_NAME + "("+ BuildConfig.VERSION_CODE +")"+ "\n2023 RAMICORP s.r.o. \nVšechna práva vyhrazena")
+        builder.setMessage("RAMICALL " + BuildConfig.VERSION_NAME + "(" + BuildConfig.VERSION_CODE + ")" + "\n2023 RAMICORP s.r.o. \nVšechna práva vyhrazena")
             .setTitle("O aplikaci").setPositiveButton(
                 "Ok"
             ) { p0, p1 -> p0.dismiss() }
