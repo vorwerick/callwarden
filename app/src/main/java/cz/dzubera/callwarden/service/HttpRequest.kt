@@ -15,12 +15,13 @@ import java.util.concurrent.TimeUnit
 
 object HttpRequest {
 
+    const val TIMEOUT = 1000L
 
     fun getProjects(domain: String, user: Int, onResponse: (HttpResponse) -> Unit) {
         println("staaaaacgh")
 
         val url = URL(Config.PROJECTS_URL)
-        val client = OkHttpClient().newBuilder().connectTimeout(3, TimeUnit.SECONDS).build()
+        val client = OkHttpClient()
 
         val formBody: RequestBody = FormBody.Builder()
             .add("id_domeny", domain)
@@ -89,7 +90,7 @@ object HttpRequest {
 
 
         val url = URL(Config.CALL_URL)
-        val client = OkHttpClient()
+        val client = OkHttpClient().newBuilder().connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS).build()
 
         val formBody: RequestBody = FormBody.Builder()
             .add("id_domeny", domain)
