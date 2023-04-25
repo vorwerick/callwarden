@@ -5,10 +5,10 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.database.sqlite.SQLiteConstraintException
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
+import android.telecom.TelecomManager
 import android.telephony.*
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -23,10 +23,7 @@ import cz.dzubera.callwarden.service.db.CallEntity
 import cz.dzubera.callwarden.service.db.PendingCallEntity
 import cz.dzubera.callwarden.utils.Iso2Phone
 import cz.dzubera.callwarden.utils.PreferencesUtils
-import io.sentry.Sentry
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
@@ -122,86 +119,96 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
 
     }
 
-    private fun recordCall(callEndTimestamp: Long, context: Context): Unit {
+    private fun recordCall(callEndTimestamp: Long, context: Context) {
+        ServiceReceiver.ex!!.submit {
+            Thread.sleep(1500)
+            synchronized(ServiceReceiver.ex!!) {
 
-        // prepare data
-        val history = CallHistory.getCallLogs(context)
-        var duration = history.callDuration?.toIntOrNull() ?: -1
-        val number = history.phoneNumber ?: ""
-        val callStarted = history.callStartedTimestamp
-        val callDirection = history.direction
+                // prepare data
+                val history = CallHistory.getCallLogs(context)
+                var duration = history.callDuration?.toIntOrNull() ?: -1
+                val number = history.phoneNumber ?: ""
+                val callStarted = history.callStartedTimestamp
+                val callDirection = history.direction
 
-        // if for xiaomi - it is sending duration >0, call is missed
-        if (history.isMissed) {
-            duration = 0
-        }
-        Log.d("CallWarden", "Call dir: ${callDirection.name}")
-        Log.d("CallWarden", "Is missed: ${history.isMissed}")
-        Log.d("CallWarden", "Call duration: $duration")
+                // if for xiaomi - it is sending duration >0, call is missed
+                if (history.isMissed) {
+                    duration = 0
+                }
 
-        val callAccepted: Long =
-            if (duration > 0) (callEndTimestamp - duration * 1_000_000) else 0
-
-
-        // prepare credentials
-        val credentials = PreferencesUtils.loadCredentials(context)
-        val projectId = PreferencesUtils.loadProjectId(context)
-        val projectName = PreferencesUtils.loadProjectName(context)
-
-        // store data
-        val call = Call(
-            callStarted,
-            credentials?.user.toString(),
-            credentials?.domain ?: "",
-            projectId ?: "-1",
-            projectName ?: "<none>",
-            duration,
-            callDirection,
-            number,
-            callStarted,
-            callEndTimestamp,
-            callAccepted
-        )
+                var callAccepted: Long =
+                    if (duration > 0) (callEndTimestamp - duration * 1000) else 0
 
 
-        val entity = CallEntity(
-            call.callStarted,
-            call.userId,
-            call.domainId,
-            call.projectId,
-            "",
-            call.projectName,
-            null,
-            call.direction.name,
-            call.phoneNumber,
-            call.callStarted,
-            call.callEnded,
-            call.callAccepted,
-            call.duration,
-        )
+                // prepare credentials
+                val credentials = PreferencesUtils.loadCredentials(context)
+                val projectId = PreferencesUtils.loadProjectId(context)
+                val projectName = PreferencesUtils.loadProjectName(context)
 
-        App.appDatabase.taskCalls().insert(entity)
-        App.cacheStorage.addCallItem(call)
-        uploadCall(context, listOf(entity)) { success ->
-            if (!success) {
-                val pendingEntity = PendingCallEntity(entity.callStarted!!)
-                App.appDatabase.pendingCalls().insert(pendingEntity)
+                // store data
+                val call = Call(
+                    callStarted,
+                    credentials?.user.toString() ?: "",
+                    credentials?.domain ?: "",
+                    projectId ?: "-1",
+                    projectName ?: "<none>",
+                    duration,
+                    callDirection,
+                    number,
+                    callStarted,
+                    callEndTimestamp,
+                    callAccepted
+                )
+
+                App.cacheStorage.addCallItem(call)
+                saveToAnalyticsTryToUpload(call, context)
+
             }
         }
     }
+
+    private fun saveToAnalyticsTryToUpload(call: Call, context: Context?) {
+        context?.let {
+
+            val entity = CallEntity(
+                call.callStarted,
+                call.userId,
+                call.domainId,
+                call.projectId,
+                "",
+                call.projectName,
+                null,
+                call.direction.name,
+                call.phoneNumber,
+                call.callStarted,
+                call.callEnded,
+                call.callAccepted,
+                call.duration,
+            )
+
+            GlobalScope.launch {
+                App.appDatabase.taskCalls().insert(entity)
+            }
+
+            uploadCall(context, listOf(entity)) { success ->
+                if (!success) {
+                    val pendingEntity = PendingCallEntity(entity.callStarted!!)
+                    GlobalScope.launch {
+                        App.appDatabase.pendingCalls().insert(pendingEntity)
+                    }
+                }
+            }
+        }
+    }
+
     override fun onIdleCalled() {
         Log.d(tag, "Service is informed about idle state from broadcast")
         unregisterPhoneListener() // unregister listeners, state may come twice
 
-        stopSelf()
+        stopSelf() // stops service
 
         Log.d(tag, "Call finished, prepare to store it ")
-        val idleCallTimestamp = System.currentTimeMillis()
-        // run in coroutine
-        GlobalScope.launch {
-            delay(1200)
-            recordCall(idleCallTimestamp, this@BackgroundCallService)
-        }
+        recordCall(System.currentTimeMillis(), this)
     }
 }
 
@@ -257,4 +264,3 @@ fun uploadCall(context: Context?, callEntities: List<CallEntity>, success: (Bool
     }
 
 }
-

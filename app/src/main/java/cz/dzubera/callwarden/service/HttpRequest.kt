@@ -20,7 +20,7 @@ object HttpRequest {
         println("staaaaacgh")
 
         val url = URL(Config.PROJECTS_URL)
-        val client = OkHttpClient().newBuilder().connectTimeout(1, TimeUnit.SECONDS).build()
+        val client = OkHttpClient().newBuilder().connectTimeout(3, TimeUnit.SECONDS).build()
 
         val formBody: RequestBody = FormBody.Builder()
             .add("id_domeny", domain)
