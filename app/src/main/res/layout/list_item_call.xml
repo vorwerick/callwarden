@@ -33,9 +33,9 @@
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/call_type"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:alpha="0.7"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:alpha="0.9"
                     android:layout_margin="8dp"
                     android:src="@drawable/ic_call_missed" />
 
@@ -70,7 +70,7 @@
                         android:gravity="center"
                         android:text=""
                         android:textColor="@color/black"
-                        android:textSize="14sp" />
+                        android:textSize="13sp" />
 
                 </LinearLayout>
 
@@ -104,7 +104,7 @@
 
                 <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/edit_call"
-                    android:layout_width="48dp"
+                    android:layout_width="38dp"
 
                     android:layout_height="match_parent"
                     android:layout_margin="0dp"

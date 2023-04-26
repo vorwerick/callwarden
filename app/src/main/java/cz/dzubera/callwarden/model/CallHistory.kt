@@ -93,6 +93,8 @@ object CallHistory {
             val callType = managedCursor.getString(type)
             val callDateTimestamp = managedCursor.getString(date)
             var callDuration = managedCursor.getString(duration)
+            Log.d("CallHistory", "callDuration: $callDuration")
+
             val direction: Int = callType.toInt()
 
             var callDirection = Call.Direction.OUTGOING;

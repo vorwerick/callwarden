@@ -14,7 +14,10 @@ import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.model.Call
 import java.text.SimpleDateFormat
 
-class CallAdapter(private val onItemClick: (Long) -> Unit,private val calls: (List<Call>) -> Unit) :
+class CallAdapter(
+    private val onItemClick: (Long) -> Unit,
+    private val calls: (List<Call>) -> Unit
+) :
     ListAdapter<Call, CallAdapter.ViewHolder>(CallDiffCallback) {
 
     /**
@@ -52,25 +55,37 @@ class CallAdapter(private val onItemClick: (Long) -> Unit,private val calls: (Li
             if (call.direction == Call.Direction.INCOMING) {
                 if (call.duration <= 0) {
                     imageIcon = R.drawable.ic_call_missed
-                    textViewCallInfo.text = "příchozí - nepřijatý"
+                    textViewCallInfo.text = "příchozí - nespojený"
                 } else {
                     imageIcon = R.drawable.ic_incoming_connected
-                    textViewCallInfo.text = "příchozí - přijatý"
+                    textViewCallInfo.text = "příchozí - spojený " + getDurationString(call.duration)
 
                 }
             } else {
                 if (call.duration <= 0) {
                     imageIcon = R.drawable.ic_outgoing_missed
-                    textViewCallInfo.text = "odchozí - nepřijatý"
+                    textViewCallInfo.text = "odchozí - nespojený"
                 } else {
                     imageIcon = R.drawable.ic_call_back
-                    textViewCallInfo.text = "odchozí - přijatý"
+                    textViewCallInfo.text = "odchozí - spojený " + getDurationString(call.duration)
 
                 }
             }
             imageViewCallType.setImageResource(imageIcon)
         }
+
+        private fun getDurationString(duration: Int): String {
+            val minutes = duration / 60
+            val seconds = duration % 60
+            if (minutes == 0) {
+                return "${seconds}s"
+            }
+            return "${minutes}m ${seconds}s"
+        }
+
     }
+
+    //call duration to minutes and seconds
 
     // Create new views (invoked by the layout manager)
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
