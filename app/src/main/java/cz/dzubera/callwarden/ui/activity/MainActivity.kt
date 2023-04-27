@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -21,18 +20,13 @@ import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.BuildConfig
 import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.model.Call
-import cz.dzubera.callwarden.model.CallHistory
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.db.CallEntity
 import cz.dzubera.callwarden.service.db.PendingCallEntity
-import cz.dzubera.callwarden.service.uploadCall
 import cz.dzubera.callwarden.ui.CallAdapter
 import cz.dzubera.callwarden.ui.CallViewModel
 import cz.dzubera.callwarden.ui.CallViewModelFactory
-import cz.dzubera.callwarden.utils.Config
-import cz.dzubera.callwarden.utils.DateUtils
-import cz.dzubera.callwarden.utils.PowerSaveUtils
-import cz.dzubera.callwarden.utils.PreferencesUtils
+import cz.dzubera.callwarden.utils.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -90,7 +84,15 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "Synchronizace probíhá...", Toast.LENGTH_SHORT)
                     .show()
                 //get calls from history
-                startSynchronization()
+                startSynchronization(this@MainActivity) {
+                    runOnUiThread {
+                        Toast.makeText(
+                            this@MainActivity,
+                            it,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
                 true
             }
             R.id.analytics -> {
@@ -112,109 +114,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun startSynchronization() {
-        val calls = CallHistory.getCallsHistory(
-            this@MainActivity,
-            PreferencesUtils.loadSyncCount(this@MainActivity)
-        ).toMutableList()
-        GlobalScope.launch {
-            val callsFromDB = App.appDatabase.taskCalls().getAll()
-
-            val syncCalls = mutableListOf<CallEntity>()
-            val uiCalls = mutableListOf<Call>()
-            calls.forEach {
-                if (callsFromDB.any { entityDb -> entityDb.uid == it.callStartedTimestamp }) {
-                    return@forEach
-                }
-                //log callstarted
-                Log.d("Need to be synchronized", it.callStartedTimestamp.toString())
-
-                // prepare data
-                val duration = it.callDuration?.toIntOrNull() ?: -1
-                val number = it.phoneNumber ?: ""
-                val callStarted = it.callStartedTimestamp
-                val callDirection = it.direction
-
-                // prepare credentials
-                val credentials = PreferencesUtils.loadCredentials(this@MainActivity)
-                val projectId = PreferencesUtils.loadProjectId(this@MainActivity)
-                val projectName = PreferencesUtils.loadProjectName(this@MainActivity)
-
-                // store data
-                val call = Call(
-                    callStarted,
-                    credentials?.user.toString() ?: "",
-                    credentials?.domain ?: "",
-                    projectId ?: "-1",
-                    projectName ?: "<none>",
-                    duration,
-                    callDirection,
-                    number,
-                    callStarted,
-                    0,
-                    0
-                )
-
-                uiCalls.add(call)
-                val entity = CallEntity(
-                    call.callStarted,
-                    call.userId,
-                    call.domainId,
-                    call.projectId,
-                    "",
-                    call.projectName,
-                    null,
-                    call.direction.name,
-                    call.phoneNumber,
-                    call.callStarted,
-                    call.callEnded,
-                    call.callAccepted,
-                    call.duration,
-                )
-
-                syncCalls.add(entity)
-            }
-            if (syncCalls.isEmpty()) {
-                runOnUiThread {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Synchornizace není potřeba, záznamy jsou aktuální.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                return@launch
-            }
-            //upload calls
-            uploadCall(this@MainActivity, syncCalls) { success ->
-                if (!success) {
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Synchronizace se nezdařila, zkontrolujte připojení k internetu.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                } else {
-                    //toast sync success
-                    syncCalls.forEach {
-                        App.appDatabase.taskCalls().insert(it)
-                    }
-                    uiCalls.forEach { App.cacheStorage.addCallItem(it) }
-                    runOnUiThread {
-
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Synchronizace proběhla úspěšně, nahráno a uloženo ${syncCalls.size} záznamů.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-            }
-
-
-        }
-
-    }
 
     private fun navigateToSetting() {
         val intent = Intent(this, SettingsActivity::class.java)
@@ -251,7 +150,7 @@ class MainActivity : AppCompatActivity() {
         if (cancelable) {
             builderSingle.setNegativeButton(
                 "Zpět"
-            ) { dialog, which -> dialog.dismiss() }
+            ) { dialog, _ -> dialog.dismiss() }
         }
         builderSingle.show()
     }
@@ -305,7 +204,7 @@ class MainActivity : AppCompatActivity() {
         }
         builderSingle.setNegativeButton(
             "Zpět"
-        ) { dialog, which -> dialog.dismiss() }
+        ) { dialog, _ -> dialog.dismiss() }
 
 
 
@@ -318,7 +217,7 @@ class MainActivity : AppCompatActivity() {
         builder.setMessage("RAMICALL " + BuildConfig.VERSION_NAME + "(" + BuildConfig.VERSION_CODE + ")" + "\n2023 RAMICORP s.r.o. \nVšechna práva vyhrazena")
             .setTitle("O aplikaci").setPositiveButton(
                 "Ok"
-            ) { p0, p1 -> p0.dismiss() }
+            ) { p0, _ -> p0.dismiss() }
 
 // 3. Get the <code><a href="/reference/android/app/AlertDialog.html">AlertDialog</a></code> from <code><a href="/reference/android/app/AlertDialog.Builder.html#create()">create()</a></code>
         val dialog: AlertDialog = builder.create()
@@ -333,7 +232,7 @@ class MainActivity : AppCompatActivity() {
         builder.setMessage("ID domény ${App.userSettingsStorage.credentials!!.domain}\nID uživatele ${App.userSettingsStorage.credentials!!.user}\nProjekt ${App.projectStorage.getProject()?.name ?: "<žádný>"}\nNeodeslaných požadavků: ${pendingRequests}")
             .setTitle("Uživatel").setPositiveButton(
                 "Ok"
-            ) { p0, p1 -> p0.dismiss() }
+            ) { p0, _ -> p0.dismiss() }
 
 // 3. Get the <code><a href="/reference/android/app/AlertDialog.html">AlertDialog</a></code> from <code><a href="/reference/android/app/AlertDialog.Builder.html#create()">create()</a></code>
         val dialog: AlertDialog = builder.create()
@@ -366,21 +265,22 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        supportActionBar?.title = "Záznamy hovorů";
+        supportActionBar?.title = "Záznamy hovorů"
 
         App.userSettingsStorage.credentials = credentials
 
         App.cacheStorage.registerObserver(::callObserver)
 
-        val callAdapter = CallAdapter ({
+        val callAdapter = CallAdapter({
             GlobalScope.launch {
                 val item = App.appDatabase.taskCalls().get(it)
                 if (item != null) {
                     runOnUiThread { showProjectEditDialog(item) }
                 }
             }
-        }, {calls ->
-            findViewById<TextView>(R.id.call_list_result_count).text = "Výsledků "+calls.size.toString()
+        }, { calls ->
+            findViewById<TextView>(R.id.call_list_result_count).text =
+                "Výsledků " + calls.size.toString()
         })
 
         val recyclerView: RecyclerView = findViewById(R.id.call_list)
@@ -416,7 +316,7 @@ class MainActivity : AppCompatActivity() {
         // only for first start
         // go to setting for optimization
         if (!PreferencesUtils.loadFirstStart(this)) {
-            PreferencesUtils.saveFirstStart(this, true);
+            PreferencesUtils.saveFirstStart(this, true)
             showSettingDialog()
         }
     }
@@ -427,8 +327,8 @@ class MainActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Nastavení")
         builder.setMessage("Pro správné fungování aplikace a zaznamenávání hovorů je nutné zkontrolovat nastavení.")
-        builder.setPositiveButton("Nastavení") { dialog, which -> navigateToSetting() }
-        builder.setNeutralButton("Zrušit") { dialog, which -> { } }
+        builder.setPositiveButton("Nastavení") { _, _ -> navigateToSetting() }
+        builder.setNeutralButton("Zrušit") { dialog, _ -> dialog.cancel()  }
         val dialog = builder.create()
         dialog.show()
     }
@@ -465,7 +365,7 @@ class MainActivity : AppCompatActivity() {
         }
         builderSingle.setNegativeButton(
             "Zpět"
-        ) { dialog, which -> dialog.dismiss() }
+        ) { dialog, _ -> dialog.dismiss() }
         builderSingle.show()
     }
 
@@ -526,11 +426,11 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
-    fun showDateFromPicker() {
+    private fun showDateFromPicker() {
         val c = Calendar.getInstance()
         c.time = App.dateFrom
 
-        val dpd = DatePickerDialog(this, { view, year, monthOfYear, dayOfMonth ->
+        val dpd = DatePickerDialog(this, { _, year, monthOfYear, dayOfMonth ->
 
             c.set(year, monthOfYear, dayOfMonth)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -546,11 +446,11 @@ class MainActivity : AppCompatActivity() {
         dpd.show()
     }
 
-    fun showDateToPicker() {
+    private fun showDateToPicker() {
         val c = Calendar.getInstance()
         c.time = App.dateTo
 
-        val dpd = DatePickerDialog(this, { view, year, monthOfYear, dayOfMonth ->
+        val dpd = DatePickerDialog(this, { _, year, monthOfYear, dayOfMonth ->
 
             c.set(year, monthOfYear, dayOfMonth)
 
@@ -567,7 +467,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun updateButtons() {
+    private fun updateButtons() {
         val buttonFrom: Button = findViewById(R.id.buttonFrom)
         buttonFrom.text = SimpleDateFormat("d.M.yyyy").format(App.dateFrom)
         val buttonTo: Button = findViewById(R.id.buttonTo)

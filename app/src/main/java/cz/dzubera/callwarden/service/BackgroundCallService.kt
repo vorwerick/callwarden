@@ -8,7 +8,6 @@ import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
-import android.telecom.TelecomManager
 import android.telephony.*
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -21,13 +20,11 @@ import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.model.CallHistory
 import cz.dzubera.callwarden.service.db.CallEntity
 import cz.dzubera.callwarden.service.db.PendingCallEntity
-import cz.dzubera.callwarden.utils.Iso2Phone
 import cz.dzubera.callwarden.utils.PreferencesUtils
+import cz.dzubera.callwarden.utils.uploadCall
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.json.JSONArray
-import org.json.JSONObject
 import java.util.*
 
 
@@ -36,6 +33,11 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
     private val tag = javaClass.name
 
     private var receiver: IdleStateReceiverForService? = null
+
+    companion object{
+        const val CHANNEL_ID = "my_service"
+        const val CHANNEL_NAME = "Ramicall"
+    }
 
 
     @SuppressLint("InlinedApi")
@@ -69,7 +71,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
     private fun startForeground() {
         val channelId =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                createNotificationChannel("my_service", "Ramicall")
+                createNotificationChannel()
             } else {
                 // If earlier version channel ID is not used
                 // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
@@ -89,17 +91,17 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannel(channelId: String, channelName: String): String {
+    private fun createNotificationChannel(): String {
         val chan = NotificationChannel(
-            channelId,
-            channelName, NotificationManager.IMPORTANCE_NONE
+            CHANNEL_ID,
+            CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE
         )
         chan.lightColor = Color.BLUE
         chan.description = "Evidence hovorů"
         chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
         val service = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         service.createNotificationChannel(chan)
-        return channelId
+        return CHANNEL_ID
     }
 
 
@@ -135,7 +137,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         }
     }
 
-    fun recordCall(callEndTimestamp: Long){
+    private fun recordCall(callEndTimestamp: Long){
         synchronized(ServiceReceiver.ex!!) {
 
             // prepare data
@@ -146,7 +148,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
             val callDirection = history.direction
 
 
-            var callAccepted: Long =
+            val callAccepted: Long =
                 if (duration > 0) (callEndTimestamp - duration * 1000) else 0
 
 
@@ -158,7 +160,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
             // store data
             val call = Call(
                 callStarted,
-                credentials?.user.toString() ?: "",
+                credentials?.user.toString(),
                 credentials?.domain ?: "",
                 projectId ?: "-1",
                 projectName ?: "<none>",
@@ -203,55 +205,3 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
     }
 }
 
-fun uploadCall(context: Context?, callEntities: List<CallEntity>, success: (Boolean) -> Unit) {
-    val credentials = context?.let { PreferencesUtils.loadCredentials(it) }
-    if (credentials != null) {
-        val recordJson = JSONObject()
-        val jsonArray = JSONArray()
-        callEntities.forEach { callEntity ->
-            var coutnryCode = "CZ"
-            Iso2Phone.all.forEach { (k, v) ->
-                if (callEntity.phoneNumber != null && callEntity.phoneNumber.contains(v)) {
-                    coutnryCode = k
-                }
-            }
-
-            val recordItem = JSONObject()
-            recordItem.put("projectId", callEntity.projectId)
-            recordItem.put("projectIdOld", callEntity.projectIdOld)
-            recordItem.put("direction", Call.Direction.valueOf(callEntity.direction ?: "").ordinal)
-            recordItem.put("number", callEntity.phoneNumber)
-            recordItem.put("startTimestamp", callEntity.callStarted)
-            recordItem.put("connectTimestamp", callEntity.callAccepted)
-
-            recordItem.put("endTimestamp", callEntity.callEnded)
-            recordItem.put("callDuration", callEntity.callDuration)
-            recordItem.put("countryCode", coutnryCode)
-
-            jsonArray.put(recordItem)
-
-        }
-
-        recordJson.put("records", jsonArray)
-        HttpRequest.sendEntries(
-            credentials.domain,
-            credentials.user,
-            recordJson.toString()
-        ) { httpResponse ->
-            when (httpResponse.code) {
-                200 -> {
-                    success(true)
-                }
-                422 -> {
-                    success(true)
-                    HttpRequest.getProjects(credentials.domain, credentials.user) {}
-                }
-                else -> {
-                    success(false)
-                }
-            }
-
-        }
-    }
-
-}
