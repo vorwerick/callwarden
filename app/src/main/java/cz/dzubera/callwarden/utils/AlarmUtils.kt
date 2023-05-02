@@ -26,26 +26,39 @@ object AlarmUtils {
         Log.d(tag, "schedule alarm called")
 
         cancelAlarm(context)
-        val pIntent = createPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT, true)
+        val pIntent = createPendingIntent(
+            context,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            true
+        )
 
         val firstMillis = System.currentTimeMillis()
 
         val alarmManager = context.getSystemService(Service.ALARM_SERVICE) as AlarmManager
 
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, AlarmManager.INTERVAL_HOUR, pIntent)
+        alarmManager.setInexactRepeating(
+            AlarmManager.RTC_WAKEUP,
+            firstMillis,
+            AlarmManager.INTERVAL_HOUR,
+            pIntent
+        )
         Log.d(tag, "alarm scheduled")
     }
 
     private fun cancelAlarm(context: Context) {
         Log.d(tag, "cancel alarm called")
 
-        val pIntent: PendingIntent? = createPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT, false)
+        val pIntent: PendingIntent? = createPendingIntent(
+            context,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            false
+        )
 
         val alarmManager = context.getSystemService(Service.ALARM_SERVICE) as AlarmManager
         if (pIntent != null && alarmManager != null) {
             alarmManager.cancel(pIntent)
             Log.d(tag, "alarm canceled")
-        }else{
+        } else {
             Log.d(tag, "alarm not canceled")
         }
 
@@ -65,7 +78,7 @@ object AlarmUtils {
                 intent,
                 flag
             )
-        }else{
+        } else {
             PendingIntent.getService(
                 context,
                 AlarmReceiver.requestCode,

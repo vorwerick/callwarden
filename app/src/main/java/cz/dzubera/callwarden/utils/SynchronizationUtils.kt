@@ -72,6 +72,7 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
             syncCalls.add(entity)
         }
         if (syncCalls.isEmpty()) {
+            PreferencesUtils.saveLastSyncDate(context, System.currentTimeMillis())
             state?.invoke("Synchornizace není potřeba, záznamy jsou aktuální.")
             return@launch
         }
@@ -88,6 +89,7 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
                 uiCalls.forEach { App.cacheStorage.addCallItem(it) }
 
                 state?.invoke("Synchronizace proběhla úspěšně, nahráno a uloženo ${syncCalls.size} záznamů.")
+                PreferencesUtils.saveLastSyncDate(context, System.currentTimeMillis())
             }
         }
     }

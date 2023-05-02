@@ -10,9 +10,22 @@ object PreferencesUtils {
     const val USER_KEY = "USER"
     const val PROJECT_ID = "PROJECT"
     const val PROJECT_NAME = "PROJECT_NAME"
-    const val AUTORESTART = "AUTORESTART"
     const val FIRST_START = "FIRST_START"
     const val SYNC_COUNT = "SYNC_COUNT"
+    const val LAST_SYNC_DATE = "LAST_SYNC_DATE"
+
+    // save timestamp of last sycn to shared preferences
+    fun saveLastSyncDate(context: Context, value: Long) {
+        context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().putLong(
+            LAST_SYNC_DATE, value
+        ).apply()
+    }
+
+    // load timestamp of last sync from shared preferences
+    fun loadLastSyncDate(context: Context): Long {
+        return context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+            .getLong(LAST_SYNC_DATE, 0)
+    }
 
     // save sync count value to shared preferences
     fun saveSyncCount(context: Context, value: Int) {
@@ -36,17 +49,6 @@ object PreferencesUtils {
     fun loadFirstStart(context: Context): Boolean {
         return context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
             .getBoolean(FIRST_START, false)
-    }
-
-    fun saveAutoRestartValue(context: Context, value: Boolean) {
-        context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().putBoolean(
-            AUTORESTART, value
-        ).apply()
-    }
-
-    fun loadAutoRestartValue(context: Context): Boolean {
-        return context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
-            .getBoolean(AUTORESTART, false)
     }
 
     fun saveProjectId(context: Context, id: String) {

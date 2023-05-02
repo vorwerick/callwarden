@@ -226,10 +226,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun showUserDialog() {
 
-
+        val lastSyncTime = PreferencesUtils.loadLastSyncDate(this)
+        var syncDateTime = SimpleDateFormat("HH:mm").format(lastSyncTime)
+        if (lastSyncTime == 0L) {
+            syncDateTime = "<neproběhla>"
+        }
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setMessage("ID domény ${App.userSettingsStorage.credentials!!.domain}\nID uživatele ${App.userSettingsStorage.credentials!!.user}\nProjekt ${App.projectStorage.getProject()?.name ?: "<žádný>"}\nNeodeslaných požadavků: ${pendingRequests}")
+        builder.setMessage(
+            "ID: ${App.userSettingsStorage.credentials!!.domain}\nUživatel: ${App.userSettingsStorage.credentials!!.user}\nProjekt: ${App.projectStorage.getProject()?.name ?: "<žádný>"}\nNeodeslaných požadavků: ${pendingRequests}\n" +
+                    "Poslední synchronizace: $syncDateTime"
+        )
             .setTitle("Uživatel").setPositiveButton(
                 "Ok"
             ) { p0, _ -> p0.dismiss() }
@@ -332,7 +339,7 @@ class MainActivity : AppCompatActivity() {
         builder.setTitle("Nastavení")
         builder.setMessage("Pro správné fungování aplikace a zaznamenávání hovorů je nutné zkontrolovat nastavení.")
         builder.setPositiveButton("Nastavení") { _, _ -> navigateToSetting() }
-        builder.setNeutralButton("Zrušit") { dialog, _ -> dialog.cancel()  }
+        builder.setNeutralButton("Zrušit") { dialog, _ -> dialog.cancel() }
         val dialog = builder.create()
         dialog.show()
     }
