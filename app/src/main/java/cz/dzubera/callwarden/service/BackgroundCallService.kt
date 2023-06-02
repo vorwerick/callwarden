@@ -20,6 +20,7 @@ import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.model.CallHistory
 import cz.dzubera.callwarden.service.db.CallEntity
 import cz.dzubera.callwarden.service.db.PendingCallEntity
+import cz.dzubera.callwarden.storage.ProjectStorage
 import cz.dzubera.callwarden.utils.PreferencesUtils
 import cz.dzubera.callwarden.utils.uploadCall
 import kotlinx.coroutines.GlobalScope
@@ -162,8 +163,8 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
                 callStarted,
                 credentials?.user.toString(),
                 credentials?.domain ?: "",
-                projectId ?: "-1",
-                projectName ?: "<none>",
+                projectId ?: ProjectStorage.EMPTY_PROJECT.id,
+                projectName ?: ProjectStorage.EMPTY_PROJECT.name,
                 duration,
                 callDirection,
                 number,
@@ -189,15 +190,10 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
                 call.duration,
             )
 
-            GlobalScope.launch {
-                App.appDatabase.taskCalls().insert(entity)
-            }
-
             uploadCall(this@BackgroundCallService, listOf(entity)) { success ->
-                if (!success) {
-                    val pendingEntity = PendingCallEntity(entity.callStarted!!)
+                if (success) {
                     GlobalScope.launch {
-                        App.appDatabase.pendingCalls().insert(pendingEntity)
+                        App.appDatabase.taskCalls().insert(entity)
                     }
                 }
             }

@@ -3,10 +3,14 @@ package cz.dzubera.callwarden.storage
 import org.json.JSONObject
 
 class ProjectStorage {
+
+    companion object{
+         val EMPTY_PROJECT = ProjectObject("","<žádný>")
+    }
     fun setProjects(newProjects: List<ProjectObject>) {
         projects.clear()
         projects.addAll(newProjects)
-        projects.add(0, ProjectObject("","<žádný>"))
+        projects.add(0, EMPTY_PROJECT)
     }
 
     fun setProject(po: ProjectObject){
@@ -19,7 +23,7 @@ class ProjectStorage {
     }
 
     private var selectedProject: ProjectObject? = null
-    val projects: MutableList<ProjectObject> = mutableListOf()
+    val projects: MutableList<ProjectObject> = mutableListOf(EMPTY_PROJECT)
 }
 
 class ProjectObject(val id: String, val name: String) {

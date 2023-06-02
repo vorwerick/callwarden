@@ -23,6 +23,8 @@ import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.db.CallEntity
 import cz.dzubera.callwarden.service.db.PendingCallEntity
+import cz.dzubera.callwarden.storage.ProjectStorage
+import cz.dzubera.callwarden.storage.ProjectStorage.Companion.EMPTY_PROJECT
 import cz.dzubera.callwarden.ui.CallAdapter
 import cz.dzubera.callwarden.ui.CallViewModel
 import cz.dzubera.callwarden.ui.CallViewModelFactory
@@ -416,7 +418,21 @@ class MainActivity : AppCompatActivity() {
         App.cacheStorage.loadFromDatabase()
 
         if (App.projectStorage.getProject() == null) {
-            showProjectDialog(false)
+            val creds = App.userSettingsStorage.credentials
+            if (creds != null) {
+                GlobalScope.launch {
+                    HttpRequest.getProjects(creds.domain, creds.user) {
+                        if (it.code == 200) {
+                            runOnUiThread { showProjectDialog(false) }
+                        } else {
+                            runOnUiThread { App.projectStorage.setProject(EMPTY_PROJECT) }
+                        }
+                    }
+                }
+            } else {
+                App.projectStorage.setProject(EMPTY_PROJECT)
+            }
+
         }
 
         checkPendingCallsForSend()
