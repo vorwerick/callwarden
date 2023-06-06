@@ -1,7 +1,9 @@
 package cz.dzubera.callwarden.ui.activity
 
+import android.Manifest
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
@@ -15,6 +17,8 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.BuildConfig
@@ -43,6 +47,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     var pendingRequests = 0
+
+    val list = listOf(
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.READ_SMS,
+        Manifest.permission.READ_CALL_LOG,
+        Manifest.permission.READ_CONTACTS,
+        Manifest.permission.CALL_PHONE,
+        Manifest.permission.GET_ACCOUNTS,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.POST_NOTIFICATIONS
+    )
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -82,20 +97,33 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.sync -> {
-                //show toast
-                Toast.makeText(this@MainActivity, "Synchronizace probíhá...", Toast.LENGTH_SHORT)
-                    .show()
-                //get calls from history
-                startSynchronization(this@MainActivity) {
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@MainActivity,
-                            it,
-                            Toast.LENGTH_LONG
-                        ).show()
+                if (!checkPermissions()) {
+                    // show toast you need permissions
+                    Toast.makeText(this@MainActivity, "Nemáte oprávnění", Toast.LENGTH_SHORT)
+                        .show()
+                    false
+                } else {
+                    //show toast
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Synchronizace probíhá...",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                    //get calls from history
+                    startSynchronization(this@MainActivity) {
+                        runOnUiThread {
+                            Toast.makeText(
+                                this@MainActivity,
+                                it,
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     }
+                    true
                 }
-                true
+
+
             }
             R.id.analytics -> {
                 val intent = Intent(this, AnalyticsActivity::class.java)
@@ -332,6 +360,9 @@ class MainActivity : AppCompatActivity() {
             PreferencesUtils.saveFirstStart(this, true)
             showSettingDialog()
         }
+
+        checkPermissions()
+
     }
 
 
@@ -407,6 +438,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+
         updateButtons()
         val buttonProject: Button = findViewById(R.id.buttonProject)
         buttonProject.setOnClickListener { selectProjectFilter() }
@@ -437,6 +470,55 @@ class MainActivity : AppCompatActivity() {
 
         checkPendingCallsForSend()
 
+    }
+
+    private fun checkPermissions(): Boolean {
+        return if (isPermissionsGranted() != PackageManager.PERMISSION_GRANTED) {
+            showAlert()
+            false
+        } else {
+            true
+        }
+    }
+
+    // Check permissions status
+    private fun isPermissionsGranted(): Int {
+        // PERMISSION_GRANTED : Constant Value: 0
+        // PERMISSION_DENIED : Constant Value: -1
+        var counter = 0;
+        for (permission in list) {
+            counter += ContextCompat.checkSelfPermission(this, permission)
+        }
+        return counter
+    }
+
+
+    // Find the first denied permission
+    private fun deniedPermission(): String {
+        for (permission in list) {
+            if (ContextCompat.checkSelfPermission(this, permission)
+                == PackageManager.PERMISSION_DENIED
+            ) return permission
+        }
+        return ""
+    }
+
+
+    // Show alert dialog to request permissions
+    private fun showAlert() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Oprávnění")
+        builder.setMessage("Pro správné fungování aplikace je potřeba potvrdit některá oprávnění.")
+        builder.setPositiveButton("Další") { dialog, which -> requestPermissions() }
+        builder.setNeutralButton("Ukončit") { dialog, which -> finish() }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+
+    // Request the permissions at run time
+    private fun requestPermissions() {
+        ActivityCompat.requestPermissions(this, list.toTypedArray(), 29)
     }
 
     override fun onDestroy() {
