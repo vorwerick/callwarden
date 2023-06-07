@@ -264,7 +264,7 @@ class MainActivity : AppCompatActivity() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setMessage(
-            "ID: ${App.userSettingsStorage.credentials!!.domain}\nUživatel: ${App.userSettingsStorage.credentials!!.user}\nProjekt: ${App.projectStorage.getProject()?.name ?: "<žádný>"}\nNeodeslaných požadavků: ${pendingRequests}\n" +
+            "ID: ${App.userSettingsStorage.credentials!!.domain}\nUživatel: ${App.userSettingsStorage.credentials!!.user}\nProjekt: ${App.projectStorage.getProject()?.name ?: "<žádný>"}\n"+
                     "Poslední synchronizace: $syncDateTime"
         )
             .setTitle("Uživatel").setPositiveButton(
@@ -473,7 +473,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkPermissions(): Boolean {
-        return if (isPermissionsGranted() != PackageManager.PERMISSION_GRANTED) {
+        return if (isAnyPermissionMissing()) {
             showAlert()
             false
         } else {
@@ -482,14 +482,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Check permissions status
-    private fun isPermissionsGranted(): Int {
-        // PERMISSION_GRANTED : Constant Value: 0
-        // PERMISSION_DENIED : Constant Value: -1
-        var counter = 0;
-        for (permission in list) {
-            counter += ContextCompat.checkSelfPermission(this, permission)
-        }
-        return counter
+    private fun isAnyPermissionMissing(): Boolean {
+        return list.any { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_DENIED }
     }
 
 
