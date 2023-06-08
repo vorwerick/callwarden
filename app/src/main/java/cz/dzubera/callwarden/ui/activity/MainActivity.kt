@@ -49,13 +49,12 @@ class MainActivity : AppCompatActivity() {
     var pendingRequests = 0
 
     val list = listOf(
-        Manifest.permission.READ_PHONE_STATE,
-        Manifest.permission.READ_SMS,
         Manifest.permission.READ_CALL_LOG,
+        Manifest.permission.WRITE_CONTACTS,
         Manifest.permission.READ_CONTACTS,
         Manifest.permission.CALL_PHONE,
-        Manifest.permission.GET_ACCOUNTS,
-        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.READ_PHONE_NUMBERS,
         Manifest.permission.POST_NOTIFICATIONS
     )
 
@@ -474,7 +473,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkPermissions(): Boolean {
         return if (isAnyPermissionMissing()) {
-            showAlert()
+            ActivityCompat.requestPermissions(this, list.toTypedArray(), 29)
             false
         } else {
             true
@@ -487,33 +486,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    // Find the first denied permission
-    private fun deniedPermission(): String {
-        for (permission in list) {
-            if (ContextCompat.checkSelfPermission(this, permission)
-                == PackageManager.PERMISSION_DENIED
-            ) return permission
-        }
-        return ""
-    }
-
-
-    // Show alert dialog to request permissions
-    private fun showAlert() {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Oprávnění")
-        builder.setMessage("Pro správné fungování aplikace je potřeba potvrdit některá oprávnění.")
-        builder.setPositiveButton("Další") { dialog, which -> requestPermissions() }
-        builder.setNeutralButton("Ukončit") { dialog, which -> finish() }
-        val dialog = builder.create()
-        dialog.show()
-    }
-
-
-    // Request the permissions at run time
-    private fun requestPermissions() {
-        ActivityCompat.requestPermissions(this, list.toTypedArray(), 29)
-    }
 
     override fun onDestroy() {
         super.onDestroy()
