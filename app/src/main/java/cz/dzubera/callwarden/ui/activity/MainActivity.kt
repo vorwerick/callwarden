@@ -48,17 +48,7 @@ class MainActivity : AppCompatActivity() {
 
     var pendingRequests = 0
 
-    val list = listOf(
-        Manifest.permission.READ_PHONE_STATE,
-        Manifest.permission.READ_SMS,
-        Manifest.permission.READ_CALL_LOG,
-        Manifest.permission.WRITE_CONTACTS,
-        Manifest.permission.READ_CONTACTS,
-        Manifest.permission.CALL_PHONE,
-        Manifest.permission.GET_ACCOUNTS,
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.POST_NOTIFICATIONS
-    )
+
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -143,6 +133,26 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun checkPermissions(): Boolean {
+        return if (isPermissionsGranted() != PackageManager.PERMISSION_GRANTED) {
+            false
+        } else {
+            true
+        }
+    }
+
+
+    // Check permissions status
+    private fun isPermissionsGranted(): Int {
+        // PERMISSION_GRANTED : Constant Value: 0
+        // PERMISSION_DENIED : Constant Value: -1
+        var counter = 0;
+        for (permission in LoginActivity.permissionList) {
+            counter += ContextCompat.checkSelfPermission(this, permission)
+        }
+        return counter
     }
 
 
@@ -362,8 +372,6 @@ class MainActivity : AppCompatActivity() {
             showSettingDialog()
         }
 
-        checkPermissions()
-
     }
 
 
@@ -471,20 +479,6 @@ class MainActivity : AppCompatActivity() {
 
         checkPendingCallsForSend()
 
-    }
-
-    private fun checkPermissions(): Boolean {
-        return if (isAnyPermissionMissing()) {
-            ActivityCompat.requestPermissions(this, list.toTypedArray(), 29)
-            false
-        } else {
-            true
-        }
-    }
-
-    // Check permissions status
-    private fun isAnyPermissionMissing(): Boolean {
-        return list.any { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_DENIED }
     }
 
 
