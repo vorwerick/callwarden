@@ -49,12 +49,14 @@ class MainActivity : AppCompatActivity() {
     var pendingRequests = 0
 
     val list = listOf(
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.READ_SMS,
         Manifest.permission.READ_CALL_LOG,
         Manifest.permission.WRITE_CONTACTS,
         Manifest.permission.READ_CONTACTS,
         Manifest.permission.CALL_PHONE,
-        Manifest.permission.READ_PHONE_STATE,
-        Manifest.permission.READ_PHONE_NUMBERS,
+        Manifest.permission.GET_ACCOUNTS,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.POST_NOTIFICATIONS
     )
 
