@@ -33,17 +33,18 @@ import cz.dzubera.callwarden.utils.PreferencesUtils
 class LoginActivity : AppCompatActivity() {
 
     companion object{
-        val permissionList = listOf(
-            Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.READ_SMS,
-            Manifest.permission.READ_CALL_LOG,
-            Manifest.permission.WRITE_CONTACTS,
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.CALL_PHONE,
-            Manifest.permission.GET_ACCOUNTS,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.POST_NOTIFICATIONS
-        )
+        val permissionList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            listOf(
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.READ_CALL_LOG,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        } else {
+            listOf(
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.READ_CALL_LOG,
+            )
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
