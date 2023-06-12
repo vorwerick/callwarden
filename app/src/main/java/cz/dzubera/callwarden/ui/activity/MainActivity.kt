@@ -49,8 +49,6 @@ class MainActivity : AppCompatActivity() {
     var pendingRequests = 0
 
 
-
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.main_menu, menu)
@@ -88,12 +86,11 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.sync -> {
-                if (!checkPermissions()) {
-                    // show toast you need permissions
-                    Toast.makeText(this@MainActivity, "Nemáte oprávnění", Toast.LENGTH_SHORT)
-                        .show()
-                    false
-                } else {
+                if (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.READ_CALL_LOG
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
                     //show toast
                     Toast.makeText(
                         this@MainActivity,
@@ -112,6 +109,11 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     true
+                } else {
+                    // show toast you need permissions
+                    Toast.makeText(this@MainActivity, "Nemáte oprávnění", Toast.LENGTH_SHORT)
+                        .show()
+                    false
                 }
 
 
@@ -275,7 +277,7 @@ class MainActivity : AppCompatActivity() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setMessage(
-            "ID: ${App.userSettingsStorage.credentials!!.domain}\nUživatel: ${App.userSettingsStorage.credentials!!.user}\nProjekt: ${App.projectStorage.getProject()?.name ?: "<žádný>"}\n"+
+            "ID: ${App.userSettingsStorage.credentials!!.domain}\nUživatel: ${App.userSettingsStorage.credentials!!.user}\nProjekt: ${App.projectStorage.getProject()?.name ?: "<žádný>"}\n" +
                     "Poslední synchronizace: $syncDateTime"
         )
             .setTitle("Uživatel").setPositiveButton(
@@ -480,7 +482,6 @@ class MainActivity : AppCompatActivity() {
         checkPendingCallsForSend()
 
     }
-
 
 
     override fun onDestroy() {
