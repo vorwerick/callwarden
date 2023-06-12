@@ -133,7 +133,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         val callEndTimestamp = System.currentTimeMillis()
 
         GlobalScope.launch {
-            delay(600)
+            delay(1800)
             recordCall(callEndTimestamp)
         }
     }
