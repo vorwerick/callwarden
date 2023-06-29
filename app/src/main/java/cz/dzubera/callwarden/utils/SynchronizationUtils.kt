@@ -1,11 +1,14 @@
 package cz.dzubera.callwarden.utils
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.model.CallHistory
 import cz.dzubera.callwarden.service.db.CallEntity
+import cz.dzubera.callwarden.utils.AlarmUtils.tag
+import io.sentry.Sentry
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -84,7 +87,13 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
             } else {
                 //toast sync success and insert to db
                 syncCalls.forEach {
-                    App.appDatabase.taskCalls().insert(it)
+                    try {
+                        App.appDatabase.taskCalls().insert(it)
+                    } catch (e : SQLiteConstraintException) {
+                        Log.e(tag, "Call already stored")
+                        Sentry.captureException(e)
+                    }
+
                 }
                 uiCalls.forEach { App.cacheStorage.addCallItem(it) }
 

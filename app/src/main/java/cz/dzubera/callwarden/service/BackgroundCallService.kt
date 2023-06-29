@@ -5,6 +5,7 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.database.sqlite.SQLiteConstraintException
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
@@ -23,6 +24,7 @@ import cz.dzubera.callwarden.service.db.PendingCallEntity
 import cz.dzubera.callwarden.storage.ProjectStorage
 import cz.dzubera.callwarden.utils.PreferencesUtils
 import cz.dzubera.callwarden.utils.uploadCall
+import io.sentry.Sentry
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -133,7 +135,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         val callEndTimestamp = System.currentTimeMillis()
 
         GlobalScope.launch {
-            delay(1800)
+            delay(1650)
             recordCall(callEndTimestamp)
         }
     }
@@ -157,6 +159,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
             val credentials = PreferencesUtils.loadCredentials(this@BackgroundCallService)
             val projectId = PreferencesUtils.loadProjectId(this@BackgroundCallService)
             val projectName = PreferencesUtils.loadProjectName(this@BackgroundCallService)
+
 
             // store data
             val call = Call(
@@ -189,14 +192,18 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
                 call.callAccepted,
                 call.duration,
             )
-
-            uploadCall(this@BackgroundCallService, listOf(entity)) { success ->
-                if (success) {
-                    GlobalScope.launch {
-                        App.appDatabase.taskCalls().insert(entity)
+            GlobalScope.launch {
+                try {
+                    App.appDatabase.taskCalls().insert(entity)
+                    uploadCall(this@BackgroundCallService, listOf(entity)) { success ->
                     }
+                } catch (e : SQLiteConstraintException) {
+                    Log.e(tag, "Call already stored")
+                    Sentry.captureException(e)
                 }
             }
+
+
         }
     }
 }
