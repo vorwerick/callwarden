@@ -20,9 +20,9 @@ import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.model.CallHistory
 import cz.dzubera.callwarden.service.db.CallEntity
-import cz.dzubera.callwarden.service.db.PendingCallEntity
 import cz.dzubera.callwarden.storage.ProjectStorage
 import cz.dzubera.callwarden.utils.PreferencesUtils
+import cz.dzubera.callwarden.utils.startSynchronization
 import cz.dzubera.callwarden.utils.uploadCall
 import io.sentry.Sentry
 import kotlinx.coroutines.GlobalScope
@@ -135,8 +135,10 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         val callEndTimestamp = System.currentTimeMillis()
 
         GlobalScope.launch {
-            delay(1650)
-            recordCall(callEndTimestamp)
+            delay(1300)
+            startSynchronization(this@BackgroundCallService){
+                Log.i(tag, it)
+            }
         }
     }
 

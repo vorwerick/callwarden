@@ -215,29 +215,42 @@ class MainActivity : AppCompatActivity() {
             callEntity.projectIdOld = String(callEntity.projectId!!.toByteArray())
             callEntity.projectId = selectedProject.id
             callEntity.projectName = selectedProject.name
-            App.cacheStorage.editCallItem(
-                Call(
-                    callEntity.uid,
-                    callEntity.userId!!,
-                    callEntity.domainId!!,
-                    callEntity.projectId ?: "-1",
-                    callEntity.projectName ?: "<none>",
-                    callEntity.callDuration!!,
-                    Call.Direction.valueOf(callEntity.direction!!),
-                    callEntity.phoneNumber!!,
-                    callEntity.callStarted!!,
-                    callEntity.callEnded!!,
-                    callEntity.callAccepted
-                )
-            )
+
 
             GlobalScope.launch {
-                App.appDatabase.taskCalls().update(callEntity)
+
                 uploadCall(this@MainActivity, listOf(callEntity)) { success ->
-                    if (!success) {
-                        val pendingEntity = PendingCallEntity(callEntity.callStarted)
-                        GlobalScope.launch {
-                            App.appDatabase.pendingCalls().insert(pendingEntity)
+                    if (success) {
+                        App.cacheStorage.editCallItem(
+                            Call(
+                                callEntity.uid,
+                                callEntity.userId!!,
+                                callEntity.domainId!!,
+                                callEntity.projectId ?: "-1",
+                                callEntity.projectName ?: "<none>",
+                                callEntity.callDuration!!,
+                                Call.Direction.valueOf(callEntity.direction!!),
+                                callEntity.phoneNumber!!,
+                                callEntity.callStarted!!,
+                                callEntity.callEnded!!,
+                                callEntity.callAccepted
+                            )
+                        )
+                        App.appDatabase.taskCalls().update(callEntity)
+                        runOnUiThread {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Projekt byl úspěšně změněn.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } else {
+                        runOnUiThread {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Nepodařilo se změnit projekt, zkuste to prosím znovu.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }
@@ -479,7 +492,7 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        checkPendingCallsForSend()
+        //checkPendingCallsForSend()
 
     }
 
