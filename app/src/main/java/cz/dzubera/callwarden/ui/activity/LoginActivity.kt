@@ -85,7 +85,7 @@ class LoginActivity : AppCompatActivity() {
             val userId = findViewById<EditText>(R.id.user_id).text.toString().toIntOrNull()
             if (domainId.isEmpty() || userId == null) {
                 findViewById<TextView>(R.id.error_label).text =
-                    "Zadejte doménu a uživetlské id"
+                    "Zadejte ID a uživatele"
             } else {
                 login(domainId, userId)
             }
@@ -177,23 +177,36 @@ class LoginActivity : AppCompatActivity() {
                 startActivity(intent)
             } else {
                 when (response.code) {
+                    0 -> {
+                        runOnUiThread {
+                            findViewById<TextView>(R.id.error_label).text =
+                                "Nelze se připojit k serveru.\nZkontrolujte připojení k internetu."
+                        }
+                    }
                     401 -> {
                         runOnUiThread {
                             findViewById<TextView>(R.id.error_label).text =
-                                "Neznámé ID nebo uživatel " + response.code
+                                "Neznámé ID nebo uživatel"
                         }
                     }
                     422 -> {
                         runOnUiThread {
                             findViewById<TextView>(R.id.error_label).text =
-                                "Uživatel nemá žádný projekt " + response.code
+                                "Uživatel nemá žádný projekt"
 
                         }
                     }
-                    else -> {
+                    404 -> {
                         runOnUiThread {
                             findViewById<TextView>(R.id.error_label).text =
-                                "Chyba " + response.code
+                                response.data ?: "Chyba serveru " + response.code
+
+                        }
+                    }
+                    in 500 .. 599 -> {
+                        runOnUiThread {
+                            findViewById<TextView>(R.id.error_label).text =
+                                response.data ?: "Chyba serveru" + response.code
 
                         }
                     }

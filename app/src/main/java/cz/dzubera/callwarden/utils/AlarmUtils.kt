@@ -36,13 +36,16 @@ object AlarmUtils {
 
         val alarmManager = context.getSystemService(Service.ALARM_SERVICE) as AlarmManager
 
-        alarmManager.setInexactRepeating(
-            AlarmManager.RTC_WAKEUP,
-            firstMillis,
-            AlarmManager.INTERVAL_HOUR,
-            pIntent
-        )
-        Log.d(tag, "alarm scheduled")
+        if (pIntent != null) {
+            alarmManager.setInexactRepeating(
+                AlarmManager.RTC_WAKEUP,
+                firstMillis,
+                AlarmManager.INTERVAL_HOUR,
+                pIntent
+            )
+            Log.d(tag, "alarm scheduled")
+        }
+
     }
 
     private fun cancelAlarm(context: Context) {

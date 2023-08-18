@@ -5,7 +5,7 @@ import org.json.JSONObject
 class ProjectStorage {
 
     companion object{
-         val EMPTY_PROJECT = ProjectObject("","<žádný>")
+         val EMPTY_PROJECT = ProjectObject("-1","<žádný>")
     }
     fun setProjects(newProjects: List<ProjectObject>) {
         projects.clear()
