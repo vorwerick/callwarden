@@ -9,6 +9,7 @@ import android.content.Intent
 import android.os.Build
 import android.telephony.TelephonyManager
 import android.util.Log
+import io.sentry.Sentry
 
 
 /* with extra state EXTRA_STATE can be recognized phone/call state
@@ -44,7 +45,13 @@ class PhoneStateReceiver : BroadcastReceiver() {
 
                 val i = Intent(context, BackgroundCallService::class.java)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(i)
+                    try {
+                        context.startForegroundService(i)
+                    } catch (e: java.lang.Exception) {
+                        Log.e(tag, "Error starting service", e)
+                        Sentry.addBreadcrumb(e.message.toString())
+                    }
+
                 } else {
                     context.startService(i)
                 }
@@ -55,7 +62,7 @@ class PhoneStateReceiver : BroadcastReceiver() {
             }
         } else {
             Log.d(tag, "Service is already running")
-            if(phoneIntent == intent?.action && extraState.equals(TelephonyManager.EXTRA_STATE_IDLE)){
+            if (phoneIntent == intent?.action && extraState.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
                 Log.d(tag, "Broadcasting idle state")
                 context.sendBroadcast(Intent(IdleStateReceiverForService.ACTION_SERVICE_IDLE_STATE))
             }
