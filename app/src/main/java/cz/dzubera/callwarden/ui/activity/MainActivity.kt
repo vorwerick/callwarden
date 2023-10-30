@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.BuildConfig
 import cz.dzubera.callwarden.R
+import cz.dzubera.callwarden.data.MockCallRecords
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.db.CallEntity
@@ -364,6 +365,33 @@ class MainActivity : AppCompatActivity() {
             buttonProject.text = App.projectFilter!!.name
         }
 
+        val buttonCallType: Button = findViewById(R.id.buttonCallType)
+        buttonCallType.setOnClickListener { selectCallTypeFilter() }
+        val income = App.callTypeFilter[0]
+        val outcome = App.callTypeFilter[1]
+        val accepted = App.callTypeFilter[2]
+        val unaccepted = App.callTypeFilter[3]
+        if (income && outcome && accepted && unaccepted) {
+            buttonCallType.text = "všechny"
+        } else if (!income && !outcome && !accepted && !unaccepted) {
+            buttonCallType.text = "žádné"
+        } else {
+            val sb = StringBuilder()
+            if (income) {
+                sb.append("příchozí ")
+            }
+            if (outcome) {
+                sb.append("odchozí ")
+            }
+            if (accepted) {
+                sb.append("spojené ")
+            }
+            if (unaccepted) {
+                sb.append("nespojené ")
+            }
+            buttonCallType.text = sb.toString()
+        }
+
         recyclerView.adapter = callAdapter
 
         val emptyView: TextView = findViewById(R.id.call_list_empty_message)
@@ -399,6 +427,55 @@ class MainActivity : AppCompatActivity() {
         builder.setNeutralButton("Zrušit") { dialog, _ -> dialog.cancel() }
         val dialog = builder.create()
         dialog.show()
+    }
+
+    private fun selectCallTypeFilter() {
+        val builderSingle = AlertDialog.Builder(this)
+        builderSingle.setTitle("Filtr dle typu hovoru")
+        builderSingle.setCancelable(true)
+        val stringArray = mutableListOf<String>()
+        stringArray.add("příchozí")
+        stringArray.add("odchozí")
+        stringArray.add("spojené")
+        stringArray.add("nespojené")
+        val checkedItems = App.callTypeFilter.toBooleanArray()
+        builderSingle.setMultiChoiceItems(
+            stringArray.toTypedArray(),
+            checkedItems
+        ) { _, which, isChecked ->
+            App.callTypeFilter[which] = isChecked
+            App.cacheStorage.loadFromDatabase { }
+            val buttonCallType: Button = findViewById(R.id.buttonCallType)
+            val income = App.callTypeFilter[0]
+            val outcome = App.callTypeFilter[1]
+            val accepted = App.callTypeFilter[2]
+            val unaccepted = App.callTypeFilter[3]
+            if (income && outcome && accepted && unaccepted) {
+                buttonCallType.text = "všechny"
+            } else if (!income && !outcome && !accepted && !unaccepted) {
+                buttonCallType.text = "žádné"
+            } else {
+                val sb = StringBuilder()
+                if (income) {
+                    sb.append("příchozí ")
+                }
+                if (outcome) {
+                    sb.append("odchozí ")
+                }
+                if (accepted) {
+                    sb.append("spojené ")
+                }
+                if (unaccepted) {
+                    sb.append("nespojené ")
+                }
+                buttonCallType.text = sb.toString()
+            }
+        }
+
+        builderSingle.setNegativeButton(
+            "Zpět"
+        ) { dialog, _ -> dialog.dismiss() }
+        builderSingle.show()
     }
 
     private fun selectProjectFilter() {
@@ -463,6 +540,19 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
+        val lastSyncTime = PreferencesUtils.loadLastSyncDate(this)
+        val diff = System.currentTimeMillis() - lastSyncTime
+        if (diff > 3600000) {
+            startSynchronization(this@MainActivity) {
+                runOnUiThread {
+                    Toast.makeText(
+                        this@MainActivity,
+                        it,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
 
         updateButtons()
         val buttonProject: Button = findViewById(R.id.buttonProject)
@@ -504,6 +594,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun callObserver(list: List<Call>) {
+        //val mockList = MockCallRecords.getMockCallRecords()
         callViewModel.setCalls(list)
     }
 

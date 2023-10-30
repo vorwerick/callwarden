@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradient"
+    android:background="@color/background"
 
     tools:context=".ui.activity.SettingsActivity">
 
@@ -51,14 +51,14 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="Optimalizace baterie"
-                        android:textColor="@color/black"
+                        android:textColor="@color/white"
                         android:textSize="18dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Nastavení životnosti aplikace na pozadí."
-                        android:textColor="#aa000000"
+                        android:textColor="@color/white"
                         android:textSize="14sp" />
 
                 </LinearLayout>
@@ -114,14 +114,14 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="Automatické spuštění"
-                        android:textColor="@color/black"
+                        android:textColor="@color/white"
                         android:textSize="18dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Bezpečnostní nastavení automatického spuštění"
-                        android:textColor="#aa000000"
+                        android:textColor="@color/white"
                         android:textSize="14sp" />
 
                 </LinearLayout>
@@ -176,7 +176,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="Počet záznamů synchronizace"
-                        android:textColor="@color/black"
+                        android:textColor="@color/white"
                         android:textSize="18dp" />
 
                     <TextView
@@ -184,7 +184,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=""
-                        android:textColor="#aa000000"
+                        android:textColor="@color/white"
                         android:textSize="14sp" />
 
                 </LinearLayout>

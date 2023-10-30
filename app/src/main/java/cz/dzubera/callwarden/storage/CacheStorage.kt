@@ -55,11 +55,43 @@ class CacheStorage {
     }
 
     fun loadFromDatabase(result: ((List<Call>) -> Unit)? = null) {
+        val income = App.callTypeFilter[0]
+        val outcome = App.callTypeFilter[1]
+        val accepted = App.callTypeFilter[2]
+        val unaccepted = App.callTypeFilter[3]
+
         getFromDB { calls ->
             synchronized(lock) {
-                val newList = calls.filter { call: Call ->
-                    App.dateFrom.before(Date(call.callStarted)) && App.dateTo.after(Date(call.callStarted)) && (App.projectFilter?.id == call.projectId || (App.projectFilter == null && !call.projectId.isEmpty()))
-                }.sortedByDescending { it.callStarted }
+                var newList = calls.filter { call: Call ->
+                    App.dateFrom.before(Date(call.callStarted))
+                            && App.dateTo.after(Date(call.callStarted))
+                            && (App.projectFilter?.id == call.projectId
+                            || (App.projectFilter == null
+                            && !call.projectId.isEmpty()))
+                }
+
+                if(income && outcome){
+
+                } else {
+                    if (income) {
+                        newList = newList.filter { it.direction == Call.Direction.INCOMING }
+                    }
+                    if (outcome) {
+                        newList = newList.filter { it.direction == Call.Direction.OUTGOING }
+                    }
+                }
+
+                if(accepted && unaccepted){
+
+                } else {
+                    if (accepted) {
+                        newList = newList.filter { it.duration > 0 }
+                    }
+                    if (unaccepted) {
+                        newList = newList.filter { it.duration <= 0 }
+                    }
+                }
+                newList = newList.sortedByDescending { it.callStarted }
                 callItems.clear()
                 callItems.addAll(newList)
                 result?.invoke(newList)

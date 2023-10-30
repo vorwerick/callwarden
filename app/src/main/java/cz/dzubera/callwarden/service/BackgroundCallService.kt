@@ -37,7 +37,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
 
     private var receiver: IdleStateReceiverForService? = null
 
-    companion object{
+    companion object {
         const val CHANNEL_ID = "my_service"
         const val CHANNEL_NAME = "Ramicall"
     }
@@ -136,13 +136,13 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
 
         GlobalScope.launch {
             delay(1300)
-            startSynchronization(this@BackgroundCallService){
+            startSynchronization(this@BackgroundCallService) {
                 Log.i(tag, it)
             }
         }
     }
 
-    private fun recordCall(callEndTimestamp: Long){
+    private fun recordCall(callEndTimestamp: Long) {
         synchronized(ServiceReceiver.ex!!) {
 
             // prepare data
@@ -196,10 +196,14 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
             )
             GlobalScope.launch {
                 try {
-                    App.appDatabase.taskCalls().insert(entity)
-                    uploadCall(this@BackgroundCallService, listOf(entity)) { success ->
+                    val results = App.appDatabase.taskCalls()
+                    if (results.get(entity.uid) == null) {
+                        App.appDatabase.taskCalls().insert(entity)
+                        uploadCall(this@BackgroundCallService, listOf(entity)) { success ->
+                        }
                     }
-                } catch (e : SQLiteConstraintException) {
+
+                } catch (e: SQLiteConstraintException) {
                     Log.e(tag, "Call already stored")
                     Sentry.captureException(e)
                 }

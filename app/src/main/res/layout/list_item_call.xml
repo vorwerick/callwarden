@@ -6,12 +6,15 @@
     android:layout_height="wrap_content"
     android:background="#00FFFFFF">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginVertical="4dp"
         android:elevation="16dp"
-        app:cardCornerRadius="4dp"
+        app:cardCornerRadius="12dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/primary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,7 +23,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/secondary_light"
+            android:background="@color/background"
 
             android:orientation="vertical">
 
@@ -33,25 +36,19 @@
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/call_type"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:alpha="0.9"
-                    android:layout_margin="8dp"
-                    android:src="@drawable/ic_call_missed" />
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/call_missed" />
 
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_weight="0.8"
+                    android:layout_weight="0.7"
                     android:layout_height="wrap_content"
                     android:layout_margin="4dp"
                     android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/call_project"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=""
-                        android:textColor="@color/black"
-                        android:textSize="14dp" />
 
                     <TextView
                         android:id="@+id/call_number"
@@ -59,62 +56,98 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="+420 731 465 931"
-                        android:textStyle="bold"
+                        android:textStyle="normal"
                         android:textColor="@color/black"
-                        android:textSize="16dp" />
-
+                        android:textSize="18sp" />
                     <TextView
-                        android:id="@+id/call_dir"
+                        android:id="@+id/call_project"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
                         android:text=""
-                        android:textColor="@color/black"
-                        android:textSize="13sp" />
+                        android:textColor="@color/grey"
+                        android:textSize="14sp" />
+
+
+
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="0.4"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end|center"
-                    android:layout_margin="2dp"
+<LinearLayout
+    android:layout_height="wrap_content"
+    android:layout_width="0dp"
+    android:layout_weight="0.5"
+    android:paddingVertical="4dp"
+    android:layout_gravity="center"
+    android:orientation="vertical">
 
-                    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:gravity="end"
+        android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/call_date"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:text="11.2.2022"
-                        android:textColor="@color/black" />
+        <TextView
+            android:id="@+id/call_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textSize="11sp"
+            android:text="11.2.2022"
+            android:textColor="@color/grey" />
 
-                    <TextView
-                        android:id="@+id/call_time"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
+        <TextView
+            android:layout_marginStart="3dp"
+            android:id="@+id/call_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textSize="12sp"
+            android:text="16:07:30"
+            android:textColor="@color/grey" />
+    </LinearLayout>
 
-                        android:text="16:07:30"
-                        android:textColor="@color/black" />
-                </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/call_dir"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="asdf"
+            android:gravity="end"
+            android:layout_gravity="end"
+            android:textColor="@color/grey"
+            android:textSize="12sp" />
+        <TextView
+            android:id="@+id/call_dur"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:layout_gravity="end"
+            android:text="sfssfsfsf"
+            android:textColor="@color/grey"
+            android:textSize="12sp" />
+    </LinearLayout>
+</LinearLayout>
 
 
                 <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/edit_call"
-                    android:layout_width="38dp"
+                    android:layout_width="30dp"
 
                     android:layout_height="match_parent"
                     android:layout_margin="0dp"
                     android:backgroundTint="#00FFFFFF"
-                    android:src="@drawable/ic_edit" />
+                    android:src="@drawable/more_vert" />
             </LinearLayout>
 
 
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

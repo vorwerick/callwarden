@@ -70,7 +70,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.login_activity)
-        supportActionBar?.title = "Příhlášení";
+        supportActionBar?.title = "";
 
 
         if (credentials != null) {

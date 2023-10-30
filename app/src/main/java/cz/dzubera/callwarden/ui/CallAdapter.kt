@@ -32,6 +32,7 @@ class CallAdapter(
         private val textViewCallDate: TextView = view.findViewById(R.id.call_date)
         private val textViewCallTime: TextView = view.findViewById(R.id.call_time)
         private val textViewCallInfo: TextView = view.findViewById(R.id.call_dir)
+        private val textViewCallDur: TextView = view.findViewById(R.id.call_dur)
         private val imageButtonEditCall: AppCompatImageButton = view.findViewById(R.id.edit_call)
 
 
@@ -51,23 +52,26 @@ class CallAdapter(
             textViewCallDate.text = SimpleDateFormat("dd.MM.yyyy").format(call.callStarted)
             textViewCallTime.text = SimpleDateFormat("HH:mm:ss").format(call.callStarted)
 
-            var imageIcon = R.drawable.ic_call_missed
+            var imageIcon = R.drawable.call_missed
             if (call.direction == Call.Direction.INCOMING) {
                 if (call.duration <= 0) {
-                    imageIcon = R.drawable.ic_call_missed
-                    textViewCallInfo.text = "příchozí - nespojený"
+                    imageIcon = R.drawable.call_missed
+                    textViewCallInfo.text = "příchozí"
+                    textViewCallDur.text = "nespojený"
                 } else {
-                    imageIcon = R.drawable.ic_incoming_connected
-                    textViewCallInfo.text = "příchozí - spojený " + getDurationString(call.duration)
-
+                    imageIcon = R.drawable.call_received
+                    textViewCallInfo.text = "příchozí"
+                    textViewCallDur.text = getDurationString(call.duration).toString()
                 }
             } else {
                 if (call.duration <= 0) {
-                    imageIcon = R.drawable.ic_outgoing_missed
-                    textViewCallInfo.text = "odchozí - nespojený"
+                    imageIcon = R.drawable.call_missed_outgoing
+                    textViewCallInfo.text = "odchozí"
+                    textViewCallDur.text = "nespojený"
                 } else {
-                    imageIcon = R.drawable.ic_call_back
-                    textViewCallInfo.text = "odchozí - spojený " + getDurationString(call.duration)
+                    imageIcon = R.drawable.call_made
+                    textViewCallInfo.text = "odchozí"
+                    textViewCallDur.text = getDurationString(call.duration).toString()
 
                 }
             }

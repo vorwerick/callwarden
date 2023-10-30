@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradient"
+    android:background="@color/background"
     tools:context=".ui.activity.MainActivity">
 
     <LinearLayout
@@ -28,7 +28,7 @@
                 android:layout_margin="8dp"
                 android:gravity="center"
                 android:text="Vyber od"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="14sp" />
 
             <Button
@@ -44,7 +44,7 @@
                 android:layout_margin="8dp"
                 android:gravity="center"
                 android:text="do"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
 
                 android:textSize="14sp" />
 
@@ -66,8 +66,8 @@
                 android:layout_height="match_parent"
                 android:layout_margin="8dp"
                 android:gravity="center"
-                android:text="Filtr projektu"
-                android:textColor="@color/white"
+                android:text="Projekty"
+                android:textColor="@color/black"
                 android:textSize="14sp" />
 
             <Button
@@ -79,12 +79,37 @@
                 android:textColor="@color/white" />
 
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="8dp"
+                android:gravity="center"
+                android:text="Typ hovoru"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/buttonCallType"
+                android:layout_width="260dp"
+                android:layout_height="38dp"
+                android:text=""
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/call_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+
         app:layoutManager="LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/call_list_result_count"
         app:layout_constraintEnd_toEndOf="parent"
@@ -96,7 +121,7 @@
         android:layout_height="wrap_content"
         android:padding="2dp"
         android:text="Výsledků 0"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="14sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -105,13 +130,14 @@
         app:layout_constraintTop_toBottomOf="@id/call_list" />
 
     <TextView
+        android:padding="32dp"
         android:id="@+id/call_list_empty_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Žádné zaznamenané hovory"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        android:text="Žádné nalezené hovory.\nZměňte parametry vyhledávání\nnebo proveďte synchronizaci."
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

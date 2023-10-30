@@ -35,6 +35,7 @@ class AnalyticsActivity : AppCompatActivity() {
         }
 
 
+
         App.cacheStorage.loadFromDatabase {
             runOnUiThread {
                 var accepted = 0

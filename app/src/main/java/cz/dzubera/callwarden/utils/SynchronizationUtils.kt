@@ -18,14 +18,14 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
         PreferencesUtils.loadSyncCount(context)
     ).toMutableList()
     GlobalScope.launch {
-        val callsFromDB = App.appDatabase.taskCalls().getAll()
+        //val callsFromDB = App.appDatabase.taskCalls().getAll()
 
         val syncCalls = mutableListOf<CallEntity>()
         val uiCalls = mutableListOf<Call>()
         calls.forEach {
-            if (callsFromDB.any { entityDb -> entityDb.uid == it.callStartedTimestamp }) {
+            /* if (callsFromDB.any { entityDb -> entityDb.uid == it.callStartedTimestamp }) {
                 return@forEach
-            }
+            } */
             //log callstarted
             Log.d("Need to be synchronized", it.callStartedTimestamp.toString())
 
@@ -88,10 +88,13 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
                 //toast sync success and insert to db
                 syncCalls.forEach {
                     try {
-                        App.appDatabase.taskCalls().insert(it)
+                        val results = App.appDatabase.taskCalls()
+                        if(results.get(it.uid) == null) {
+                            App.appDatabase.taskCalls().insert(it)
+                        }
+
                     } catch (e : SQLiteConstraintException) {
-                        Log.e(tag, "Call already stored")
-                        Sentry.captureException(e)
+                        Sentry.addBreadcrumb("Call already stored, trying to insert again")
                     }
 
                 }
