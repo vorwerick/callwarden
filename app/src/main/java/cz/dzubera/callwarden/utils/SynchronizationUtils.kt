@@ -18,14 +18,15 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
         PreferencesUtils.loadSyncCount(context)
     ).toMutableList()
     GlobalScope.launch {
-        //val callsFromDB = App.appDatabase.taskCalls().getAll()
+        val callsFromDB = App.appDatabase.taskCalls().getAll()
 
         val syncCalls = mutableListOf<CallEntity>()
         val uiCalls = mutableListOf<Call>()
         calls.forEach {
-            /* if (callsFromDB.any { entityDb -> entityDb.uid == it.callStartedTimestamp }) {
+            if (callsFromDB.any { entityDb -> (entityDb.uid == it.callStartedTimestamp) || (entityDb.projectId == "-1") }) {
                 return@forEach
-            } */
+            }
+
             //log callstarted
             Log.d("Need to be synchronized", it.callStartedTimestamp.toString())
 
