@@ -23,7 +23,9 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
         val syncCalls = mutableListOf<CallEntity>()
         val uiCalls = mutableListOf<Call>()
         calls.forEach {
-            if (callsFromDB.any { entityDb -> (entityDb.uid == it.callStartedTimestamp) || (entityDb.projectId == "-1") }) {
+
+
+            if (callsFromDB.any { entityDb -> (entityDb.uid == it.callStartedTimestamp)  }) {
                 return@forEach
             }
 
@@ -40,6 +42,10 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
             val credentials = PreferencesUtils.loadCredentials(context)
             val projectId = PreferencesUtils.loadProjectId(context)
             val projectName = PreferencesUtils.loadProjectName(context)
+
+            if(projectId == null){
+                return@forEach
+            }
 
             // store data
             val call = Call(

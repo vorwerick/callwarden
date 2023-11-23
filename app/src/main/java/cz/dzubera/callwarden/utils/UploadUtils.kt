@@ -4,6 +4,7 @@ import android.content.Context
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.db.CallEntity
+import io.sentry.Sentry
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -51,6 +52,7 @@ fun uploadCall(context: Context?, callEntities: List<CallEntity>, success: (Bool
                     HttpRequest.getProjects(credentials.domain, credentials.user) {}
                 }
                 else -> {
+                    Sentry.addBreadcrumb("Upload call error, status code " + httpResponse.code)
                     success(false)
                 }
             }
