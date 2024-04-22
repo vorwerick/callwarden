@@ -7,9 +7,12 @@ import android.content.Context
 import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.os.Build
+import android.telephony.PhoneStateListener
+import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import android.util.Log
 import io.sentry.Sentry
+import java.util.concurrent.Executors
 
 
 /* with extra state EXTRA_STATE can be recognized phone/call state
@@ -36,6 +39,13 @@ class PhoneStateReceiver : BroadcastReceiver() {
         val extraPhoneNumber = intent?.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
 
         Log.d(tag, "Phone state received: $extraState, phone number $extraPhoneNumber")
+
+        if (extraPhoneNumber != null && extraState != null && extraState.contains("RINGING")) {
+            val i = Intent(context, IncomingCallInfoService::class.java)
+            intent.putExtra("phone_number", extraPhoneNumber);
+            context.startService(i)
+
+        }
 
         // to no start service twice
         if (!isServiceRunning(context)) {

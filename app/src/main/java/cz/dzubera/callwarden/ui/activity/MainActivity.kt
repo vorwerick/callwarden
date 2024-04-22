@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -176,7 +177,7 @@ class MainActivity : AppCompatActivity() {
             arrayAdapter
         ) { _, p1 ->
             println(p1.toString())
-            App.projectStorage.setProject(App.projectStorage.projects[p1])
+            App.projectStorage.setProject(this, App.projectStorage.projects[p1])
             PreferencesUtils.saveProjectId(this@MainActivity, App.projectStorage.getProject()!!.id)
             PreferencesUtils.saveProjectName(
                 this@MainActivity,
@@ -189,6 +190,7 @@ class MainActivity : AppCompatActivity() {
                 supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
 
             }
+            startSynch()
 
         }
         if (cancelable) {
@@ -316,11 +318,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        Log.i("testik", "abrakadabra " + PreferencesUtils.get(this,"XXX"));
+
         val projectId = PreferencesUtils.loadProjectId(this)
         if (projectId != null) {
             val projectObject = App.projectStorage.projects.find { it.id == projectId }
             if (projectObject != null) {
-                App.projectStorage.setProject(projectObject)
+                App.projectStorage.setProject(this, projectObject)
             }
             val id = App.projectStorage.getProject()?.id
             if (id.isNullOrEmpty()) {
@@ -536,23 +540,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun startSynch(){
+        if(App.projectStorage.getProject() != null){
+            val lastSyncTime = PreferencesUtils.loadLastSyncDate(this)
+            val diff = System.currentTimeMillis() - lastSyncTime
+            if (diff > 3600000) {
+                startSynchronization(this@MainActivity) {
+                    runOnUiThread {
+                        Toast.makeText(
+                            this@MainActivity,
+                            it,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
 
     override fun onResume() {
         super.onResume()
 
-        val lastSyncTime = PreferencesUtils.loadLastSyncDate(this)
-        val diff = System.currentTimeMillis() - lastSyncTime
-        if (diff > 3600000) {
-            startSynchronization(this@MainActivity) {
-                runOnUiThread {
-                    Toast.makeText(
-                        this@MainActivity,
-                        it,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        }
+        startSynch()
+
 
         updateButtons()
         val buttonProject: Button = findViewById(R.id.buttonProject)
@@ -572,12 +582,12 @@ class MainActivity : AppCompatActivity() {
                         if (it.code == 200) {
                             runOnUiThread { showProjectDialog(false) }
                         } else {
-                            runOnUiThread { App.projectStorage.setProject(EMPTY_PROJECT) }
+                            runOnUiThread { App.projectStorage.setProject(this@MainActivity, EMPTY_PROJECT) }
                         }
                     }
                 }
             } else {
-                App.projectStorage.setProject(EMPTY_PROJECT)
+                App.projectStorage.setProject(this, EMPTY_PROJECT)
             }
 
         }

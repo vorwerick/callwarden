@@ -94,5 +94,14 @@ object PreferencesUtils {
         context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().clear().apply()
     }
 
+    fun save(context: Context, key: String, value: String) {
+        context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE).edit().putString(key, value).apply()
+    }
+
+    fun get(context: Context, key: String): String? {
+        return context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+            .getString(key, null)
+    }
+
 
 }

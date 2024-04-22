@@ -1,5 +1,6 @@
 package cz.dzubera.callwarden.service
 
+import android.util.Log
 import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.storage.getProjectObject
 import cz.dzubera.callwarden.utils.Config
@@ -57,13 +58,67 @@ object HttpRequest {
                 } else {
                     val body = response.body?.string().toString()
                     val httpResponse = HttpResponse(body)
-                    if(response.body != null){
+                    if (response.body != null) {
                         val projects = JSONObject(body).getProjectObject()
                         App.projectStorage.setProjects(projects)
                         projects.forEach { println(it.name) }
                     }
 
                     onResponse.invoke(httpResponse)
+                }
+
+
+            }
+        })
+
+    }
+
+    fun sendIncomingCall(
+        domain: String,
+        user: Int,
+        projectId: String,
+        number: String,
+        onResponse: (HttpResponse) -> Unit
+    ) {
+
+
+        val url = URL(Config.SEND_INCOMING_CALL_URL)
+        val client = OkHttpClient()
+
+        val formBody: RequestBody = FormBody.Builder()
+            .add("id_domena", domain)
+            .add("id_user", user.toString())
+            .add("projectId", projectId.toString())
+            .add("number", number)
+            .build()
+        val request = Request.Builder()
+            .addHeader("X-API-KEY", getApiKey(domain).toString())
+            .url(url)
+            .post(formBody)
+            .build()
+
+        val call: okhttp3.Call = client.newCall(request)
+        call.enqueue(object : Callback {
+
+
+            override fun onFailure(call: okhttp3.Call, e: IOException) {
+                Log.e(
+                    "Http Request Service",
+                    "Incoming number $number not sent! ${e.localizedMessage ?: "unknown error"}"
+                )
+
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: okhttp3.Call, response: Response) {
+
+                if (response.code > 200) {
+                    Log.e(
+                        "Http Request Service",
+                        "Incoming number $number not sent! ${response.code} -> ${response.message}"
+                    )
+                } else {
+                    Log.i("Http Request Service", "Incoming number $number sent!")
                 }
 
 
@@ -86,11 +141,12 @@ object HttpRequest {
         return result
     }
 
-    fun sendEntries(domain: String, user: Int, data: String,onResponse: (HttpResponse) -> Unit) {
+    fun sendEntries(domain: String, user: Int, data: String, onResponse: (HttpResponse) -> Unit) {
 
 
         val url = URL(Config.CALL_URL)
-        val client = OkHttpClient().newBuilder().connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS).build()
+        val client =
+            OkHttpClient().newBuilder().connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS).build()
 
         val formBody: RequestBody = FormBody.Builder()
             .add("id_domeny", domain)

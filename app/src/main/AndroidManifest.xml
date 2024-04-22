@@ -67,7 +67,7 @@
         <receiver android:name=".service.AlarmReceiver" android:process=":remote"/>
 
         <service android:name=".service.BackgroundSyncService" android:exported="false"/>
-
+        <service android:name=".service.IncomingCallInfoService" android:exported="false"/>
     </application>
 
 </manifest>

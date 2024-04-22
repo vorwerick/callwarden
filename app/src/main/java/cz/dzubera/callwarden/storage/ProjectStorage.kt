@@ -1,5 +1,7 @@
 package cz.dzubera.callwarden.storage
 
+import android.content.Context
+import cz.dzubera.callwarden.utils.PreferencesUtils
 import org.json.JSONObject
 
 class ProjectStorage {
@@ -13,9 +15,10 @@ class ProjectStorage {
         projects.add(0, EMPTY_PROJECT)
     }
 
-    fun setProject(po: ProjectObject){
+    fun setProject(context: Context, po: ProjectObject){
         selectedProject = po
-
+        PreferencesUtils.saveProjectId(context, po.id)
+        PreferencesUtils.saveProjectName(context, po.name)
     }
 
     fun getProject(): ProjectObject? {

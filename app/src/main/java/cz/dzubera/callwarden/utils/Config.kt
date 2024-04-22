@@ -7,5 +7,6 @@ object Config {
     var signedOut = false
 
     const val PROJECTS_URL = "https://cron.ramisys.cz/mobil/projects/"
+    const val SEND_INCOMING_CALL_URL = "https://cron.ramisys.cz/mobil/ring/"
     const val CALL_URL = "https://cron.ramisys.cz/mobil/call/"
 }

@@ -25,7 +25,7 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
         calls.forEach {
 
 
-            if (callsFromDB.any { entityDb -> (entityDb.uid == it.callStartedTimestamp)  }) {
+            if (callsFromDB.any { entityDb -> (entityDb.uid == it.callStartedTimestamp) }) {
                 return@forEach
             }
 
@@ -40,11 +40,13 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
 
             // prepare credentials
             val credentials = PreferencesUtils.loadCredentials(context)
-            val projectId = PreferencesUtils.loadProjectId(context)
-            val projectName = PreferencesUtils.loadProjectName(context)
+            var projectId = PreferencesUtils.loadProjectId(context)
+            var projectName = PreferencesUtils.loadProjectName(context)
 
-            if(projectId == null){
-                return@forEach
+            val proj = App.projectStorage.getProject()
+            if (proj != null) {
+                projectId = proj.id
+                projectName = proj.name
             }
 
             // store data
@@ -96,11 +98,11 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
                 syncCalls.forEach {
                     try {
                         val results = App.appDatabase.taskCalls()
-                        if(results.get(it.uid) == null) {
+                        if (results.get(it.uid) == null) {
                             App.appDatabase.taskCalls().insert(it)
                         }
 
-                    } catch (e : SQLiteConstraintException) {
+                    } catch (e: SQLiteConstraintException) {
                         Sentry.addBreadcrumb("Call already stored, trying to insert again")
                     }
 
