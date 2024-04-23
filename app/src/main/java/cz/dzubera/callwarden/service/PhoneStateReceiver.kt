@@ -41,7 +41,7 @@ class PhoneStateReceiver : BroadcastReceiver() {
 
         Log.d(tag, "Phone state received: $extraState, phone number $extraPhoneNumber")
 
-        if (extraPhoneNumber != null) {
+        if (extraPhoneNumber != null && extraState != null && extraState.contains("RINGING")) {
             val i = Intent(context, IncomingCallInfoService::class.java)
             i.putExtra("phone_number", extraPhoneNumber);
             context.startService(i)
