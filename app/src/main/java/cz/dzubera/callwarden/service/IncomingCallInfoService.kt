@@ -17,10 +17,11 @@ class IncomingCallInfoService : Service() {
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.i("testik", "on create")
+
         val credentials = PreferencesUtils.loadCredentials(this)
         val projectId = PreferencesUtils.loadProjectId(this) ?: ProjectStorage.EMPTY_PROJECT.id
         val phoneNumber = intent!!.getStringExtra("phone_number")
+        Log.i("testik", "on create " + phoneNumber.toString())
         if (credentials == null) {
             return START_NOT_STICKY
         }

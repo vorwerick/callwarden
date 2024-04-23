@@ -86,7 +86,7 @@ object HttpRequest {
         val client = OkHttpClient()
 
         val formBody: RequestBody = FormBody.Builder()
-            .add("id_domena", domain)
+            .add("id_domeny", domain)
             .add("id_user", user.toString())
             .add("projectId", projectId.toString())
             .add("number", number)
@@ -104,7 +104,7 @@ object HttpRequest {
             override fun onFailure(call: okhttp3.Call, e: IOException) {
                 Log.e(
                     "Http Request Service",
-                    "Incoming number $number not sent! ${e.localizedMessage ?: "unknown error"}"
+                    "Incoming number $number not sent via error! ${e.localizedMessage ?: "unknown error"}"
                 )
 
             }
@@ -113,6 +113,8 @@ object HttpRequest {
             override fun onResponse(call: okhttp3.Call, response: Response) {
 
                 if (response.code > 200) {
+                    val body = response.body?.string().toString()
+
                     Log.e(
                         "Http Request Service",
                         "Incoming number $number not sent! ${response.code} -> ${response.message}"

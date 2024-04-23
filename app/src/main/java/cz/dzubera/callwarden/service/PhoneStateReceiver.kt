@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
@@ -40,9 +41,9 @@ class PhoneStateReceiver : BroadcastReceiver() {
 
         Log.d(tag, "Phone state received: $extraState, phone number $extraPhoneNumber")
 
-        if (extraPhoneNumber != null && extraState != null && extraState.contains("RINGING")) {
+        if (extraPhoneNumber != null) {
             val i = Intent(context, IncomingCallInfoService::class.java)
-            intent.putExtra("phone_number", extraPhoneNumber);
+            i.putExtra("phone_number", extraPhoneNumber);
             context.startService(i)
 
         }
