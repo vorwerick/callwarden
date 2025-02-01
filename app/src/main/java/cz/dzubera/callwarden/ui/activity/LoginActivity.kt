@@ -1,15 +1,11 @@
 package cz.dzubera.callwarden.ui.activity
 
 import android.Manifest
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
-import android.provider.Settings
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
@@ -17,27 +13,28 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.google.firebase.messaging.FirebaseMessaging
 import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.model.Credentials
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.HttpResponse
 import cz.dzubera.callwarden.service.ResponseStatus
 import cz.dzubera.callwarden.utils.Config
-import cz.dzubera.callwarden.utils.PowerSaveUtils
 import cz.dzubera.callwarden.utils.PreferencesUtils
 
 
 class LoginActivity : AppCompatActivity() {
 
-    companion object{
+    companion object {
         val permissionList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             listOf(
                 Manifest.permission.READ_PHONE_STATE,
                 Manifest.permission.READ_CALL_LOG,
-                Manifest.permission.POST_NOTIFICATIONS
+                Manifest.permission.POST_NOTIFICATIONS,
             )
         } else {
             listOf(
@@ -45,15 +42,51 @@ class LoginActivity : AppCompatActivity() {
                 Manifest.permission.READ_CALL_LOG,
             )
         }
+
+        var fcmToken: String? = null
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        intent?.extras?.getString("url")?.let { url ->
+            val customTabsIntent = CustomTabsIntent.Builder().build()
+            customTabsIntent.launchUrl(this, Uri.parse(url))
+        }
+    }
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
+            PreferencesUtils.save(this@LoginActivity, "firebase_token", fcmToken)
+        }
+
+        handleIntent(intent)
+
+
         val credentials = PreferencesUtils.loadCredentials(this)
 
-        val hasPermissions =checkPermissions()
+        val hasPermissions = checkPermissions()
 
+        /*
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w("FCM", "Nepodařilo se získat token", task.exception)
+                    return@addOnCompleteListener
+                }
+
+                val token = task.result
+                LoginActivity.fcmToken = token
+                Log.d("FCM", "FCM Token: $token")
+            }
+
+
+         */
 
         if (credentials != null && hasPermissions) {
             HttpRequest.getProjects(
@@ -172,7 +205,7 @@ class LoginActivity : AppCompatActivity() {
         HttpRequest.getProjects(domain, user) { response: HttpResponse ->
             if (response.status == ResponseStatus.SUCCESS) {
                 println("KOKO: " + response.data.toString())
-                PreferencesUtils.saveCredentials(this, Credentials(domain, user))
+                PreferencesUtils.saveCredentials(this@LoginActivity, Credentials(domain, user))
                 val intent = Intent(this@LoginActivity, MainActivity::class.java)
                 startActivity(intent)
             } else {
@@ -183,12 +216,14 @@ class LoginActivity : AppCompatActivity() {
                                 "Nelze se připojit k serveru.\nZkontrolujte připojení k internetu."
                         }
                     }
+
                     401 -> {
                         runOnUiThread {
                             findViewById<TextView>(R.id.error_label).text =
                                 "Neznámé ID nebo uživatel"
                         }
                     }
+
                     422 -> {
                         runOnUiThread {
                             findViewById<TextView>(R.id.error_label).text =
@@ -196,6 +231,7 @@ class LoginActivity : AppCompatActivity() {
 
                         }
                     }
+
                     404 -> {
                         runOnUiThread {
                             findViewById<TextView>(R.id.error_label).text =
@@ -203,7 +239,8 @@ class LoginActivity : AppCompatActivity() {
 
                         }
                     }
-                    in 500 .. 599 -> {
+
+                    in 500..599 -> {
                         runOnUiThread {
                             findViewById<TextView>(R.id.error_label).text =
                                 response.data ?: "Chyba serveru" + response.code

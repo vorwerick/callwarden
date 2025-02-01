@@ -2,6 +2,7 @@ package cz.dzubera.callwarden.utils
 
 import android.content.Context
 import cz.dzubera.callwarden.model.Credentials
+import cz.dzubera.callwarden.service.IncomingCallInfoService
 
 object PreferencesUtils {
 

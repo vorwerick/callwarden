@@ -6,3 +6,10 @@ local.properties
 /workspace.xml
 /jarRepositories.xml
 /gr
+/.idea/callwarden.iml
+/.idea/deploymentTargetDropDown.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/caches/deviceStreaming.xml
+/.idea/kotlinc.xml
+/.idea/migrations.xml
+/.idea/runConfigurations.xml

@@ -5,6 +5,9 @@ import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.db.CallEntity
 import io.sentry.Sentry
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -49,7 +52,9 @@ fun uploadCall(context: Context?, callEntities: List<CallEntity>, success: (Bool
                 }
                 422 -> {
                     success(true)
-                    HttpRequest.getProjects(credentials.domain, credentials.user) {}
+                    HttpRequest.getProjects(credentials.domain, credentials.user) {
+
+                    }
                 }
                 else -> {
                     Sentry.addBreadcrumb("Upload call error, status code " + httpResponse.code)

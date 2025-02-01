@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat.CallStyle.CallType
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.google.firebase.FirebaseApp
 import cz.dzubera.callwarden.service.BackgroundCallService
 import cz.dzubera.callwarden.service.db.AppDatabase
 import cz.dzubera.callwarden.storage.CacheStorage
@@ -59,6 +60,8 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        FirebaseApp.initializeApp(this)
 
         appDatabase = Room.databaseBuilder(this, AppDatabase::class.java, "call_warden")
             .addMigrations(MIGRATION_1_2).build()

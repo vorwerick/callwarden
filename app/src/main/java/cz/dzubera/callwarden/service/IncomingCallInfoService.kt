@@ -6,8 +6,8 @@ import android.os.IBinder
 import android.util.Log
 import cz.dzubera.callwarden.storage.ProjectStorage
 import cz.dzubera.callwarden.utils.PreferencesUtils
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class IncomingCallInfoService : Service() {
@@ -25,14 +25,16 @@ class IncomingCallInfoService : Service() {
         if (credentials == null) {
             return START_NOT_STICKY
         }
-        GlobalScope.launch {
+        val token = PreferencesUtils.get(this, "firebase_token") ?: ""
+        CoroutineScope(Dispatchers.Main).launch {
 
             HttpRequest.sendIncomingCall(
-                credentials.domain,
-                credentials.user,
-                projectId,
-                phoneNumber ?: "?"
-            ) {}
+                domain = credentials.domain,
+                user = credentials.user,
+                projectId = projectId,
+                number = phoneNumber ?: "?",
+                token = token, onResponse = {}
+            )
             Log.i("testik", "new taskys")
             Log.i("testik", "danone")
             PreferencesUtils.save(

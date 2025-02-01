@@ -9,8 +9,8 @@ import java.util.*
 class CacheStorage {
 
     private val observers = mutableListOf<(list: List<Call>) -> Unit>()
-
     private val callItems = mutableListOf<Call>()
+    private val firebaseToken : String?= null
 
     private lateinit var lock: String
     fun initialize() {

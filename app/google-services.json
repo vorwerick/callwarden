@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "347802669968",
+    "project_id": "ramicall",
+    "storage_bucket": "ramicall.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347802669968:android:8ee6ab1ceabb4c8ed2d915",
+        "android_client_info": {
+          "package_name": "cz.dzubera.callwarden"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCH-DQXIpJemTyPB0jIP2T8HZli3tSZZs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,9 +1,14 @@
 package cz.dzubera.callwarden.service
 
 import android.util.Log
+import com.google.firebase.FirebaseApp
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.FirebaseMessagingService
 import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.storage.getProjectObject
+import cz.dzubera.callwarden.ui.activity.LoginActivity
 import cz.dzubera.callwarden.utils.Config
+import kotlinx.coroutines.tasks.await
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -18,8 +23,9 @@ object HttpRequest {
 
     const val TIMEOUT = 3000L
 
-    fun getProjects(domain: String, user: Int, onResponse: (HttpResponse) -> Unit) {
+     fun getProjects(domain: String, user: Int, onResponse: (HttpResponse) -> Unit) {
         println("staaaaacgh")
+
 
         val url = URL(Config.PROJECTS_URL)
         val client = OkHttpClient()
@@ -73,11 +79,12 @@ object HttpRequest {
 
     }
 
-    fun sendIncomingCall(
+    suspend  fun sendIncomingCall(
         domain: String,
         user: Int,
         projectId: String,
         number: String,
+        token: String,
         onResponse: (HttpResponse) -> Unit
     ) {
 
@@ -88,11 +95,12 @@ object HttpRequest {
         val formBody: RequestBody = FormBody.Builder()
             .add("id_domeny", domain)
             .add("id_user", user.toString())
-            .add("projectId", projectId.toString())
+            .add("projectId", projectId)
             .add("number", number)
+            .add("firebase_token", token)
             .build()
         val request = Request.Builder()
-            .addHeader("X-API-KEY", getApiKey(domain).toString())
+            .addHeader("X-API-KEY", getApiKey(domain))
             .url(url)
             .post(formBody)
             .build()
