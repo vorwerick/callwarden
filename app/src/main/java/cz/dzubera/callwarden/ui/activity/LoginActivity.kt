@@ -1,6 +1,7 @@
 package cz.dzubera.callwarden.ui.activity
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -13,7 +14,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -46,49 +46,25 @@ class LoginActivity : AppCompatActivity() {
         var fcmToken: String? = null
     }
 
-    private fun handleIntent(intent: Intent?) {
-        intent?.extras?.getString("url")?.let { url ->
-            val customTabsIntent = CustomTabsIntent.Builder().build()
-            customTabsIntent.launchUrl(this, Uri.parse(url))
-        }
-    }
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        handleIntent(intent)
-
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
-            PreferencesUtils.save(this@LoginActivity, "firebase_token", fcmToken)
+        if (intent?.extras?.getString("url") != null) {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(intent?.extras?.getString("url")))
+            startActivity(intent)
         }
-
-        handleIntent(intent)
-
-
         val credentials = PreferencesUtils.loadCredentials(this)
 
+        //requestBatteryOptimizationPermission(this)
         val hasPermissions = checkPermissions()
 
-        /*
-        FirebaseMessaging.getInstance().token
-            .addOnCompleteListener { task ->
-                if (!task.isSuccessful) {
-                    Log.w("FCM", "Nepodařilo se získat token", task.exception)
-                    return@addOnCompleteListener
-                }
-
-                val token = task.result
-                LoginActivity.fcmToken = token
-                Log.d("FCM", "FCM Token: $token")
-            }
-
-
-         */
 
         if (credentials != null && hasPermissions) {
+            FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
+                PreferencesUtils.save(this@LoginActivity, "firebase_token", fcmToken)
+                HttpRequest.sendToken(credentials.domain, fcmToken)
+            }
+
             HttpRequest.getProjects(
                 credentials.domain,
                 credentials.user
@@ -194,6 +170,18 @@ class LoginActivity : AppCompatActivity() {
             false
         } else {
             true
+        }
+    }
+
+    fun requestBatteryOptimizationPermission(context: Context) {
+        try {
+            val intent = Intent(
+                android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                Uri.parse("package:" + context.packageName)
+            )
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

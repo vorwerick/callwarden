@@ -44,19 +44,15 @@
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <action android:name="OPEN_URL"/>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
         </activity>
         <activity
-
             android:name=".ui.activity.MainActivity"
             android:enabled="true"
+            android:noHistory="true"
             android:exported="true">
-            <intent-filter>
-                <action android:name="OPEN_URL"/>
-            </intent-filter>
         </activity>
         <activity
             android:name=".ui.activity.AnalyticsActivity"
@@ -73,6 +69,9 @@
             android:name="io.sentry.traces.sample-rate"
             android:value="1.0" />
 
+        <receiver android:name=".NotificationReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS"/>
 
         <receiver
             android:name=".service.PhoneStateReceiver"

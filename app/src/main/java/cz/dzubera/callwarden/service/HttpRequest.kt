@@ -1,14 +1,9 @@
 package cz.dzubera.callwarden.service
 
 import android.util.Log
-import com.google.firebase.FirebaseApp
-import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.FirebaseMessagingService
 import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.storage.getProjectObject
-import cz.dzubera.callwarden.ui.activity.LoginActivity
 import cz.dzubera.callwarden.utils.Config
-import kotlinx.coroutines.tasks.await
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -23,7 +18,7 @@ object HttpRequest {
 
     const val TIMEOUT = 3000L
 
-     fun getProjects(domain: String, user: Int, onResponse: (HttpResponse) -> Unit) {
+    fun getProjects(domain: String, user: Int, onResponse: (HttpResponse) -> Unit) {
         println("staaaaacgh")
 
 
@@ -40,11 +35,11 @@ object HttpRequest {
             .post(formBody)
             .build()
 
-        val call: okhttp3.Call = client.newCall(request)
+        val call: Call = client.newCall(request)
         call.enqueue(object : Callback {
 
 
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
+            override fun onFailure(call: Call, e: IOException) {
                 println("failure")
 
                 val httpResponse =
@@ -54,7 +49,7 @@ object HttpRequest {
             }
 
             @Throws(IOException::class)
-            override fun onResponse(call: okhttp3.Call, response: Response) {
+            override fun onResponse(call: Call, response: Response) {
                 println("resposnzička " + response.code)
                 if (response.code > 200) {
                     val httpResponse =
@@ -79,7 +74,7 @@ object HttpRequest {
 
     }
 
-    suspend  fun sendIncomingCall(
+    suspend fun sendIncomingCall(
         domain: String,
         user: Int,
         projectId: String,
@@ -105,11 +100,11 @@ object HttpRequest {
             .post(formBody)
             .build()
 
-        val call: okhttp3.Call = client.newCall(request)
+        val call: Call = client.newCall(request)
         call.enqueue(object : Callback {
 
 
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
+            override fun onFailure(call: Call, e: IOException) {
                 Log.e(
                     "Http Request Service",
                     "Incoming number $number not sent via error! ${e.localizedMessage ?: "unknown error"}"
@@ -118,7 +113,7 @@ object HttpRequest {
             }
 
             @Throws(IOException::class)
-            override fun onResponse(call: okhttp3.Call, response: Response) {
+            override fun onResponse(call: Call, response: Response) {
 
                 if (response.code > 200) {
                     val body = response.body?.string().toString()
@@ -136,6 +131,62 @@ object HttpRequest {
         })
 
     }
+
+     fun sendToken(
+        domain: String,
+        token: String,
+        onResponse: (HttpResponse) -> Unit = {}
+    ) {
+
+
+        val url = URL(Config.SEND_FIREBASE_TOKEN)
+        val client = OkHttpClient()
+
+        val formBody: RequestBody = FormBody.Builder()
+            .add("firebase_token", token)
+            .build()
+        val request = Request.Builder()
+            .addHeader("X-API-KEY", getApiKey(domain))
+            .url(url)
+            .post(formBody)
+            .build()
+
+        val call: Call = client.newCall(request)
+        call.enqueue(object : Callback {
+
+
+            override fun onFailure(call: Call, e: IOException) {
+                onResponse.invoke(HttpResponse(null, 0, ResponseStatus.ERROR))
+
+                Log.e(
+                    "Http Request Service",
+                    "Sending firebase token failed"
+                )
+
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+
+                if (response.code > 200) {
+                    onResponse.invoke(HttpResponse(null, response.code, ResponseStatus.ERROR))
+
+                    Log.e(
+                        "Http Request Service",
+                        "Sending firebase token failed"
+                    )
+                } else {
+                    val body = response.body?.string().toString()
+                    onResponse.invoke(HttpResponse(body))
+                    Log.i("Http Request Service", "Firebase token sent!")
+                }
+
+
+            }
+        })
+
+    }
+
 
     fun getApiKey(domain: String): String {
         val date = SimpleDateFormat("d.M.yyyy").format(Date(System.currentTimeMillis()))
@@ -164,18 +215,18 @@ object HttpRequest {
             .add("data", data)
             .build()
         val request = Request.Builder()
-            .addHeader("X-API-KEY", getApiKey(domain).toString())
+            .addHeader("X-API-KEY", getApiKey(domain))
             .url(url)
             .post(formBody)
             .build()
 
         println(data)
 
-        val call: okhttp3.Call = client.newCall(request)
+        val call: Call = client.newCall(request)
         call.enqueue(object : Callback {
 
 
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
+            override fun onFailure(call: Call, e: IOException) {
                 println("failure")
 
                 synchronized(HttpRequest::class.java) {
@@ -187,7 +238,7 @@ object HttpRequest {
             }
 
             @Throws(IOException::class)
-            override fun onResponse(call: okhttp3.Call, response: Response) {
+            override fun onResponse(call: Call, response: Response) {
                 println("resposnzička")
                 synchronized(HttpRequest::class.java) {
                     if (response.code > 200) {

@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -14,13 +15,20 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import cz.dzubera.callwarden.service.HttpRequest
+import cz.dzubera.callwarden.ui.activity.LoginActivity
+import cz.dzubera.callwarden.utils.PreferencesUtils
+import cz.dzubera.callwarden.utils.toIntent
 
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-
+        val credentials = PreferencesUtils.loadCredentials(this)
+        credentials?.let {
+            HttpRequest.sendToken(it.domain, token)
+        }
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -29,7 +37,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         remoteMessage.notification?.clickAction
         remoteMessage.notification?.let {
             sendNotification(
-                it.body ?: "Nová zpráva",
+                it.body ?: "Klikněte pro více informací",
                 remoteMessage.data.getOrDefault("url", "https://google.com")
 
             )
@@ -52,17 +60,33 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             val channel = NotificationChannel(
                 channelId,
                 "Notifications",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                enableLights(true)
+                enableVibration(true)
+                description = "Kanál pro notifikace"
+            }
             notificationManager.createNotificationChannel(channel)
         }
+        val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            putExtra("URL", url)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+
+        }
+        val pendingActivity = PendingIntent.getActivity(
+            this,
+            4129,
+            activityIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
+        )
 
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Příchozí hovor od kontaktu")
             .setContentText(messageBody)
-            .setLargeIcon(largeIcon)
-            .setPriority(NotificationManagerCompat.IMPORTANCE_MAX)
+            .setContentIntent(pendingActivity)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE) // Xiaomi hack
+            .setPriority(NotificationManagerCompat.IMPORTANCE_HIGH)
             .setAutoCancel(true)
 
         if (ActivityCompat.checkSelfPermission(

@@ -23,6 +23,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.messaging.FirebaseMessaging
 import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.BuildConfig
 import cz.dzubera.callwarden.R
@@ -309,13 +310,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        handleIntent(intent)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        handleIntent(intent)
 
         // start alarm
         AlarmUtils.scheduleAlarm(applicationContext)
@@ -325,6 +324,11 @@ class MainActivity : AppCompatActivity() {
         if (credentials == null) {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
+        }
+
+        FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
+            PreferencesUtils.save(this@MainActivity, "firebase_token", fcmToken)
+            HttpRequest.sendToken(credentials!!.domain, fcmToken)
         }
 
         Log.i("testik", "abrakadabra " + PreferencesUtils.get(this,"XXX"));
@@ -605,12 +609,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun handleIntent(intent: Intent?) {
-        intent?.extras?.getString("url")?.let { url ->
-            val customTabsIntent = CustomTabsIntent.Builder().build()
-            customTabsIntent.launchUrl(this, Uri.parse(url))
-        }
-    }
+
 
 
     override fun onDestroy() {
