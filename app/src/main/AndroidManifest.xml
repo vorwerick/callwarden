@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
     <uses-permission
         android:name="android.permission.SCHEDULE_EXACT_ALARM"
         tools:ignore="ProtectedPermissions" />
@@ -41,12 +43,20 @@
         <activity
             android:name=".ui.activity.LoginActivity"
             android:exported="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+        </activity>
+        <activity
+            android:name=".ui.activity.NotificationActivity"
+            android:launchMode="singleTop"
+            android:enabled="true"
+            android:noHistory="true"
+            android:exported="true">
         </activity>
         <activity
             android:name=".ui.activity.MainActivity"

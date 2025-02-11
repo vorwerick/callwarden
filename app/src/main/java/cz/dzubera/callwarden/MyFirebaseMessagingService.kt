@@ -17,6 +17,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.ui.activity.LoginActivity
+import cz.dzubera.callwarden.ui.activity.NotificationActivity
 import cz.dzubera.callwarden.utils.PreferencesUtils
 import cz.dzubera.callwarden.utils.toIntent
 
@@ -34,7 +35,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.d("FCM", "Message received: ${remoteMessage.data}")
 
-        remoteMessage.notification?.clickAction
         remoteMessage.notification?.let {
             sendNotification(
                 it.body ?: "Klikněte pro více informací",
@@ -68,17 +68,23 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             }
             notificationManager.createNotificationChannel(channel)
         }
-        val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-            putExtra("URL", url)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+
+
+        val activityIntent = Intent(this, LoginActivity::class.java).apply {
+            putExtra("url", url)
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
 
         }
+        startActivity(activityIntent)
+
         val pendingActivity = PendingIntent.getActivity(
             this,
-            4129,
+            System.currentTimeMillis().toInt(), // Použití unikátního requestCode
             activityIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
+
 
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)

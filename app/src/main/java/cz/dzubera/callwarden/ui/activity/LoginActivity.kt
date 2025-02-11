@@ -46,13 +46,48 @@ class LoginActivity : AppCompatActivity() {
         var fcmToken: String? = null
     }
 
+    private fun openUrl(context: Context, url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        ContextCompat.startActivity(context, intent, null)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+    }
+
+    override fun onActivityReenter(resultCode: Int, data: Intent?) {
+        super.onActivityReenter(resultCode, data)
+
+    }
+
+    var shown = false
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Uložíme stav, zda byla stránka otevřena
+        outState.putBoolean("shown", shown)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        shown = savedInstanceState?.getBoolean("shown") ?: false
 
-        if (intent?.extras?.getString("url") != null) {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(intent?.extras?.getString("url")))
-            startActivity(intent)
+        val opened = savedInstanceState?.getBoolean("opened") ?: false
+        if(!shown && !opened){
+            val url = intent?.extras?.getString("url") ?: intent?.getStringExtra("url")
+            if (url != null) {
+                shown = true
+                openUrl(this, url)
+                intent?.extras?.remove("url")
+                intent?.removeExtra("url")
+                savedInstanceState?.putBoolean("opened", true)
+            }
         }
+
+
+
+        Log.d("DODOD", "ON CREATE")
         val credentials = PreferencesUtils.loadCredentials(this)
 
         //requestBatteryOptimizationPermission(this)
@@ -99,6 +134,15 @@ class LoginActivity : AppCompatActivity() {
                 login(domainId, userId)
             }
         }
+        val registerButton = findViewById<TextView>(R.id.register)
+        registerButton.setOnClickListener {
+            openUrlInCustomTab(this, "https://www.ramisys.cz/#kontakt")
+        }
+    }
+
+    private fun openUrlInCustomTab(context: Context, url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        ContextCompat.startActivity(context, intent, null)
     }
 
 
