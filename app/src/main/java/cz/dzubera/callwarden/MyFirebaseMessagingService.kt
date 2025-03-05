@@ -70,8 +70,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
 
 
-        val activityIntent = Intent(this, LoginActivity::class.java).apply {
+        val activityIntent = Intent(this, NotificationActivity::class.java).apply {
             putExtra("url", url)
+            extras?.putString("url", url)
             flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
 
         }

@@ -2,9 +2,9 @@ package cz.dzubera.callwarden.ui.activity
 
 import android.Manifest
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -19,30 +19,31 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.browser.customtabs.CustomTabsIntent
-import androidx.core.app.ActivityCompat
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.messaging.FirebaseMessaging
 import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.BuildConfig
 import cz.dzubera.callwarden.R
-import cz.dzubera.callwarden.data.MockCallRecords
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.db.CallEntity
-import cz.dzubera.callwarden.service.db.PendingCallEntity
-import cz.dzubera.callwarden.storage.ProjectStorage
 import cz.dzubera.callwarden.storage.ProjectStorage.Companion.EMPTY_PROJECT
 import cz.dzubera.callwarden.ui.CallAdapter
 import cz.dzubera.callwarden.ui.CallViewModel
 import cz.dzubera.callwarden.ui.CallViewModelFactory
-import cz.dzubera.callwarden.utils.*
+import cz.dzubera.callwarden.utils.AlarmUtils
+import cz.dzubera.callwarden.utils.Config
+import cz.dzubera.callwarden.utils.DateUtils
+import cz.dzubera.callwarden.utils.PreferencesUtils
+import cz.dzubera.callwarden.utils.startSynchronization
+import cz.dzubera.callwarden.utils.uploadCall
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
 
 
 @DelicateCoroutinesApi
@@ -66,6 +67,7 @@ class MainActivity : AppCompatActivity() {
                 showAboutDialog()
                 true
             }
+
             R.id.change_project -> {
                 val creds = App.userSettingsStorage.credentials
                 if (creds != null) {
@@ -81,6 +83,7 @@ class MainActivity : AppCompatActivity() {
                 return false
 
             }
+
             R.id.menu_user -> {
                 showUserDialog()
                 true
@@ -90,6 +93,7 @@ class MainActivity : AppCompatActivity() {
                 navigateToSetting()
                 true
             }
+
             R.id.sync -> {
                 if (ContextCompat.checkSelfPermission(
                         this,
@@ -123,6 +127,7 @@ class MainActivity : AppCompatActivity() {
 
 
             }
+
             R.id.analytics -> {
                 val intent = Intent(this, AnalyticsActivity::class.java)
                 startActivity(intent)
@@ -130,6 +135,7 @@ class MainActivity : AppCompatActivity() {
 
                 true
             }
+
             R.id.signOut -> {
                 PreferencesUtils.clearCredentials(this)
                 Config.signedOut = true
@@ -138,6 +144,7 @@ class MainActivity : AppCompatActivity() {
                 finish()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -312,6 +319,25 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
     }
 
+    private fun openUrl(context: Context, url: String) {
+
+        val intent = Intent(context, NotificationActivity::class.java).apply {
+            putExtra("url", url)
+            extras?.putString("url", url)
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        ContextCompat.startActivity(context, intent, null)
+
+
+        /*
+        val builder = CustomTabsIntent.Builder()
+        val customTabsIntent = builder.build()
+        customTabsIntent.launchUrl(this, Uri.parse(url))
+
+         */
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -331,7 +357,7 @@ class MainActivity : AppCompatActivity() {
             HttpRequest.sendToken(credentials!!.domain, fcmToken)
         }
 
-        Log.i("testik", "abrakadabra " + PreferencesUtils.get(this,"XXX"));
+        Log.i("testik", "abrakadabra " + PreferencesUtils.get(this, "XXX"));
 
         val projectId = PreferencesUtils.loadProjectId(this)
         if (projectId != null) {
@@ -349,6 +375,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_main)
+
+        val url = intent?.extras?.getString("url") ?: intent?.getStringExtra("url")
+        if (url != null) {
+            findViewById<CardView>(R.id.showCallerDetail).visibility = View.VISIBLE
+            findViewById<CardView>(R.id.showCallerDetail).setOnClickListener {
+                openUrl(this, url)
+                findViewById<CardView>(R.id.showCallerDetail).visibility = View.GONE
+            }
+        }
 
         supportActionBar?.title = "Záznamy hovorů"
 
@@ -553,8 +588,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun startSynch(){
-        if(App.projectStorage.getProject() != null){
+    fun startSynch() {
+        if (App.projectStorage.getProject() != null) {
             val lastSyncTime = PreferencesUtils.loadLastSyncDate(this)
             val diff = System.currentTimeMillis() - lastSyncTime
             if (diff > 3600000) {
@@ -595,7 +630,12 @@ class MainActivity : AppCompatActivity() {
                         if (it.code == 200) {
                             runOnUiThread { showProjectDialog(false) }
                         } else {
-                            runOnUiThread { App.projectStorage.setProject(this@MainActivity, EMPTY_PROJECT) }
+                            runOnUiThread {
+                                App.projectStorage.setProject(
+                                    this@MainActivity,
+                                    EMPTY_PROJECT
+                                )
+                            }
                         }
                     }
                 }
@@ -608,8 +648,6 @@ class MainActivity : AppCompatActivity() {
         //checkPendingCallsForSend()
 
     }
-
-
 
 
     override fun onDestroy() {

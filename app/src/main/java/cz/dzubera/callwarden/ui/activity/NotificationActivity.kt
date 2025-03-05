@@ -52,7 +52,7 @@ class NotificationActivity : AppCompatActivity() {
         val url = intent?.extras?.getString("url") ?: intent?.getStringExtra("url")
         if (url != null) {
             Log.d("BLABLA", "HAS URL")
-            openUrl(this, intent?.extras?.getString("url").toString())
+            openUrlInCustomTab(this, intent?.extras?.getString("url").toString())
         }
     }
 
@@ -67,7 +67,7 @@ class NotificationActivity : AppCompatActivity() {
         val url = intent?.extras?.getString("url") ?: intent?.getStringExtra("url")
         if (url != null) {
             Log.d("BLABLA", "HAS URL")
-            openUrl(this, intent?.extras?.getString("url").toString())
+            openUrlInCustomTab(this, intent?.extras?.getString("url").toString())
         }
 
     }
