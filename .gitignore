@@ -13,4 +13,4 @@ local.properties
 /.idea/kotlinc.xml
 /.idea/migrations.xml
 /.idea/runConfigurations.xml
-/app/release/app-release.aab
+/app/release/*
