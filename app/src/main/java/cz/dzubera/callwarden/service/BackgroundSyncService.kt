@@ -21,10 +21,13 @@ class BackgroundSyncService : Service() {
 
         Log.d(tag, "sync service created")
 
+        /*
         startSynchronization(this) {
             Log.d(tag, "synchronization finished with state: $it")
             stopSelf()
         }
+
+         */
     }
 
     override fun onDestroy() {
