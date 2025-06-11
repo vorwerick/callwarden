@@ -7,9 +7,9 @@ import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.model.CallHistory
 import cz.dzubera.callwarden.service.db.CallEntity
-import cz.dzubera.callwarden.utils.AlarmUtils.tag
 import io.sentry.Sentry
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
@@ -17,7 +17,7 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
         context,
         PreferencesUtils.loadSyncCount(context)
     ).toMutableList()
-    GlobalScope.launch {
+    CoroutineScope(Dispatchers.IO).launch {
         val callsFromDB = App.appDatabase.taskCalls().getAll()
 
         val syncCalls = mutableListOf<CallEntity>()

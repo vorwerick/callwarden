@@ -135,7 +135,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         val callEndTimestamp = System.currentTimeMillis()
 
         GlobalScope.launch {
-            delay(1300)
+            delay(3000)
             startSynchronization(this@BackgroundCallService) {
                 Log.i(tag, it)
             }

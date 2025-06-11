@@ -76,11 +76,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
 
         }
-        startActivity(activityIntent)
 
         val pendingActivity = PendingIntent.getActivity(
             this,
-            System.currentTimeMillis().toInt(), // Použití unikátního requestCode
+            9421, // Fixed requestCode matching the notificationId to ensure replacement
             activityIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
