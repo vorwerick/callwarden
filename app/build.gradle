@@ -21,6 +21,10 @@ android {
         setProperty('archivesBaseName', "ramicall-$versionName")
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
         release {
             minifyEnabled false

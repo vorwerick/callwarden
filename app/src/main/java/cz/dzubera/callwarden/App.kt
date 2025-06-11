@@ -1,14 +1,8 @@
 package cz.dzubera.callwarden
 
-import android.app.AlarmManager
 import android.app.Application
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.util.Log
-import androidx.core.app.NotificationCompat.CallStyle.CallType
-import androidx.multidex.MultiDex
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -18,7 +12,6 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.firebase.FirebaseApp
-import cz.dzubera.callwarden.service.BackgroundCallService
 import cz.dzubera.callwarden.service.PhoneStateReceiver
 import cz.dzubera.callwarden.service.SynchronizationWorker
 import cz.dzubera.callwarden.service.db.AppDatabase
@@ -26,7 +19,6 @@ import cz.dzubera.callwarden.storage.CacheStorage
 import cz.dzubera.callwarden.storage.ProjectObject
 import cz.dzubera.callwarden.storage.ProjectStorage
 import cz.dzubera.callwarden.storage.UserSettingsStorage
-import cz.dzubera.callwarden.ui.activity.MainActivity
 import cz.dzubera.callwarden.utils.DateUtils
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -61,8 +53,8 @@ class App : Application() {
     }
 
     val MIGRATION_1_2 = object : Migration(1, 2) {
-        override fun migrate(database: SupportSQLiteDatabase) {
-            database.execSQL("ALTER TABLE call_record ADD COLUMN projectIdOld VARCHAR")
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE call_record ADD COLUMN projectIdOld VARCHAR")
         }
     }
 
