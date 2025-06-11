@@ -12,6 +12,9 @@ import androidx.work.WorkerParameters
 import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.utils.startSynchronization
 import kotlin.random.Random
+import androidx.work.impl.utils.futures.SettableFuture
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 /**
  * Worker class for periodic synchronization of call data.
@@ -63,7 +66,15 @@ class SynchronizationWorker(
 
         try {
             // Set foreground service with initial notification
-            setForegroundAsync(createForegroundInfo("Synchronizace dat..."))
+            val foregroundInfoFuture = setForegroundAsync(createForegroundInfo("Synchronizace dat..."))
+
+            // Wait for the foreground service to be set up
+            try {
+                foregroundInfoFuture.get()
+            } catch (e: Exception) {
+                Log.w(tag, "Failed to set foreground service: ${e.message}")
+                // Continue execution even if setting foreground fails
+            }
 
             // Use coroutineScope to ensure all work is completed before returning
             val result = runCatching {
@@ -71,9 +82,17 @@ class SynchronizationWorker(
                 startSynchronization(applicationContext) { message ->
                     Log.d(tag, "Synchronization status: $message")
                     // Update foreground notification with progress
-                    setForegroundAsync(createForegroundInfo(message))
+                    try {
+                        setForegroundAsync(createForegroundInfo(message))
+                    } catch (e: Exception) {
+                        Log.w(tag, "Failed to update foreground notification: ${e.message}")
+                        // Continue execution even if updating foreground fails
+                    }
                 }
             }
+
+            // We don't need to explicitly stop the foreground service as WorkManager will handle it
+            // If the app is in the background, WorkManager will catch the exception internally
 
             return if (result.isSuccess) {
                 // Return success if synchronization completed without exceptions

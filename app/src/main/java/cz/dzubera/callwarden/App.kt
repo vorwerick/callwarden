@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
@@ -24,7 +25,12 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class App : Application() {
+class App : Application(), Configuration.Provider {
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setMinimumLoggingLevel(Log.INFO)
+            .build()
 
     companion object {
 
@@ -92,20 +98,22 @@ class App : Application() {
         try {
             Log.d("App", "Setting up periodic synchronization")
 
-
             // Define network constraints - worker should only run when network is available
             val constraints =
                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED) // Requires any network connection
                     .build()
 
-
             val syncWorkRequest = PeriodicWorkRequestBuilder<SynchronizationWorker>(
                 20, TimeUnit.MINUTES
             ).setConstraints(constraints).build()
 
+            // Get the WorkManager instance
+            // Since we implement Configuration.Provider, this will use our configuration
+            val workManager = WorkManager.getInstance(applicationContext)
+
             // Schedule the work request with WorkManager
             // Use KEEP policy to ensure we don't reschedule if already exists
-            WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
+            workManager.enqueueUniquePeriodicWork(
                 SynchronizationWorker.WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, syncWorkRequest
             )
 
