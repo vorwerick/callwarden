@@ -1,8 +1,11 @@
 package cz.dzubera.callwarden.utils
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
+import androidx.core.content.ContextCompat
+import android.Manifest
 import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.model.CallHistory
@@ -13,6 +16,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
+    // Check if READ_CALL_LOG permission is granted
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+        Log.e("SynchronizationUtils", "READ_CALL_LOG permission not granted")
+        state?.invoke("Synchronizace se nezdařila, chybí oprávnění pro čtení historie hovorů.")
+        return
+    }
+
     val calls = CallHistory.getCallsHistory(
         context,
         PreferencesUtils.loadSyncCount(context)

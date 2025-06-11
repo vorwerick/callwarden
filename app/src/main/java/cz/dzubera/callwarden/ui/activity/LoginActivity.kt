@@ -33,21 +33,30 @@ class LoginActivity : AppCompatActivity() {
 
     companion object {
         val permissionList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            listOf(
-                Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.READ_CALL_LOG,
-                Manifest.permission.POST_NOTIFICATIONS,
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                listOf(
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.READ_CALL_LOG,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                    Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC,
+                    Manifest.permission.FOREGROUND_SERVICE
+                )
+            } else {
+                listOf(
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.READ_CALL_LOG,
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+            }
         } else {
             listOf(
                 Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.READ_CALL_LOG,
+                Manifest.permission.READ_CALL_LOG
             )
         }
 
         var fcmToken: String? = null
     }
-
 
 
     var shown = false
@@ -209,6 +218,23 @@ class LoginActivity : AppCompatActivity() {
         }
         if (result == PackageManager.PERMISSION_GRANTED) return true
         return false
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 29) {
+            if (processPermissionsResult(requestCode, permissions, grantResults)) {
+                // Permissions granted, restart the activity to proceed with normal flow
+                recreate()
+            } else {
+                // Permissions denied, show alert again
+                showAlert()
+            }
+        }
     }
 
     private fun checkPermissions(): Boolean {

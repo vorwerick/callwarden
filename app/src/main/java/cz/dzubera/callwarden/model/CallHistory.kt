@@ -1,8 +1,11 @@
 package cz.dzubera.callwarden.model
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.provider.CallLog
 import android.util.Log
+import androidx.core.content.ContextCompat
 
 /*
 * Example src
@@ -13,7 +16,12 @@ object CallHistory {
 
     const val GET_X_LAST_CALLS = 100
 
-    fun getLastCallHistory(context: Context): History {
+    fun getLastCallHistory(context: Context): History? {
+        // Check if READ_CALL_LOG permission is granted
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            Log.e("CallHistory", "READ_CALL_LOG permission not granted")
+            return null
+        }
 
         // create cursor
         val managedCursor = context.contentResolver.query(
@@ -61,8 +69,13 @@ object CallHistory {
     }
 
     fun getCallsHistory(context: Context, count: Int): List<History> {
-
         val historyList = mutableListOf<History>()
+
+        // Check if READ_CALL_LOG permission is granted
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            Log.e("CallHistory", "READ_CALL_LOG permission not granted")
+            return historyList
+        }
 
         // create cursor
         val managedCursor = context.contentResolver.query(
