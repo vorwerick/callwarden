@@ -47,12 +47,12 @@ class NotificationActivity : AppCompatActivity() {
         finish()
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        val url = intent?.extras?.getString("url") ?: intent?.getStringExtra("url")
+        val url = intent.extras?.getString("url") ?: intent.getStringExtra("url")
         if (url != null) {
             Log.d("BLABLA", "HAS URL")
-            openUrlInCustomTab(this, intent?.extras?.getString("url").toString())
+            openUrlInCustomTab(this, intent.extras?.getString("url").toString())
         }
     }
 

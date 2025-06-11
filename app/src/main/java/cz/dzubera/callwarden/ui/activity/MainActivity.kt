@@ -315,7 +315,7 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
     }
 
@@ -662,6 +662,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        super.onBackPressed()
         finish()
     }
 
@@ -716,4 +717,3 @@ class MainActivity : AppCompatActivity() {
         App.cacheStorage.loadFromDatabase()
     }
 }
-

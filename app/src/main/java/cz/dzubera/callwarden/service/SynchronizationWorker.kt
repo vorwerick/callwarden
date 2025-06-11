@@ -50,7 +50,12 @@ class SynchronizationWorker(
             .setOngoing(true)
             .build()
 
-        return ForegroundInfo(notificationId, notification)
+        // For Android 14 (API 34) and above, we need to specify a foreground service type
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            ForegroundInfo(notificationId, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } else {
+            ForegroundInfo(notificationId, notification)
+        }
     }
 
     override fun doWork(): Result {
