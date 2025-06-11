@@ -17,9 +17,10 @@ object CallHistory {
     const val GET_X_LAST_CALLS = 100
 
     fun getLastCallHistory(context: Context): History? {
-        // Check if READ_CALL_LOG permission is granted
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("CallHistory", "READ_CALL_LOG permission not granted")
+        // Check if READ_CALL_LOG and WRITE_CALL_LOG permissions are granted
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            Log.e("CallHistory", "READ_CALL_LOG or WRITE_CALL_LOG permission not granted")
             return null
         }
 
@@ -71,9 +72,10 @@ object CallHistory {
     fun getCallsHistory(context: Context, count: Int): List<History> {
         val historyList = mutableListOf<History>()
 
-        // Check if READ_CALL_LOG permission is granted
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("CallHistory", "READ_CALL_LOG permission not granted")
+        // Check if READ_CALL_LOG and WRITE_CALL_LOG permissions are granted
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            Log.e("CallHistory", "READ_CALL_LOG or WRITE_CALL_LOG permission not granted")
             return historyList
         }
 

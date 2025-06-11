@@ -3,6 +3,7 @@ package cz.dzubera.callwarden
 import android.app.Application
 import android.os.Build
 import android.util.Log
+import androidx.multidex.MultiDexApplication
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -25,7 +26,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class App : Application(), Configuration.Provider {
+class App : MultiDexApplication(), Configuration.Provider {
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()

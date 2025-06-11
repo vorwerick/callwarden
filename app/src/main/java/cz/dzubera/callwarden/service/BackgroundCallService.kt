@@ -108,6 +108,7 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
     }
 
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private fun registerPhoneListener() {
         Log.d(tag, "registering phone listeners")
 
@@ -142,75 +143,6 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
         }
     }
 
-    private fun recordCall(callEndTimestamp: Long) {
-        synchronized(ServiceReceiver.ex!!) {
 
-            // prepare data
-            val history = CallHistory.getLastCallHistory(this@BackgroundCallService)
-            val duration = history.callDuration?.toIntOrNull() ?: -1
-            val number = history.phoneNumber ?: ""
-            val callStarted = history.callStartedTimestamp
-            val callDirection = history.direction
-
-
-            val callAccepted: Long =
-                if (duration > 0) (callEndTimestamp - duration * 1000) else 0
-
-
-            // prepare credentials
-            val credentials = PreferencesUtils.loadCredentials(this@BackgroundCallService)
-            val projectId = PreferencesUtils.loadProjectId(this@BackgroundCallService)
-            val projectName = PreferencesUtils.loadProjectName(this@BackgroundCallService)
-
-
-            // store data
-            val call = Call(
-                callStarted,
-                credentials?.user.toString(),
-                credentials?.domain ?: "",
-                projectId ?: ProjectStorage.EMPTY_PROJECT.id,
-                projectName ?: ProjectStorage.EMPTY_PROJECT.name,
-                duration,
-                callDirection,
-                number,
-                callStarted,
-                callEndTimestamp,
-                callAccepted
-            )
-
-            App.cacheStorage.addCallItem(call)
-            val entity = CallEntity(
-                call.callStarted,
-                call.userId,
-                call.domainId,
-                call.projectId,
-                "",
-                call.projectName,
-                null,
-                call.direction.name,
-                call.phoneNumber,
-                call.callStarted,
-                call.callEnded,
-                call.callAccepted,
-                call.duration,
-            )
-            GlobalScope.launch {
-                try {
-                    val results = App.appDatabase.taskCalls()
-                    if (results.get(entity.uid) == null) {
-                        App.appDatabase.taskCalls().insert(entity)
-                        uploadCall(this@BackgroundCallService, listOf(entity)) { success ->
-                        }
-                    }
-
-                } catch (e: SQLiteConstraintException) {
-                    Log.e(tag, "Call already stored")
-                    Sentry.captureException(e)
-                }
-            }
-
-
-        }
-    }
 }
 

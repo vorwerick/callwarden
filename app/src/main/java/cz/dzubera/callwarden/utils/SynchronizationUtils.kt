@@ -16,10 +16,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
-    // Check if READ_CALL_LOG permission is granted
-    if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
-        Log.e("SynchronizationUtils", "READ_CALL_LOG permission not granted")
-        state?.invoke("Synchronizace se nezdařila, chybí oprávnění pro čtení historie hovorů.")
+    // Check if READ_CALL_LOG and WRITE_CALL_LOG permissions are granted
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED ||
+        ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+        Log.e("SynchronizationUtils", "READ_CALL_LOG or WRITE_CALL_LOG permission not granted")
+        state?.invoke("Synchronizace se nezdařila, chybí oprávnění pro čtení nebo zápis historie hovorů.")
         return
     }
 

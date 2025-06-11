@@ -37,6 +37,7 @@ class LoginActivity : AppCompatActivity() {
                 listOf(
                     Manifest.permission.READ_PHONE_STATE,
                     Manifest.permission.READ_CALL_LOG,
+                    Manifest.permission.WRITE_CALL_LOG,
                     Manifest.permission.POST_NOTIFICATIONS,
                     Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC,
                     Manifest.permission.FOREGROUND_SERVICE
@@ -45,13 +46,15 @@ class LoginActivity : AppCompatActivity() {
                 listOf(
                     Manifest.permission.READ_PHONE_STATE,
                     Manifest.permission.READ_CALL_LOG,
+                    Manifest.permission.WRITE_CALL_LOG,
                     Manifest.permission.POST_NOTIFICATIONS
                 )
             }
         } else {
             listOf(
                 Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.READ_CALL_LOG
+                Manifest.permission.READ_CALL_LOG,
+                Manifest.permission.WRITE_CALL_LOG
             )
         }
 
