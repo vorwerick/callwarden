@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 
 object HttpRequest {
 
-    const val TIMEOUT = 3000L
+    const val TIMEOUT = 12000L
 
     fun getProjects(domain: String, user: Int, onResponse: (HttpResponse) -> Unit) {
         println("staaaaacgh")
