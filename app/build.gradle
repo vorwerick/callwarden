@@ -14,8 +14,8 @@ android {
         applicationId "cz.dzubera.callwarden"
         minSdk 24
         targetSdk 34
-        versionCode 66
-        versionName "1.50"
+        versionCode 68
+        versionName "1.51"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         setProperty('archivesBaseName', "ramicall-$versionName")
@@ -25,6 +25,18 @@ android {
         buildConfig = true
     }
 
+    flavorDimensions = ["version"]
+    productFlavors {
+        create("free") {
+            dimension = "version"
+        }
+        create("plus") {
+            dimension = "version"
+            applicationIdSuffix = ".plus"
+            versionNameSuffix = "-plus"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -32,8 +44,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     signingConfigs{
@@ -45,13 +57,14 @@ android {
         }
     }
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '1.8'
     }
     packagingOptions {
         resources {
             excludes += ['META-INF/DEPENDENCIES']
         }
     }
+
 
 
     namespace 'cz.dzubera.callwarden'

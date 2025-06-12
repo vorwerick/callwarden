@@ -248,7 +248,7 @@ object HttpRequest {
                         onResponse.invoke(httpResponse)
 
                     } else {
-                        val httpResponse = HttpResponse(response.body.toString())
+                        val httpResponse = HttpResponse(response.body?.string().toString())
                         onResponse.invoke(httpResponse)
                     }
                 }

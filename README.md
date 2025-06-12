@@ -1,5 +1,5 @@
 # callwarden
 Android appliaction for phone calls tracing and reporting
 
-RELEASE cannot be installed manually without store
-USE DEBUG
+USE flavor plus for unofficially build 
+flavor free is for google play
