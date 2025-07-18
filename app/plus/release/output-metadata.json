@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 70,
-      "versionName": "1.53-plus",
-      "outputFile": "ramicall-1.53-plus-release.apk"
+      "versionCode": 71,
+      "versionName": "1.54-plus",
+      "outputFile": "ramicall-1.54-plus-release.apk"
     }
   ],
   "elementType": "File",
@@ -22,14 +22,14 @@
       "minApi": 28,
       "maxApi": 30,
       "baselineProfiles": [
-        "baselineProfiles/1/ramicall-1.53-plus-release.dm"
+        "baselineProfiles/1/ramicall-1.54-plus-release.dm"
       ]
     },
     {
       "minApi": 31,
       "maxApi": 2147483647,
       "baselineProfiles": [
-        "baselineProfiles/0/ramicall-1.53-plus-release.dm"
+        "baselineProfiles/0/ramicall-1.54-plus-release.dm"
       ]
     }
   ],
