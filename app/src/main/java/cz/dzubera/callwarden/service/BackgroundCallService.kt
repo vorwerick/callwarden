@@ -108,15 +108,24 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
     }
 
 
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private fun registerPhoneListener() {
         Log.d(tag, "registering phone listeners")
 
-        registerReceiver(
-            receiver,
-            IntentFilter(IdleStateReceiverForService.ACTION_SERVICE_IDLE_STATE)
-        )
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(
+                receiver,
+                IntentFilter(IdleStateReceiverForService.ACTION_SERVICE_IDLE_STATE),
+                Context.RECEIVER_NOT_EXPORTED
+            )
+        } else {
+            // For older Android versions, RECEIVER_NOT_EXPORTED flag is not available
+            // but we're only using this receiver for internal app communication
+            @SuppressLint("UnspecifiedRegisterReceiverFlag")
+            registerReceiver(
+                receiver,
+                IntentFilter(IdleStateReceiverForService.ACTION_SERVICE_IDLE_STATE)
+            )
+        }
 
     }
 
@@ -145,4 +154,3 @@ class BackgroundCallService : Service(), IdleStateCallback { // class end
 
 
 }
-
