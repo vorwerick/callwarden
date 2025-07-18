@@ -112,16 +112,17 @@ class LoginActivity : AppCompatActivity() {
                 credentials.domain,
                 credentials.user
             ) { response: HttpResponse ->
-                if (response.status == ResponseStatus.SUCCESS) {
-                    val intent = Intent(this@LoginActivity, MainActivity::class.java).apply {
-                        putExtra("url", urlToSend)
-                        extras?.putString("url", urlToSend)
+                runOnUiThread {
+                    if (response.status == ResponseStatus.SUCCESS) {
+                        val intent = Intent(this@LoginActivity, MainActivity::class.java).apply {
+                            putExtra("url", urlToSend)
+                            extras?.putString("url", urlToSend)
+                        }
+                        startActivity(intent)
+                    } else {
+                        Log.d(javaClass.name, "Credential failed")
+                        view.visibility = View.VISIBLE
                     }
-                    startActivity(intent)
-
-                } else {
-                    Log.d(javaClass.name, "Credential failed")
-                    view.visibility = View.VISIBLE
                 }
             }
         } else {
@@ -270,8 +271,10 @@ class LoginActivity : AppCompatActivity() {
             if (response.status == ResponseStatus.SUCCESS) {
                 println("KOKO: " + response.data.toString())
                 PreferencesUtils.saveCredentials(this@LoginActivity, Credentials(domain, user))
-                val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                startActivity(intent)
+                runOnUiThread {
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    startActivity(intent)
+                }
             } else {
                 when (response.code) {
                     0 -> {
