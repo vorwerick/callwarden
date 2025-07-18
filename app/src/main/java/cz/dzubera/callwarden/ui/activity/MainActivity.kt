@@ -1,6 +1,7 @@
 package cz.dzubera.callwarden.ui.activity
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
@@ -29,7 +30,7 @@ import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.db.CallEntity
-import cz.dzubera.callwarden.storage.ProjectStorage.Companion.EMPTY_PROJECT
+import cz.dzubera.callwarden.storage.ProjectObject
 import cz.dzubera.callwarden.ui.CallAdapter
 import cz.dzubera.callwarden.ui.CallViewModel
 import cz.dzubera.callwarden.ui.CallViewModelFactory
@@ -187,19 +188,11 @@ class MainActivity : AppCompatActivity() {
             arrayAdapter
         ) { _, p1 ->
             println(p1.toString())
-            App.projectStorage.setProject(this, App.projectStorage.projects[p1])
-            PreferencesUtils.saveProjectId(this@MainActivity, App.projectStorage.getProject()!!.id)
-            PreferencesUtils.saveProjectName(
-                this@MainActivity,
-                App.projectStorage.getProject()!!.name
-            )
-            val id = App.projectStorage.getProject()!!.id
-            if (id.isEmpty()) {
-                supportActionBar!!.subtitle = "<žádný>"
-            } else {
-                supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
+            val project = App.projectStorage.projects[p1]
+            App.projectStorage.setProject(this, project)
 
-            }
+            supportActionBar!!.subtitle = project.name
+
             startSynch()
 
         }
@@ -293,7 +286,10 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun showUserDialog() {
+
+        val project = App.projectStorage.getProject(this)
 
         val lastSyncTime = PreferencesUtils.loadLastSyncDate(this)
         var syncDateTime = SimpleDateFormat("HH:mm").format(lastSyncTime)
@@ -303,7 +299,7 @@ class MainActivity : AppCompatActivity() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setMessage(
-            "ID: ${App.userSettingsStorage.credentials!!.domain}\nUživatel: ${App.userSettingsStorage.credentials!!.user}\nProjekt: ${App.projectStorage.getProject()?.name ?: "<žádný>"}\n" +
+            "ID: ${App.userSettingsStorage.credentials!!.domain}\nUživatel: ${App.userSettingsStorage.credentials!!.user}\nProjekt: ${project?.name ?: "Nebyl vybrán"}\n" +
                     "Poslední synchronizace: $syncDateTime"
         )
             .setTitle("Uživatel").setPositiveButton(
@@ -359,21 +355,12 @@ class MainActivity : AppCompatActivity() {
 
         Log.i("testik", "abrakadabra " + PreferencesUtils.get(this, "XXX"));
 
-        val projectId = PreferencesUtils.loadProjectId(this)
-        if (projectId != null) {
-            val projectObject = App.projectStorage.projects.find { it.id == projectId }
-            if (projectObject != null) {
-                App.projectStorage.setProject(this, projectObject)
-            }
-            val id = App.projectStorage.getProject()?.id
-            if (id.isNullOrEmpty()) {
-                supportActionBar!!.subtitle = "<žádný>"
-            } else {
-                supportActionBar!!.subtitle = App.projectStorage.getProject()!!.name
+        val project = App.projectStorage.getProject(this)
+        supportActionBar!!.subtitle = "---"
+        project?.let {
+            supportActionBar!!.subtitle = it.name
 
-            }
         }
-
         setContentView(R.layout.activity_main)
 
         val url = intent?.extras?.getString("url") ?: intent?.getStringExtra("url")
@@ -536,7 +523,8 @@ class MainActivity : AppCompatActivity() {
         builderSingle.setCancelable(true)
         val arrayAdapter =
             ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
-        arrayAdapter.addAll(App.projectStorage.projects.map {
+        val filters = App.projectStorage.projects.toMutableList().also { it.add(0, ProjectObject("", "")) }
+        arrayAdapter.addAll(filters.map {
             if (it.id == "") {
                 "Všechny projekty"
             } else {
@@ -548,7 +536,7 @@ class MainActivity : AppCompatActivity() {
             arrayAdapter
         ) { _, p1 ->
             println(p1.toString())
-            val p = App.projectStorage.projects[p1]
+            val p = filters[p1]
             val buttonProject: Button = findViewById(R.id.buttonProject)
             if (p.id == "") {
                 App.projectFilter = null
@@ -589,18 +577,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun startSynch() {
-        if (App.projectStorage.getProject() != null) {
-            val lastSyncTime = PreferencesUtils.loadLastSyncDate(this)
-            val diff = System.currentTimeMillis() - lastSyncTime
-            if (diff > 3600000) {
-                startSynchronization(this@MainActivity) {
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@MainActivity,
-                            it,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
+        val lastSyncTime = PreferencesUtils.loadLastSyncDate(this)
+        val diff = System.currentTimeMillis() - lastSyncTime
+        if (diff > 3600000) {
+            startSynchronization(this@MainActivity) {
+                runOnUiThread {
+                    Toast.makeText(
+                        this@MainActivity,
+                        it,
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -622,25 +608,17 @@ class MainActivity : AppCompatActivity() {
         }
         App.cacheStorage.loadFromDatabase()
 
-        if (App.projectStorage.getProject() == null) {
+        val project = App.projectStorage.getProject(this)
+        if (project == null) {
             val creds = App.userSettingsStorage.credentials
             if (creds != null) {
                 GlobalScope.launch {
                     HttpRequest.getProjects(creds.domain, creds.user) {
                         if (it.code == 200) {
                             runOnUiThread { showProjectDialog(false) }
-                        } else {
-                            runOnUiThread {
-                                App.projectStorage.setProject(
-                                    this@MainActivity,
-                                    EMPTY_PROJECT
-                                )
-                            }
                         }
                     }
                 }
-            } else {
-                App.projectStorage.setProject(this, EMPTY_PROJECT)
             }
 
         }
@@ -713,7 +691,7 @@ class MainActivity : AppCompatActivity() {
         val buttonTo: Button = findViewById(R.id.buttonTo)
         buttonTo.text = SimpleDateFormat("d.M.yyyy").format(App.dateTo)
         val buttonProjects = findViewById<Button>(R.id.buttonProject)
-        buttonProjects.text = App.projectStorage.getProject()?.name ?: "Všechny"
+        buttonProjects.text = App.projectStorage.getProject(this)?.name ?: "Všechny"
         App.cacheStorage.loadFromDatabase()
     }
 }

@@ -16,14 +16,19 @@ import java.util.concurrent.TimeUnit
 
 object HttpRequest {
 
-    const val TIMEOUT = 12000L
+    const val TIMEOUT = 20000L
 
     fun getProjects(domain: String, user: Int, onResponse: (HttpResponse) -> Unit) {
         println("staaaaacgh")
 
 
         val url = URL(Config.PROJECTS_URL)
-        val client = OkHttpClient()
+        val client = OkHttpClient().newBuilder()
+            .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .retryOnConnectionFailure(true)
+            .build()
 
         val formBody: RequestBody = FormBody.Builder()
             .add("id_domeny", domain)
@@ -85,7 +90,12 @@ object HttpRequest {
 
 
         val url = URL(Config.SEND_INCOMING_CALL_URL)
-        val client = OkHttpClient()
+        val client = OkHttpClient().newBuilder()
+            .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .retryOnConnectionFailure(true)
+            .build()
 
         val formBody: RequestBody = FormBody.Builder()
             .add("id_domeny", domain)
@@ -140,7 +150,12 @@ object HttpRequest {
 
 
         val url = URL(Config.SEND_FIREBASE_TOKEN)
-        val client = OkHttpClient()
+        val client = OkHttpClient().newBuilder()
+            .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .retryOnConnectionFailure(true)
+            .build()
 
         val formBody: RequestBody = FormBody.Builder()
             .add("firebase_token", token)
@@ -206,8 +221,12 @@ object HttpRequest {
 
 
         val url = URL(Config.CALL_URL)
-        val client =
-            OkHttpClient().newBuilder().connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS).build()
+        val client = OkHttpClient().newBuilder()
+            .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .retryOnConnectionFailure(true)
+            .build()
 
         val formBody: RequestBody = FormBody.Builder()
             .add("id_domeny", domain)

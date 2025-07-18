@@ -6,27 +6,26 @@ import org.json.JSONObject
 
 class ProjectStorage {
 
-    companion object{
-         val EMPTY_PROJECT = ProjectObject("-1","<žádný>")
-    }
     fun setProjects(newProjects: List<ProjectObject>) {
         projects.clear()
         projects.addAll(newProjects)
-        projects.add(0, EMPTY_PROJECT)
     }
 
-    fun setProject(context: Context, po: ProjectObject){
-        selectedProject = po
+    fun setProject(context: Context, po: ProjectObject) {
         PreferencesUtils.saveProjectId(context, po.id)
         PreferencesUtils.saveProjectName(context, po.name)
     }
 
-    fun getProject(): ProjectObject? {
-        return selectedProject
+    fun getProject(context: Context): ProjectObject? {
+        var projectId = PreferencesUtils.loadProjectId(context)
+        var projectName = PreferencesUtils.loadProjectName(context)
+        if (projectId == null || projectName == null) {
+            return null
+        }
+        return ProjectObject(projectId, projectName)
     }
 
-    private var selectedProject: ProjectObject? = null
-    val projects: MutableList<ProjectObject> = mutableListOf(EMPTY_PROJECT)
+    val projects: MutableList<ProjectObject> = mutableListOf()
 }
 
 class ProjectObject(val id: String, val name: String) {

@@ -4,7 +4,6 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import cz.dzubera.callwarden.storage.ProjectStorage
 import cz.dzubera.callwarden.utils.PreferencesUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,11 +17,11 @@ class IncomingCallInfoService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
+        val projectId = PreferencesUtils.loadProjectId(this)
         val credentials = PreferencesUtils.loadCredentials(this)
-        val projectId = PreferencesUtils.loadProjectId(this) ?: ProjectStorage.EMPTY_PROJECT.id
         val phoneNumber = intent!!.getStringExtra("phone_number")
         Log.i("testik", "on create " + phoneNumber.toString())
-        if (credentials == null) {
+        if (credentials == null || projectId == null) {
             return START_NOT_STICKY
         }
         val token = PreferencesUtils.get(this, "firebase_token") ?: ""

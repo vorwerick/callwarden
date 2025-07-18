@@ -1,11 +1,11 @@
 package cz.dzubera.callwarden.utils
 
+import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import androidx.core.content.ContextCompat
-import android.Manifest
 import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.model.CallHistory
@@ -16,19 +16,28 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
+    val project = App.projectStorage.getProject(context)
+    if (project == null) {
+        state?.invoke("Vyberte projekt! Synchronizaci nelze provést bez vybraného projektu.")
+        return
+    }
     // Check if READ_CALL_LOG and WRITE_CALL_LOG permissions are granted
-    if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED ||
-        ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+    if (ContextCompat.checkSelfPermission(
+            context, Manifest.permission.READ_CALL_LOG
+        ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+            context, Manifest.permission.WRITE_CALL_LOG
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
         Log.e("SynchronizationUtils", "READ_CALL_LOG or WRITE_CALL_LOG permission not granted")
         state?.invoke("Synchronizace se nezdařila, chybí oprávnění pro čtení nebo zápis historie hovorů.")
         return
     }
 
     val calls = CallHistory.getCallsHistory(
-        context,
-        PreferencesUtils.loadSyncCount(context)
+        context, PreferencesUtils.loadSyncCount(context)
     ).toMutableList()
     CoroutineScope(Dispatchers.IO).launch {
+
         val callsFromDB = App.appDatabase.taskCalls().getAll()
 
         val syncCalls = mutableListOf<CallEntity>()
@@ -51,22 +60,14 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
 
             // prepare credentials
             val credentials = PreferencesUtils.loadCredentials(context)
-            var projectId = PreferencesUtils.loadProjectId(context)
-            var projectName = PreferencesUtils.loadProjectName(context)
-
-            val proj = App.projectStorage.getProject()
-            if (proj != null) {
-                projectId = proj.id
-                projectName = proj.name
-            }
 
             // store data
             val call = Call(
                 callStarted,
                 credentials?.user.toString(),
                 credentials?.domain ?: "",
-                projectId ?: "-1",
-                projectName ?: "<none>",
+                project!!.id ?: "-1",
+                project!!.name ?: "<none>",
                 duration,
                 callDirection,
                 number,
