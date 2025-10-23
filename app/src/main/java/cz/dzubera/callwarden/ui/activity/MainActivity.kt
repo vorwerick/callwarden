@@ -97,32 +97,25 @@ class MainActivity : AppCompatActivity() {
 
             R.id.sync -> {
                 if (ContextCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.READ_CALL_LOG
+                        this, Manifest.permission.READ_CALL_LOG
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
                     //show toast
                     Toast.makeText(
-                        this@MainActivity,
-                        "Synchronizace probíhá...",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
+                        this@MainActivity, "Synchronizace probíhá...", Toast.LENGTH_SHORT
+                    ).show()
                     //get calls from history
                     startSynchronization(this@MainActivity) {
                         runOnUiThread {
                             Toast.makeText(
-                                this@MainActivity,
-                                it,
-                                Toast.LENGTH_LONG
+                                this@MainActivity, it, Toast.LENGTH_LONG
                             ).show()
                         }
                     }
                     true
                 } else {
                     // show toast you need permissions
-                    Toast.makeText(this@MainActivity, "Nemáte oprávnění", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this@MainActivity, "Nemáte oprávnění", Toast.LENGTH_SHORT).show()
                     false
                 }
 
@@ -181,8 +174,7 @@ class MainActivity : AppCompatActivity() {
         val builderSingle = AlertDialog.Builder(this)
         builderSingle.setTitle("Vybrat projekt")
         builderSingle.setCancelable(cancelable)
-        val arrayAdapter =
-            ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
+        val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
         arrayAdapter.addAll(App.projectStorage.projects.map { it.name })
         builderSingle.setAdapter(
             arrayAdapter
@@ -209,8 +201,7 @@ class MainActivity : AppCompatActivity() {
         val builderSingle = AlertDialog.Builder(this)
         builderSingle.setTitle("Změna projektu")
         builderSingle.setCancelable(true)
-        val arrayAdapter =
-            ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
+        val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
         arrayAdapter.addAll(App.projectStorage.projects.map { it.name })
         builderSingle.setAdapter(
             arrayAdapter
@@ -245,9 +236,7 @@ class MainActivity : AppCompatActivity() {
                         App.appDatabase.taskCalls().update(callEntity)
                         runOnUiThread {
                             Toast.makeText(
-                                this@MainActivity,
-                                "Projekt byl úspěšně změněn.",
-                                Toast.LENGTH_SHORT
+                                this@MainActivity, "Projekt byl úspěšně změněn.", Toast.LENGTH_SHORT
                             ).show()
                         }
                     } else {
@@ -299,10 +288,8 @@ class MainActivity : AppCompatActivity() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setMessage(
-            "ID: ${App.userSettingsStorage.credentials!!.domain}\nUživatel: ${App.userSettingsStorage.credentials!!.user}\nProjekt: ${project?.name ?: "Nebyl vybrán"}\n" +
-                    "Poslední synchronizace: $syncDateTime"
-        )
-            .setTitle("Uživatel").setPositiveButton(
+            "ID: ${App.userSettingsStorage.credentials!!.domain}\nUživatel: ${App.userSettingsStorage.credentials!!.user}\nProjekt: ${project?.name ?: "Nebyl vybrán"}\n" + "Poslední synchronizace: $syncDateTime"
+        ).setTitle("Uživatel").setPositiveButton(
                 "Ok"
             ) { p0, _ -> p0.dismiss() }
 
@@ -350,7 +337,10 @@ class MainActivity : AppCompatActivity() {
 
         FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
             PreferencesUtils.save(this@MainActivity, "firebase_token", fcmToken)
-            HttpRequest.sendToken(credentials!!.domain, fcmToken)
+            credentials?.let {
+                HttpRequest.sendToken(credentials.domain, credentials.user, fcmToken)
+            }
+
         }
 
         Log.i("testik", "abrakadabra " + PreferencesUtils.get(this, "XXX"));
@@ -386,8 +376,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }, { calls ->
-            findViewById<TextView>(R.id.call_list_result_count).text =
-                "Výsledků " + calls.size.toString()
+            findViewById<TextView>(R.id.call_list_result_count).text = "Výsledků " + calls.size.toString()
         })
 
         val recyclerView: RecyclerView = findViewById(R.id.call_list)
@@ -479,8 +468,7 @@ class MainActivity : AppCompatActivity() {
         stringArray.add("nespojené")
         val checkedItems = App.callTypeFilter.toBooleanArray()
         builderSingle.setMultiChoiceItems(
-            stringArray.toTypedArray(),
-            checkedItems
+            stringArray.toTypedArray(), checkedItems
         ) { _, which, isChecked ->
             App.callTypeFilter[which] = isChecked
             App.cacheStorage.loadFromDatabase { }
@@ -521,8 +509,7 @@ class MainActivity : AppCompatActivity() {
         val builderSingle = AlertDialog.Builder(this)
         builderSingle.setTitle("Vybrat filtr")
         builderSingle.setCancelable(true)
-        val arrayAdapter =
-            ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
+        val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
         val filters = App.projectStorage.projects.toMutableList().also { it.add(0, ProjectObject("", "")) }
         arrayAdapter.addAll(filters.map {
             if (it.id == "") {
@@ -583,9 +570,7 @@ class MainActivity : AppCompatActivity() {
             startSynchronization(this@MainActivity) {
                 runOnUiThread {
                     Toast.makeText(
-                        this@MainActivity,
-                        it,
-                        Toast.LENGTH_LONG
+                        this@MainActivity, it, Toast.LENGTH_LONG
                     ).show()
                 }
             }

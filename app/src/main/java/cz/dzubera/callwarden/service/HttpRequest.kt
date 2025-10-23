@@ -144,6 +144,7 @@ object HttpRequest {
 
      fun sendToken(
         domain: String,
+        user: Int,
         token: String,
         onResponse: (HttpResponse) -> Unit = {}
     ) {
@@ -159,6 +160,8 @@ object HttpRequest {
 
         val formBody: RequestBody = FormBody.Builder()
             .add("firebase_token", token)
+            .add("id_user", user.toString())
+            .add("id_domeny", domain)
             .build()
         val request = Request.Builder()
             .addHeader("X-API-KEY", getApiKey(domain))
