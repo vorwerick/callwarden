@@ -28,7 +28,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         super.onNewToken(token)
         val credentials = PreferencesUtils.loadCredentials(this)
         credentials?.let {
-            HttpRequest.sendToken(it.domain,it.user, token)
+           // HttpRequest.sendToken(it.domain,it.user, token)
         }
     }
 

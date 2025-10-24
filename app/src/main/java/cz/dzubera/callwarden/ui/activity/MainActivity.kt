@@ -338,7 +338,7 @@ class MainActivity : AppCompatActivity() {
         FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
             PreferencesUtils.save(this@MainActivity, "firebase_token", fcmToken)
             credentials?.let {
-                HttpRequest.sendToken(credentials.domain, credentials.user, fcmToken)
+               // HttpRequest.sendToken(credentials.domain, credentials.user, fcmToken)
             }
 
         }

@@ -105,7 +105,7 @@ class LoginActivity : AppCompatActivity() {
         if (credentials != null && hasPermissions) {
             FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
                 PreferencesUtils.save(this@LoginActivity, "firebase_token", fcmToken)
-                HttpRequest.sendToken(credentials.domain, credentials.user,fcmToken)
+                //HttpRequest.sendToken(credentials.domain, credentials.user,fcmToken)
             }
 
             HttpRequest.getProjects(

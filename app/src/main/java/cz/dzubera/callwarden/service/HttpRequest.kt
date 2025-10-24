@@ -142,68 +142,68 @@ object HttpRequest {
 
     }
 
-     fun sendToken(
-        domain: String,
-        user: Int,
-        token: String,
-        onResponse: (HttpResponse) -> Unit = {}
-    ) {
-
-
-        val url = URL(Config.SEND_FIREBASE_TOKEN)
-        val client = OkHttpClient().newBuilder()
-            .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-            .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-            .retryOnConnectionFailure(true)
-            .build()
-
-        val formBody: RequestBody = FormBody.Builder()
-            .add("firebase_token", token)
-            .add("id_user", user.toString())
-            .add("id_domeny", domain)
-            .build()
-        val request = Request.Builder()
-            .addHeader("X-API-KEY", getApiKey(domain))
-            .url(url)
-            .post(formBody)
-            .build()
-
-        val call: Call = client.newCall(request)
-        call.enqueue(object : Callback {
-
-
-            override fun onFailure(call: Call, e: IOException) {
-                onResponse.invoke(HttpResponse(null, 0, ResponseStatus.ERROR))
-
-                Log.e(
-                    "Http Request Service",
-                    "Sending firebase token failed"
-                )
-
-            }
-
-            @Throws(IOException::class)
-            override fun onResponse(call: Call, response: Response) {
-
-                if (response.code > 200) {
-                    onResponse.invoke(HttpResponse(null, response.code, ResponseStatus.ERROR))
-
-                    Log.e(
-                        "Http Request Service",
-                        "Sending firebase token failed"
-                    )
-                } else {
-                    val body = response.body?.string().toString()
-                    onResponse.invoke(HttpResponse(body))
-                    Log.i("Http Request Service", "Firebase token sent!")
-                }
-
-
-            }
-        })
-
-    }
+//     fun sendToken(
+//        domain: String,
+//        user: Int,
+//        token: String,
+//        onResponse: (HttpResponse) -> Unit = {}
+//    ) {
+//
+//
+//        val url = URL(Config.SEND_FIREBASE_TOKEN)
+//        val client = OkHttpClient().newBuilder()
+//            .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+//            .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+//            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+//            .retryOnConnectionFailure(true)
+//            .build()
+//
+//        val formBody: RequestBody = FormBody.Builder()
+//            .add("firebase_token", token)
+//            .add("id_user", user.toString())
+//            .add("id_domeny", domain)
+//            .build()
+//        val request = Request.Builder()
+//            .addHeader("X-API-KEY", getApiKey(domain))
+//            .url(url)
+//            .post(formBody)
+//            .build()
+//
+//        val call: Call = client.newCall(request)
+//        call.enqueue(object : Callback {
+//
+//
+//            override fun onFailure(call: Call, e: IOException) {
+//                onResponse.invoke(HttpResponse(null, 0, ResponseStatus.ERROR))
+//
+//                Log.e(
+//                    "Http Request Service",
+//                    "Sending firebase token failed"
+//                )
+//
+//            }
+//
+//            @Throws(IOException::class)
+//            override fun onResponse(call: Call, response: Response) {
+//
+//                if (response.code > 200) {
+//                    onResponse.invoke(HttpResponse(null, response.code, ResponseStatus.ERROR))
+//
+//                    Log.e(
+//                        "Http Request Service",
+//                        "Sending firebase token failed"
+//                    )
+//                } else {
+//                    val body = response.body?.string().toString()
+//                    onResponse.invoke(HttpResponse(body))
+//                    Log.i("Http Request Service", "Firebase token sent!")
+//                }
+//
+//
+//            }
+//        })
+//
+//    }
 
 
     fun getApiKey(domain: String): String {
