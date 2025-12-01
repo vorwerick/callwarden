@@ -5,30 +5,19 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.database.sqlite.SQLiteConstraintException
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
-import android.telephony.*
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import androidx.core.content.ContextCompat
-import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.R
-import cz.dzubera.callwarden.model.Call
-import cz.dzubera.callwarden.model.CallHistory
-import cz.dzubera.callwarden.service.db.CallEntity
-import cz.dzubera.callwarden.storage.ProjectStorage
-import cz.dzubera.callwarden.utils.PreferencesUtils
 import cz.dzubera.callwarden.utils.startSynchronization
-import cz.dzubera.callwarden.utils.uploadCall
-import io.sentry.Sentry
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.*
 
 
 class BackgroundCallService : Service(), IdleStateCallback { // class end

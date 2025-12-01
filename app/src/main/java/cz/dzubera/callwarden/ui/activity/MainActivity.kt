@@ -541,27 +541,7 @@ class MainActivity : AppCompatActivity() {
         builderSingle.show()
     }
 
-    private fun checkPendingCallsForSend() {
 
-
-        GlobalScope.launch {
-            val pendingCalls = App.appDatabase.pendingCalls().getAll()
-            pendingRequests = pendingCalls.size
-            if (pendingCalls.isEmpty()) {
-                return@launch
-            }
-            println("Pending calls to upload: " + pendingCalls.size.toString())
-            val callEntities = pendingCalls.mapNotNull { App.appDatabase.taskCalls().get(it.uid) }
-            uploadCall(this@MainActivity, callEntities) { success ->
-                if (success) {
-                    GlobalScope.launch {
-                        App.appDatabase.pendingCalls().deleteAll()
-                    }
-                }
-
-            }
-        }
-    }
 
     fun startSynch() {
         val lastSyncTime = PreferencesUtils.loadLastSyncDate(this)

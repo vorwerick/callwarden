@@ -2,20 +2,20 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'org.jetbrains.kotlin.android'
-    id "com.google.devtools.ksp" version "1.9.21-1.0.15"
+    id 'com.google.devtools.ksp' version '2.2.21-2.0.4'
     id 'com.google.gms.google-services'
 }
 
 
 android {
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "cz.dzubera.callwarden"
         minSdk 24
-        targetSdk 34
-        versionCode 76
-        versionName "1.57"
+        targetSdk 36
+        versionCode 81
+        versionName "1.59"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         setProperty('archivesBaseName', "ramicall-$versionName")
@@ -44,8 +44,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 
     signingConfigs{
@@ -57,7 +57,7 @@ android {
         }
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '21'
     }
     packagingOptions {
         resources {
@@ -73,31 +73,29 @@ android {
 
 }
 
-
-configurations.all {
-    resolutionStrategy.force "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    resolutionStrategy.force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    resolutionStrategy.force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    resolutionStrategy.force "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
+kotlin {
+    jvmToolchain(21)
 }
+
+
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.9.1"
-    implementation "androidx.activity:activity-ktx:1.8.1"
-    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.10.0"
+    implementation "androidx.activity:activity-ktx:1.12.0"
+    implementation 'androidx.core:core-ktx:1.17.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'com.google.android.material:material:1.13.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'com.google.firebase:firebase-messaging-ktx:24.1.1'
-    implementation 'androidx.browser:browser:1.8.0'
+    implementation 'com.google.firebase:firebase-messaging-ktx:24.1.2'
+    implementation 'androidx.browser:browser:1.9.0'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.squareup.okhttp3:okhttp:5.3.2'
     implementation 'com.google.android.gms:play-services-auth:21.3.0'
 
-    implementation 'io.sentry:sentry-android:8.13.2'
+    implementation 'io.sentry:sentry-android:8.27.1'
 
     // https://developers.google.com/gsuite/guides/android
     // https://mvnrepository.com/artifact/com.google.api-client/google-api-client-android
@@ -123,6 +121,6 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:33.15.0')
 
     // WorkManager for background tasks
-    implementation "androidx.work:work-runtime-ktx:2.9.0"
+    implementation "androidx.work:work-runtime-ktx:2.11.0"
 
 }

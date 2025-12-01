@@ -2,7 +2,7 @@ package cz.dzubera.callwarden.utils
 
 object Iso2Phone {
     fun getPhone(code: String): String? {
-        return country2phone[code.toUpperCase()]
+        return country2phone[code.uppercase()]
     }
 
     val all: Map<String, String>
