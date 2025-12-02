@@ -47,10 +47,11 @@ class PhoneStateReceiver : BroadcastReceiver() {
             return
         }
 
-        // When call ends → send IDLE broadcast to service
         if (state == TelephonyManager.EXTRA_STATE_IDLE) {
             Log.d(tag, "Broadcasting idle")
-            context.sendBroadcast(Intent(IdleStateReceiverForService.ACTION_SERVICE_IDLE_STATE))
+            val idleIntent = Intent(IdleStateReceiverForService.ACTION_SERVICE_IDLE_STATE)
+            idleIntent.setPackage(context.packageName)
+            context.sendBroadcast(idleIntent)
         }
     }
 

@@ -8,14 +8,14 @@ plugins {
 
 
 android {
-    compileSdk 36
+    compileSdkVersion 36
 
     defaultConfig {
         applicationId "cz.dzubera.callwarden"
         minSdk 24
         targetSdk 36
-        versionCode 82
-        versionName "1.60"
+        versionCode 83
+        versionName "1.61"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         setProperty('archivesBaseName', "ramicall-$versionName")

@@ -23,6 +23,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.messaging.FirebaseMessaging
 import cz.dzubera.callwarden.App
@@ -680,15 +681,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        finish()
-    }
-
     private fun openUrlInCustomTab(context: Context, url: String) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        startActivity(intent, null)
+        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+            Toast.makeText(this, "Nelze otevřít prohlížeč", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun showDateFromPicker() {

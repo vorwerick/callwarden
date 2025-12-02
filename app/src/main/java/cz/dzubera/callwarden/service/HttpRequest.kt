@@ -30,22 +30,15 @@ object HttpRequest {
 
 
         val url = URL(Config.PROJECTS_URL)
-        val client = OkHttpClient().newBuilder()
-            .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+        val client = OkHttpClient().newBuilder().connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
             .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-            .retryOnConnectionFailure(true)
-            .build()
+            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS).retryOnConnectionFailure(true).build()
 
-        val formBody: RequestBody = FormBody.Builder()
-            .add("id_domeny", domain)
-            .add("id_user", user.toString())
-            .build()
-        val request = Request.Builder()
-            .addHeader("X-API-KEY", getApiKey(domain).toString())
-            .url(url)
-            .post(formBody)
-            .build()
+        val formBody: RequestBody =
+            FormBody.Builder().add("id_domeny", domain).add("id_user", user.toString()).build()
+        val request =
+            Request.Builder().addHeader("X-API-KEY", getApiKey(domain).toString()).url(url)
+                .post(formBody).build()
 
         val call: Call = client.newCall(request)
         call.enqueue(object : Callback {
@@ -71,13 +64,18 @@ object HttpRequest {
                 } else {
                     val body = response.body?.string().toString()
                     val httpResponse = HttpResponse(body)
-                    if (response.body != null) {
-                        val projects = JSONObject(body).getProjectObject()
+                    val projects = try {
+                        JSONObject(body).getProjectObject()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
+                    projects?.let {
                         App.projectStorage.setProjects(projects)
                         projects.forEach { println(it.name) }
-                    }
 
-                    onResponse.invoke(httpResponse)
+                        onResponse.invoke(httpResponse)
+                    }
                 }
 
 
@@ -86,31 +84,23 @@ object HttpRequest {
 
     }
 
-     fun sendVersion(
-        domain: String,
-        user: Int,
-        onResponse: (VersionState) -> Unit
+    fun sendVersion(
+        domain: String, user: Int, onResponse: (VersionState) -> Unit
     ) {
+        Log.i("Http Request Service", "Send")
 
 
         val url = URL(Config.SEND_INCOMING_CALL_URL)
-        val client = OkHttpClient().newBuilder()
-            .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+        val client = OkHttpClient().newBuilder().connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
             .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-            .retryOnConnectionFailure(true)
-            .build()
+            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS).retryOnConnectionFailure(true).build()
 
-        val formBody: RequestBody = FormBody.Builder()
-            .add("id_domeny", domain)
-            .add("id_user", user.toString())
-            .add("verze", BuildConfig.VERSION_NAME)
-            .build()
-        val request = Request.Builder()
-            .addHeader("X-API-KEY", getApiKey(domain))
-            .url(url)
-            .post(formBody)
-            .build()
+        val formBody: RequestBody =
+            FormBody.Builder().add("id_domeny", domain).add("id_user", user.toString())
+                .add("verze", BuildConfig.VERSION_NAME).build()
+        val request =
+            Request.Builder().addHeader("X-API-KEY", getApiKey(domain)).url(url).post(formBody)
+                .build()
 
         val call: Call = client.newCall(request)
         call.enqueue(object : Callback {
@@ -119,7 +109,7 @@ object HttpRequest {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e(
                     "Http Request Service",
-                    "Incoming number not sent via error! ${e.localizedMessage ?: "unknown error"}"
+                    "Version ${e.localizedMessage ?: "unknown error"}"
                 )
 
             }
@@ -128,24 +118,33 @@ object HttpRequest {
             override fun onResponse(call: Call, response: Response) {
 
                 if (response.code > 200) {
-                    val body = response.body.string().toString()
+
 
                     Log.e(
                         "Http Request Service",
-                        "Incoming number not sent! ${response.code} -> ${response.message}"
+                        "Version ${response.code} -> ${response.message}"
                     )
                 } else {
-                    Log.i("Http Request Service", "Version got!")
-                    val body = response?.body?.string()?.toString()
+
+                    val body = response.body?.string()
+                    Log.i("Http Request Service", "Version: $body")
                     body?.let {
-                        val versionState = JSONObject(body)
-                        onResponse.invoke(
-                            VersionState(
-                                versionState.getInt("code"),
-                                versionState.getString("url")
+                        val versionState = try {
+                            JSONObject(body)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                        versionState?.let {
+                            onResponse.invoke(
+                                VersionState(
+                                    versionState.optInt("code"), versionState.optString("url")
+                                )
                             )
-                        )
+                        }
                     }
+
+
 
                 }
 
@@ -182,25 +181,17 @@ object HttpRequest {
 
 
         val url = URL(Config.SEND_INCOMING_CALL_URL)
-        val client = OkHttpClient().newBuilder()
-            .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+        val client = OkHttpClient().newBuilder().connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
             .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-            .retryOnConnectionFailure(true)
-            .build()
+            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS).retryOnConnectionFailure(true).build()
 
-        val formBody: RequestBody = FormBody.Builder()
-            .add("id_domeny", domain)
-            .add("id_user", user.toString())
-            .add("projectId", projectId)
-            .add("number", number)
-            .add("firebase_token", token)
-            .build()
-        val request = Request.Builder()
-            .addHeader("X-API-KEY", getApiKey(domain))
-            .url(url)
-            .post(formBody)
-            .build()
+        val formBody: RequestBody =
+            FormBody.Builder().add("id_domeny", domain).add("id_user", user.toString())
+                .add("projectId", projectId).add("number", number).add("firebase_token", token)
+                .build()
+        val request =
+            Request.Builder().addHeader("X-API-KEY", getApiKey(domain)).url(url).post(formBody)
+                .build()
 
         val call: Call = client.newCall(request)
         call.enqueue(object : Callback {
@@ -218,7 +209,6 @@ object HttpRequest {
             override fun onResponse(call: Call, response: Response) {
 
                 if (response.code > 200) {
-                    val body = response.body?.string().toString()
 
                     Log.e(
                         "Http Request Service",
@@ -316,23 +306,16 @@ object HttpRequest {
 
 
         val url = URL(Config.CALL_URL)
-        val client = OkHttpClient().newBuilder()
-            .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+        val client = OkHttpClient().newBuilder().connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
             .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-            .retryOnConnectionFailure(true)
-            .build()
+            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS).retryOnConnectionFailure(true).build()
 
-        val formBody: RequestBody = FormBody.Builder()
-            .add("id_domeny", domain)
-            .add("id_user", user.toString())
-            .add("data", data)
-            .build()
-        val request = Request.Builder()
-            .addHeader("X-API-KEY", getApiKey(domain))
-            .url(url)
-            .post(formBody)
-            .build()
+        val formBody: RequestBody =
+            FormBody.Builder().add("id_domeny", domain).add("id_user", user.toString())
+                .add("data", data).build()
+        val request =
+            Request.Builder().addHeader("X-API-KEY", getApiKey(domain)).url(url).post(formBody)
+                .build()
 
         println(data)
 
@@ -362,7 +345,8 @@ object HttpRequest {
                         onResponse.invoke(httpResponse)
 
                     } else {
-                        val httpResponse = HttpResponse(response.body?.string().toString())
+                        val body = response.body?.string() ?: ""
+                        val httpResponse = HttpResponse(body)
                         onResponse.invoke(httpResponse)
                     }
                 }

@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.firebase.messaging.FirebaseMessaging
 import cz.dzubera.callwarden.R
@@ -83,11 +84,11 @@ class LoginActivity : AppCompatActivity() {
 
         val opened = savedInstanceState?.getBoolean("opened") ?: false
         if (!shown && !opened) {
-            val url = intent?.extras?.getString("url") ?: intent?.getStringExtra("url")
+            val extras = intent?.extras
+            val url = extras?.getString("url")
             if (url != null) {
                 shown = true
                 urlToSend = url
-                intent?.extras?.remove("url")
                 intent?.removeExtra("url")
                 savedInstanceState?.putBoolean("opened", true)
             }
@@ -154,10 +155,13 @@ class LoginActivity : AppCompatActivity() {
 
 
     private fun openUrlInCustomTab(context: Context, url: String) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        startActivity(intent, null)
+        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+            Toast.makeText(this, "Nelze otevřít prohlížeč", Toast.LENGTH_LONG).show()
+        }
     }
-
 
     // Check permissions status
     private fun isPermissionsGranted(): Int {
@@ -198,6 +202,7 @@ class LoginActivity : AppCompatActivity() {
     // Request the permissions at run time
     private fun requestPermissions() {
         val permission = deniedPermission()
+        if (permission.isEmpty()) return
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
             // Show an explanation asynchronously
             Toast.makeText(this, "Should show an explanation.", Toast.LENGTH_SHORT).show()
@@ -303,6 +308,12 @@ class LoginActivity : AppCompatActivity() {
         requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (grantResults.isEmpty()) {
+            showAlert()
+            return
+        }
+
         if (requestCode == 29) {
             if (processPermissionsResult(requestCode, permissions, grantResults)) {
                 // Permissions granted, restart the activity to proceed with normal flow
@@ -349,50 +360,40 @@ class LoginActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
             } else {
-                when (response.code) {
-                    0 -> {
-                        runOnUiThread {
+                runOnUiThread {
+                    when (response.code) {
+                        0 -> {
                             findViewById<TextView>(R.id.error_label).text =
                                 "Nelze se připojit k serveru.\nZkontrolujte připojení k internetu."
-                        }
-                    }
 
-                    401 -> {
-                        runOnUiThread {
+                        }
+
+                        401 -> {
                             findViewById<TextView>(R.id.error_label).text =
                                 "Neznámé ID nebo uživatel"
                         }
-                    }
 
-                    422 -> {
-                        runOnUiThread {
+                        422 -> {
                             findViewById<TextView>(R.id.error_label).text =
                                 "Uživatel nemá žádný projekt"
-
                         }
-                    }
 
-                    404 -> {
-                        runOnUiThread {
+                        404 -> {
                             findViewById<TextView>(R.id.error_label).text =
                                 response.data ?: "Chyba serveru " + response.code
-
                         }
-                    }
 
-                    in 500..599 -> {
-                        runOnUiThread {
+                        in 500..599 -> {
                             findViewById<TextView>(R.id.error_label).text =
                                 response.data ?: "Chyba serveru" + response.code
-
                         }
                     }
-                }
-            }
-            runOnUiThread {
-                findViewById<Button>(R.id.user_log_in).isEnabled = true
-            }
 
+                    findViewById<Button>(R.id.user_log_in).isEnabled = true
+
+                }
+
+            }
         }
     }
 }
