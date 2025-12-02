@@ -6,6 +6,7 @@ import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -34,7 +35,6 @@ import cz.dzubera.callwarden.storage.ProjectObject
 import cz.dzubera.callwarden.ui.CallAdapter
 import cz.dzubera.callwarden.ui.CallViewModel
 import cz.dzubera.callwarden.ui.CallViewModelFactory
-import cz.dzubera.callwarden.utils.AlarmUtils
 import cz.dzubera.callwarden.utils.Config
 import cz.dzubera.callwarden.utils.DateUtils
 import cz.dzubera.callwarden.utils.PreferencesUtils
@@ -290,8 +290,8 @@ class MainActivity : AppCompatActivity() {
         builder.setMessage(
             "ID: ${App.userSettingsStorage.credentials!!.domain}\nUživatel: ${App.userSettingsStorage.credentials!!.user}\nProjekt: ${project?.name ?: "Nebyl vybrán"}\n" + "Poslední synchronizace: $syncDateTime"
         ).setTitle("Uživatel").setPositiveButton(
-                "Ok"
-            ) { p0, _ -> p0.dismiss() }
+            "Ok"
+        ) { p0, _ -> p0.dismiss() }
 
 // 3. Get the <code><a href="/reference/android/app/AlertDialog.html">AlertDialog</a></code> from <code><a href="/reference/android/app/AlertDialog.Builder.html#create()">create()</a></code>
         val dialog: AlertDialog = builder.create()
@@ -326,7 +326,7 @@ class MainActivity : AppCompatActivity() {
 
 
         // start alarm
-        AlarmUtils.scheduleAlarm(applicationContext)
+       // AlarmUtils.scheduleAlarm(applicationContext)
 
         val credentials = PreferencesUtils.loadCredentials(this)
 
@@ -338,7 +338,7 @@ class MainActivity : AppCompatActivity() {
         FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
             PreferencesUtils.save(this@MainActivity, "firebase_token", fcmToken)
             credentials?.let {
-               // HttpRequest.sendToken(credentials.domain, credentials.user, fcmToken)
+                // HttpRequest.sendToken(credentials.domain, credentials.user, fcmToken)
             }
 
         }
@@ -376,7 +376,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }, { calls ->
-            findViewById<TextView>(R.id.call_list_result_count).text = "Výsledků " + calls.size.toString()
+            findViewById<TextView>(R.id.call_list_result_count).text =
+                "Výsledků " + calls.size.toString()
         })
 
         val recyclerView: RecyclerView = findViewById(R.id.call_list)
@@ -510,7 +511,8 @@ class MainActivity : AppCompatActivity() {
         builderSingle.setTitle("Vybrat filtr")
         builderSingle.setCancelable(true)
         val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
-        val filters = App.projectStorage.projects.toMutableList().also { it.add(0, ProjectObject("", "")) }
+        val filters =
+            App.projectStorage.projects.toMutableList().also { it.add(0, ProjectObject("", "")) }
         arrayAdapter.addAll(filters.map {
             if (it.id == "") {
                 "Všechny projekty"
@@ -540,7 +542,6 @@ class MainActivity : AppCompatActivity() {
         ) { dialog, _ -> dialog.dismiss() }
         builderSingle.show()
     }
-
 
 
     fun startSynch() {
@@ -590,6 +591,16 @@ class MainActivity : AppCompatActivity() {
 
         //checkPendingCallsForSend()
 
+        getVersionState({
+
+        }, {
+            showNewVersionDialog(it) {
+
+            }
+        }, {
+            showUpdateNeededDialog(it)
+        })
+
     }
 
 
@@ -604,9 +615,80 @@ class MainActivity : AppCompatActivity() {
         callViewModel.setCalls(list)
     }
 
+
+    fun showNewVersionDialog(url: String?, done: () -> Unit) {
+        val builder = AlertDialog.Builder(this)
+        builder.setCancelable(false)
+        builder.setTitle("Dostupná aktualizace")
+        builder.setMessage("Máme pro vás novější verzi aplikace. Doporučujeme provést aktualizaci co nejdříve, pro správné fungování aplikace.")
+        url?.let {
+            builder.setPositiveButton("Aktualizovat") { dialog, which ->
+                openUrlInCustomTab(this, url)
+                dialog.dismiss()
+                done()
+
+            }
+        }
+        builder.setNegativeButton("Zpět") { dialog, which -> dialog.dismiss() }
+
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    fun showUpdateNeededDialog(url: String?) {
+        val builder = AlertDialog.Builder(this)
+        builder.setCancelable(false)
+        builder.setTitle("Provést aktualizaci")
+        builder.setMessage("Pro správné fungování aplikace je nutné nejprve dokončit aktualizaci.")
+        url?.let {
+            builder.setPositiveButton("Aktualizovat") { dialog, which ->
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(it)).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                startActivity(browserIntent)
+            }
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    fun getVersionState(
+        ok: () -> Unit, newVersion: (String?) -> Unit, updateNeeded: (String?) -> Unit
+    ) {
+        val credentials = PreferencesUtils.loadCredentials(this)
+        credentials?.let {
+            HttpRequest.sendVersion(it.domain, it.user) { status ->
+                println("KOKO: + ${status.url} ${status.state}")
+                runOnUiThread {
+                    status.state?.let { s ->
+                        when (status.getState()) {
+                            HttpRequest.VersionState.States.NEW_VERSION -> {
+                                newVersion(status.url)
+                            }
+
+                            HttpRequest.VersionState.States.UPDATE_NEEDED -> {
+                                updateNeeded(status.url)
+                            }
+
+                            else -> {
+                                ok()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
     override fun onBackPressed() {
         super.onBackPressed()
         finish()
+    }
+
+    private fun openUrlInCustomTab(context: Context, url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        startActivity(intent, null)
     }
 
     private fun showDateFromPicker() {

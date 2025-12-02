@@ -101,7 +101,6 @@ class LoginActivity : AppCompatActivity() {
         //requestBatteryOptimizationPermission(this)
         val hasPermissions = checkPermissions()
 
-
         if (credentials != null && hasPermissions) {
             FirebaseMessaging.getInstance().token.addOnSuccessListener { fcmToken ->
                 PreferencesUtils.save(this@LoginActivity, "firebase_token", fcmToken)
@@ -109,8 +108,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
             HttpRequest.getProjects(
-                credentials.domain,
-                credentials.user
+                credentials.domain, credentials.user
             ) { response: HttpResponse ->
                 runOnUiThread {
                     if (response.status == ResponseStatus.SUCCESS) {
@@ -132,7 +130,6 @@ class LoginActivity : AppCompatActivity() {
 
 
 
-
         if (credentials != null) {
             findViewById<EditText>(R.id.domain_id).setText(credentials.domain)
             findViewById<EditText>(R.id.user_id).setText(credentials.user.toString())
@@ -144,8 +141,7 @@ class LoginActivity : AppCompatActivity() {
             val domainId = findViewById<EditText>(R.id.domain_id).text.toString()
             val userId = findViewById<EditText>(R.id.user_id).text.toString().toIntOrNull()
             if (domainId.isEmpty() || userId == null) {
-                findViewById<TextView>(R.id.error_label).text =
-                    "Zadejte ID a uživatele"
+                findViewById<TextView>(R.id.error_label).text = "Zadejte ID a uživatele"
             } else {
                 login(domainId, userId)
             }
@@ -156,9 +152,10 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+
     private fun openUrlInCustomTab(context: Context, url: String) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        ContextCompat.startActivity(context, intent, null)
+        startActivity(intent, null)
     }
 
 
@@ -177,8 +174,9 @@ class LoginActivity : AppCompatActivity() {
     // Find the first denied permission
     private fun deniedPermission(): String {
         for (permission in permissionList) {
-            if (ContextCompat.checkSelfPermission(this, permission)
-                == PackageManager.PERMISSION_DENIED
+            if (ContextCompat.checkSelfPermission(
+                    this, permission
+                ) == PackageManager.PERMISSION_DENIED
             ) return permission
         }
         return ""
@@ -211,8 +209,7 @@ class LoginActivity : AppCompatActivity() {
 
     // Process permissions result
     fun processPermissionsResult(
-        requestCode: Int, permissions: Array<String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ): Boolean {
         var result = 0
         if (grantResults.isNotEmpty()) {
@@ -224,10 +221,86 @@ class LoginActivity : AppCompatActivity() {
         return false
     }
 
+    fun showNewVersionDialog(url: String?, done: () -> Unit) {
+        val builder = AlertDialog.Builder(this)
+        builder.setCancelable(false)
+        builder.setTitle("Dostupná aktualizace")
+        builder.setMessage("Máme pro vás novější verzi aplikace. Doporučujeme provést aktualizaci co nejdříve, pro správné fungování aplikace.")
+        url?.let {
+            builder.setPositiveButton("Aktualizovat") { dialog, which ->
+                openUrlInCustomTab(this, url)
+                dialog.dismiss()
+                done()
+
+            }
+        }
+        builder.setNegativeButton("Zpět") { dialog, which -> dialog.dismiss() }
+
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    fun showUpdateNeededDialog(url: String?) {
+        val builder = AlertDialog.Builder(this)
+        builder.setCancelable(false)
+        builder.setTitle("Provést aktualizaci")
+        builder.setMessage("Pro správné fungování aplikace je nutné nejprve dokončit aktualizaci.")
+        url?.let {
+            builder.setPositiveButton("Aktualizovat") { dialog, which ->
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(it)).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                startActivity(browserIntent)
+            }
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    fun getVersionState(
+        ok: () -> Unit, newVersion: (String?) -> Unit, updateNeeded: (String?) -> Unit
+    ) {
+        val credentials = PreferencesUtils.loadCredentials(this)
+        credentials?.let {
+            HttpRequest.sendVersion(it.domain, it.user) { status ->
+                println("KOKO: + ${status.url} ${status.state}")
+                runOnUiThread {
+                    status.state?.let { s ->
+                        when (status.getState()) {
+                            HttpRequest.VersionState.States.NEW_VERSION -> {
+                                newVersion(status.url)
+                            }
+
+                            HttpRequest.VersionState.States.UPDATE_NEEDED -> {
+                                updateNeeded(status.url)
+                            }
+
+                            else -> {
+                                ok()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getVersionState({
+
+        }, {
+            showNewVersionDialog(it) {
+
+            }
+        }, {
+            showUpdateNeededDialog(it)
+        })
+
+    }
+
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 29) {

@@ -2,15 +2,22 @@ package cz.dzubera.callwarden.service
 
 import android.util.Log
 import cz.dzubera.callwarden.App
+import cz.dzubera.callwarden.BuildConfig
 import cz.dzubera.callwarden.storage.getProjectObject
 import cz.dzubera.callwarden.utils.Config
-import okhttp3.*
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.FormBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 import java.net.URL
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 import java.util.concurrent.TimeUnit
 
 
@@ -77,6 +84,91 @@ object HttpRequest {
             }
         })
 
+    }
+
+     fun sendVersion(
+        domain: String,
+        user: Int,
+        onResponse: (VersionState) -> Unit
+    ) {
+
+
+        val url = URL(Config.SEND_INCOMING_CALL_URL)
+        val client = OkHttpClient().newBuilder()
+            .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+            .retryOnConnectionFailure(true)
+            .build()
+
+        val formBody: RequestBody = FormBody.Builder()
+            .add("id_domeny", domain)
+            .add("id_user", user.toString())
+            .add("verze", BuildConfig.VERSION_NAME)
+            .build()
+        val request = Request.Builder()
+            .addHeader("X-API-KEY", getApiKey(domain))
+            .url(url)
+            .post(formBody)
+            .build()
+
+        val call: Call = client.newCall(request)
+        call.enqueue(object : Callback {
+
+
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e(
+                    "Http Request Service",
+                    "Incoming number not sent via error! ${e.localizedMessage ?: "unknown error"}"
+                )
+
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+
+                if (response.code > 200) {
+                    val body = response.body.string().toString()
+
+                    Log.e(
+                        "Http Request Service",
+                        "Incoming number not sent! ${response.code} -> ${response.message}"
+                    )
+                } else {
+                    Log.i("Http Request Service", "Version got!")
+                    val body = response?.body?.string()?.toString()
+                    body?.let {
+                        val versionState = JSONObject(body)
+                        onResponse.invoke(
+                            VersionState(
+                                versionState.getInt("code"),
+                                versionState.getString("url")
+                            )
+                        )
+                    }
+
+                }
+
+
+            }
+        })
+
+    }
+
+    data class VersionState(val state: Int?, val url: String?) {
+
+        fun getState(): States {
+            return when (state) {
+                0 -> States.OK
+                1 -> States.NEW_VERSION
+                2 -> States.UPDATE_NEEDED
+                else -> States.UNKNOWN
+            }
+        }
+
+        enum class States {
+            OK, NEW_VERSION, UPDATE_NEEDED, UNKNOWN
+        }
     }
 
     suspend fun sendIncomingCall(
