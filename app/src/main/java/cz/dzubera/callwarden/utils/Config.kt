@@ -9,5 +9,6 @@ object Config {
     const val PROJECTS_URL = "https://cron.ramisys.cz/mobil/projects/"
     const val SEND_INCOMING_CALL_URL = "https://cron.ramisys.cz/mobil/ring/"
     const val SEND_FIREBASE_TOKEN = "https://cron.ramisys.cz/mobil/firebase/"
+    const val SEND_VERSION = "https://cron.ramisys.cz/mobil/version/"
     const val CALL_URL = "https://cron.ramisys.cz/mobil/call/"
 }

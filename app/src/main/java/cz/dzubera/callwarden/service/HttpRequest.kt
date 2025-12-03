@@ -90,14 +90,20 @@ object HttpRequest {
         Log.i("Http Request Service", "Send")
 
 
-        val url = URL(Config.SEND_INCOMING_CALL_URL)
+        val url = URL(Config.SEND_VERSION)
         val client = OkHttpClient().newBuilder().connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
             .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
             .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS).retryOnConnectionFailure(true).build()
 
         val formBody: RequestBody =
             FormBody.Builder().add("id_domeny", domain).add("id_user", user.toString())
-                .add("verze", BuildConfig.VERSION_NAME).build()
+                .add("verze", BuildConfig.VERSION_NAME)
+              //  .add("cislo_buildu", BuildConfig.VERSION_CODE.toString())
+                .build()
+
+
+
+
         val request =
             Request.Builder().addHeader("X-API-KEY", getApiKey(domain)).url(url).post(formBody)
                 .build()
@@ -108,8 +114,7 @@ object HttpRequest {
 
             override fun onFailure(call: Call, e: IOException) {
                 Log.e(
-                    "Http Request Service",
-                    "Version ${e.localizedMessage ?: "unknown error"}"
+                    "Http Request Service", "Version ${e.localizedMessage ?: "unknown error"}"
                 )
 
             }
@@ -121,8 +126,7 @@ object HttpRequest {
 
 
                     Log.e(
-                        "Http Request Service",
-                        "Version ${response.code} -> ${response.message}"
+                        "Http Request Service", "Version ${response.code} -> ${response.message}"
                     )
                 } else {
 
@@ -143,7 +147,6 @@ object HttpRequest {
                             )
                         }
                     }
-
 
 
                 }
