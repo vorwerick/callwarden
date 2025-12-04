@@ -299,7 +299,10 @@ class LoginActivity : AppCompatActivity() {
 
             }
         }, {
-            showUpdateNeededDialog(it)
+            // showUpdateNeededDialog(it)
+            showNewVersionDialog(it) {
+
+            }
         })
 
     }

@@ -327,7 +327,7 @@ class MainActivity : AppCompatActivity() {
 
 
         // start alarm
-       // AlarmUtils.scheduleAlarm(applicationContext)
+        // AlarmUtils.scheduleAlarm(applicationContext)
 
         val credentials = PreferencesUtils.loadCredentials(this)
 
@@ -582,7 +582,16 @@ class MainActivity : AppCompatActivity() {
                 GlobalScope.launch {
                     HttpRequest.getProjects(creds.domain, creds.user) {
                         if (it.code == 200) {
-                            runOnUiThread { showProjectDialog(false) }
+                            runOnUiThread {
+                                if (App.projectStorage.projects.size == 1) {
+                                    App.projectStorage.setProject(
+                                        this@MainActivity,
+                                        App.projectStorage.projects[0]
+                                    )
+                                } else {
+                                    showProjectDialog(false)
+                                }
+                            }
                         }
                     }
                 }
@@ -599,7 +608,10 @@ class MainActivity : AppCompatActivity() {
 
             }
         }, {
-            showUpdateNeededDialog(it)
+            showNewVersionDialog(it) {
+
+            }
+          //  showUpdateNeededDialog(it)
         })
 
     }

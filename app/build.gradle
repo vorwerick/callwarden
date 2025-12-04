@@ -14,8 +14,8 @@ android {
         applicationId "cz.dzubera.callwarden"
         minSdk 24
         targetSdk 36
-        versionCode 84
-        versionName "1.62"
+        versionCode 85
+        versionName "1.63"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         setProperty('archivesBaseName', "ramicall-$versionName")

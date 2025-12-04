@@ -72,6 +72,7 @@ object HttpRequest {
                     }
                     projects?.let {
                         App.projectStorage.setProjects(projects)
+
                         projects.forEach { println(it.name) }
 
                         onResponse.invoke(httpResponse)
@@ -95,13 +96,17 @@ object HttpRequest {
             .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
             .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS).retryOnConnectionFailure(true).build()
 
+
+        var version = BuildConfig.VERSION_NAME
+
+        if (version.contains("-")) {
+            version = version.split("-").first()
+        }
         val formBody: RequestBody =
             FormBody.Builder().add("id_domeny", domain).add("id_user", user.toString())
-                .add("verze", BuildConfig.VERSION_NAME)
-              //  .add("cislo_buildu", BuildConfig.VERSION_CODE.toString())
+                .add("verze", version)
+                //  .add("cislo_buildu", BuildConfig.VERSION_CODE.toString())
                 .build()
-
-
 
 
         val request =
