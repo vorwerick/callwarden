@@ -132,6 +132,5 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
 
 private fun hasCallLogPermissions(context: Context): Boolean {
     val read = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)
-    val write = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALL_LOG)
-    return read == PackageManager.PERMISSION_GRANTED && write == PackageManager.PERMISSION_GRANTED
+    return read == PackageManager.PERMISSION_GRANTED
 }
