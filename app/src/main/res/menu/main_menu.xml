@@ -25,6 +25,9 @@
     <item
         android:id="@+id/menu_about"
         android:title="O aplikaci" />
+    <item
+        android:id="@+id/menu_set_default_dialer"
+        android:title="Nastavit výchozí dialer" />
     <group android:enabled="true">
         <item
             android:id="@+id/signOut"

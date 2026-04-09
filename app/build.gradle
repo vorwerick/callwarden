@@ -4,8 +4,9 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp' version '2.2.21-2.0.4'
     id 'com.google.gms.google-services'
-}
+    id "org.jetbrains.kotlin.plugin.compose" version "2.2.20" // this version matches your Kotlin version
 
+}
 
 android {
     compileSdkVersion 36
@@ -14,8 +15,8 @@ android {
         applicationId "cz.dzubera.callwarden"
         minSdk 24
         targetSdk 36
-        versionCode 85
-        versionName "1.63"
+        versionCode 87
+        versionName "1.65"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         setProperty('archivesBaseName', "ramicall-$versionName")
@@ -48,8 +49,8 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
 
-    signingConfigs{
-        release{
+    signingConfigs {
+        release {
             keyPassword = "ramicall"
             storePassword = "ramicall"
             storeFile = file("signing.keystore")
@@ -66,9 +67,16 @@ android {
     }
 
 
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.5.3' // verze dle tvého Compose
+    }
+
 
     namespace 'cz.dzubera.callwarden'
-
 
 
 }
@@ -78,9 +86,16 @@ kotlin {
 }
 
 
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "androidx.core:core-ktx:1.12.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.2"
+
+    // Compose
+    implementation "androidx.activity:activity-compose:1.8.2"
+    implementation "androidx.compose.ui:ui:1.6.0"
+    implementation "androidx.compose.material3:material3:1.2.0"
+    implementation "androidx.compose.ui:ui-tooling-preview:1.6.0"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.10.0"
     implementation "androidx.activity:activity-ktx:1.12.0"
     implementation 'androidx.core:core-ktx:1.17.0'
@@ -89,6 +104,10 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'com.google.firebase:firebase-messaging-ktx:24.1.2'
     implementation 'androidx.browser:browser:1.9.0'
+    implementation 'androidx.compose.ui:ui:1.10.6'
+    implementation 'androidx.compose.runtime:runtime:1.10.6'
+    implementation 'androidx.compose.material3:material3:1.4.0'
+    implementation 'androidx.compose.foundation:foundation-layout:1.10.6'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
@@ -122,5 +141,6 @@ dependencies {
 
     // WorkManager for background tasks
     implementation "androidx.work:work-runtime-ktx:2.11.0"
+
 
 }

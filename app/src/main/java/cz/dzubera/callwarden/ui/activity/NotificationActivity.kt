@@ -1,44 +1,16 @@
 package cz.dzubera.callwarden.ui.activity
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.google.android.material.progressindicator.LinearProgressIndicator
-import com.google.firebase.messaging.FirebaseMessaging
-import cz.dzubera.callwarden.R
-import cz.dzubera.callwarden.model.Credentials
-import cz.dzubera.callwarden.service.HttpRequest
-import cz.dzubera.callwarden.service.HttpResponse
-import cz.dzubera.callwarden.service.ResponseStatus
-import cz.dzubera.callwarden.utils.Config
-import cz.dzubera.callwarden.utils.PreferencesUtils
 
 
 class NotificationActivity : AppCompatActivity() {
 
-    companion object{
-
-    }
-
-    private fun openUrl(context: Context, url: String) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        ContextCompat.startActivity(context, intent, null)
-        finish()
-    }
 
     private fun openUrlInCustomTab(context: Context, url: String) {
         val customTabsIntent = CustomTabsIntent.Builder().build()
@@ -52,7 +24,7 @@ class NotificationActivity : AppCompatActivity() {
         val url = intent.extras?.getString("url") ?: intent.getStringExtra("url")
         if (url != null) {
             Log.d("BLABLA", "HAS URL")
-            openUrlInCustomTab(this, intent.extras?.getString("url").toString())
+            handleUrl(this, intent.extras?.getString("url").toString())
         }
     }
 
@@ -67,11 +39,28 @@ class NotificationActivity : AppCompatActivity() {
         val url = intent?.extras?.getString("url") ?: intent?.getStringExtra("url")
         if (url != null) {
             Log.d("BLABLA", "HAS URL")
-            openUrlInCustomTab(this, intent?.extras?.getString("url").toString())
+            handleUrl(this, intent?.extras?.getString("url").toString())
         }
 
     }
 
+    fun handleUrl(context: Context, url: String) {
+        val customSchemeUrl = url.replace("https://", "ramisyscrm://")
+
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(customSchemeUrl))
+
+        val canOpenCustom = intent.resolveActivity(packageManager) != null
+
+        if (canOpenCustom) {
+            startActivity(intent)
+            Log.d("BLABLA", "Opened in other app via custom scheme: $customSchemeUrl")
+        } else {
+            openUrlInCustomTab(context, url)
+            Log.d("BLABLA", "Opened in Custom Tab: $url")
+        }
+
+        finish()
+    }
 
 
 }

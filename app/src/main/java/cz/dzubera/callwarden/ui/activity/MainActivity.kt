@@ -3,12 +3,14 @@ package cz.dzubera.callwarden.ui.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.app.role.RoleManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.telecom.TelecomManager
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
@@ -18,6 +20,8 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -55,6 +59,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     var pendingRequests = 0
+    lateinit var launcher: ActivityResultLauncher<Intent>
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -128,6 +133,29 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
                 finish()
 
+                true
+            }
+
+            R.id.menu_set_default_dialer -> {
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val roleManager = getSystemService(Context.ROLE_SERVICE) as RoleManager
+                    if (roleManager.isRoleAvailable(RoleManager.ROLE_DIALER) && !roleManager.isRoleHeld(
+                            RoleManager.ROLE_DIALER
+                        )
+                    ) {
+                        val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER)
+                        launcher.launch(intent)
+                    }
+                } else {
+                    // starší Android
+                    val intent = Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER).apply {
+                        putExtra(
+                            TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName
+                        )
+                    }
+                    startActivity(intent)
+                }
                 true
             }
 
@@ -326,6 +354,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
 
+      launcher = registerForActivityResult(
+            StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                Toast.makeText(this, "Výchozí dialer nastaven.", Toast.LENGTH_SHORT).show()
+                // uživatel nastavil aplikaci jako default dialer
+            } else {
+                Toast.makeText(this, "Nelze nastavit jako výchozí dialer.",Toast.LENGTH_SHORT).show()
+            }
+        }
         // start alarm
         // AlarmUtils.scheduleAlarm(applicationContext)
 
@@ -585,8 +623,7 @@ class MainActivity : AppCompatActivity() {
                             runOnUiThread {
                                 if (App.projectStorage.projects.size == 1) {
                                     App.projectStorage.setProject(
-                                        this@MainActivity,
-                                        App.projectStorage.projects[0]
+                                        this@MainActivity, App.projectStorage.projects[0]
                                     )
                                 } else {
                                     showProjectDialog(false)
@@ -611,7 +648,7 @@ class MainActivity : AppCompatActivity() {
             showNewVersionDialog(it) {
 
             }
-          //  showUpdateNeededDialog(it)
+            //  showUpdateNeededDialog(it)
         })
 
     }
