@@ -34,10 +34,9 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
             // Check permissions
             if (!hasCallLogPermissions(context)) {
                 Log.e(
-                    "SynchronizationUtils",
-                    "READ_CALL_LOG or WRITE_CALL_LOG permission not granted"
+                    "SynchronizationUtils", "READ_CALL_LOG permission not granted"
                 )
-                state?.invoke("Synchronizace se nezdařila, chybí oprávnění pro čtení nebo zápis historie hovorů.")
+                state?.invoke("Synchronizace se nezdařila, chybí oprávnění pro čtení historie hovorů.")
                 return@withLock
             }
 
@@ -45,15 +44,13 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
 
             // Get local call history
             val calls = CallHistory.getCallsHistory(
-                context,
-                PreferencesUtils.loadSyncCount(context)
+                context, PreferencesUtils.loadSyncCount(context)
             )
 
             val callsFromDB = App.appDatabase.taskCalls().getAll()
             val existingIds = callsFromDB.map { it.uid }.toSet()
 
-            val callsToSync = calls
-                .filter { it.callStartedTimestamp !in existingIds }
+            val callsToSync = calls.filter { it.callStartedTimestamp !in existingIds }
                 .distinctBy { it.callStartedTimestamp }  // prevent duplicates coming from CallHistory
                 .map { call ->
                     Log.d("Need to sync", call.callStartedTimestamp.toString())
