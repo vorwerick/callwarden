@@ -104,4 +104,18 @@
     <string name="about_app">About</string>
     <string name="sign_out">Sign out</string>
 
+    <string name="show_called_detail">Show caller details</string>
+    <string name="none_records_found">No call records found.\nChange search parameters\nor run synchronization.</string>
+
+    <string name="projects">Projects</string>
+    <string name="call_type">Call type</string>
+    <string name="select_from">From</string>
+    <string name="select_to">To</string>
+
+    <string name="project">Project</string>
+    <string name="domain">Domain</string>
+
+    <string name="copyright">2023 RAMICORP s.r.o. All rights reserved</string>
+
+
 </resources>

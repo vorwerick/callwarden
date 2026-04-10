@@ -15,7 +15,10 @@
     <string name="all">všechny</string>
     <string name="all_projects">Všechny projekty</string>
     <string name="none">žádný</string>
+    <string name="copyright">2023 RAMICORP s.r.o. Všechna práva vyhrazena</string>
 
+    <string name="project">Projekt</string>
+    <string name="domain">Doména</string>
 
     <!-- Updates -->
     <string name="update_available_title">Dostupná nová verze</string>
@@ -104,5 +107,13 @@
     <string name="settings">Nastavení</string>
     <string name="about_app">O aplikaci</string>
     <string name="sign_out">Odhlásit</string>
+
+    <string name="show_called_detail">Zobrazit detail volajícího</string>
+    <string name="none_records_found">Žádné nalezené hovory.\nZměňte parametry vyhledávání\nnebo proveďte synchronizaci.</string>
+
+    <string name="projects">Projekty</string>
+    <string name="call_type">Typ hovoru</string>
+    <string name="select_from">Od</string>
+    <string name="select_to">do</string>
 
 </resources>

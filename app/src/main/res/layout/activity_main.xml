@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:background="@color/background"
+    android:fitsSystemWindows="true"
     tools:context=".ui.activity.MainActivity">
 
     <LinearLayout
@@ -28,7 +28,7 @@
                 android:layout_height="match_parent"
                 android:layout_margin="8dp"
                 android:gravity="center"
-                android:text="Vyber od"
+                android:text="@string/select_from"
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 
@@ -44,7 +44,7 @@
                 android:layout_height="match_parent"
                 android:layout_margin="8dp"
                 android:gravity="center"
-                android:text="do"
+                android:text="@string/select_to"
                 android:textColor="@color/black"
 
                 android:textSize="14sp" />
@@ -68,7 +68,7 @@
                 android:layout_height="match_parent"
                 android:layout_margin="8dp"
                 android:gravity="center"
-                android:text="Projekty"
+                android:text="@string/projects"
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 
@@ -93,7 +93,7 @@
                 android:layout_height="match_parent"
                 android:layout_margin="8dp"
                 android:gravity="center"
-                android:text="Typ hovoru"
+                android:text="@string/call_type"
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 
@@ -110,14 +110,14 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/showCallerDetail"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:layout_margin="8dp"
             android:backgroundTint="@color/primary_light"
             android:clickable="true"
             android:elevation="8dp"
-            android:focusable="true">
+            android:focusable="true"
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -129,7 +129,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Zobrazit detail volajícího"
+                    android:text="@string/show_called_detail"
                     android:textColor="@color/white"
                     android:textSize="22sp" />
             </LinearLayout>
@@ -152,7 +152,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="2dp"
-        android:text="Výsledků 0"
         android:textColor="@color/black"
         android:textSize="14sp"
         android:textStyle="italic"
@@ -167,7 +166,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="32dp"
-        android:text="Žádné nalezené hovory.\nZměňte parametry vyhledávání\nnebo proveďte synchronizaci."
+        android:text="@string/none_records_found"
         android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"

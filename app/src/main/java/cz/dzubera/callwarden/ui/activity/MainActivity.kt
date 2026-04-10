@@ -303,7 +303,7 @@ class MainActivity : AppCompatActivity() {
     private fun showAboutDialog() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setMessage("RAMICALL " + BuildConfig.VERSION_NAME + "(" + BuildConfig.VERSION_CODE + ")" + "\n2023 RAMICORP s.r.o. \nVšechna práva vyhrazena")
+        builder.setMessage("${ContextCompat.getString(this, R.string.app_name)} " + BuildConfig.VERSION_NAME + "(" + BuildConfig.VERSION_CODE + ")" + "\n${ContextCompat.getString(this, R.string.copyright)}")
             .setTitle(ContextCompat.getString(this, R.string.about_title)).setPositiveButton(
                 ContextCompat.getString(this, R.string.about_ok)
             ) { p0, _ -> p0.dismiss() }
@@ -326,7 +326,7 @@ class MainActivity : AppCompatActivity() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setMessage(
-            "ID: ${App.userSettingsStorage.credentials!!.domain}\nUživatel: ${App.userSettingsStorage.credentials!!.user}\nProjekt: ${project?.name ?: "Nebyl vybrán"}\n" + "Poslední synchronizace: $syncDateTime"
+            "${ContextCompat.getString(this, R.string.domain)}: ${App.userSettingsStorage.credentials!!.domain}\n${ContextCompat.getString(this, R.string.user)}: ${App.userSettingsStorage.credentials!!.user}\n${ContextCompat.getString(this, R.string.project)}: ${project?.name ?: ContextCompat.getString(this, R.string.none)}\n" + "${ContextCompat.getString(this, R.string.user_last_sync)}: $syncDateTime"
         ).setTitle((ContextCompat.getString(this, R.string.user_title))).setPositiveButton(
             (ContextCompat.getString(this, R.string.about_ok))
         ) { p0, _ -> p0.dismiss() }
