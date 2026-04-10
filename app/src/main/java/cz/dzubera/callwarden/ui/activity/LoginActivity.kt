@@ -39,7 +39,7 @@ class LoginActivity : AppCompatActivity() {
                     Manifest.permission.READ_PHONE_STATE,
                     Manifest.permission.READ_CALL_LOG,
                     Manifest.permission.POST_NOTIFICATIONS,
-                    Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC,
+                   // Manifest.permission.FOREGROUND_SERVICE_DATA_SYNC,
                     Manifest.permission.FOREGROUND_SERVICE
                 )
             } else {
