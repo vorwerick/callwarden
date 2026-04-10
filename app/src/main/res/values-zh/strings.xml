@@ -1,0 +1,146 @@
+<resources>
+
+    <string name="app_name">RAMICALL</string>
+
+    <!-- Permissions -->
+    <string name="permission_title">权限</string>
+    <string name="permission_request_user_message">为了确保应用正常运行，需要授予一些权限。</string>
+    <string name="button_next">下一步</string>
+    <string name="button_cancel">取消</string>
+
+    <!-- Navigation / buttons -->
+    <string name="button_back">返回</string>
+    <string name="button_update">更新</string>
+
+    <!-- Updates -->
+    <string name="update_available_title">有新版本可用</string>
+    <string name="update_available_description">检测到新版本。建议尽快更新以确保应用正常运行。</string>
+
+    <!-- Browser -->
+    <string name="browser_cannot_be_opened">无法打开浏览器</string>
+
+    <!-- Login -->
+    <string name="login_enter_user_id">请输入ID和用户</string>
+    <string name="login_field_domain">域ID</string>
+    <string name="login_field_user_id">用户ID</string>
+    <string name="button_login">登录</string>
+    <string name="button_register">获取访问权限</string>
+
+    <!-- Connection / errors -->
+    <string name="connection_failed_message">无法连接服务器。\n请检查您的网络连接。</string>
+    <string name="unknown_user_id_message">未知ID或用户</string>
+    <string name="user_has_no_project_message">该用户未分配项目</string>
+    <string name="server_error_message">服务器错误</string>
+
+    <!-- Sync -->
+    <string name="sync_running">正在同步...</string>
+    <string name="no_permission">未授予权限</string>
+
+    <!-- Project -->
+    <string name="select_project">选择项目</string>
+    <string name="project_changed">项目已成功更改。</string>
+    <string name="project_change_failed">项目更改失败，请重试。</string>
+    <string name="project_change_title">更改项目</string>
+    <string name="project_select_title">选择项目</string>
+
+    <!-- About -->
+    <string name="about_title">关于</string>
+    <string name="about_ok">确定</string>
+
+    <string name="all">全部</string>
+    <string name="all_projects">所有项目</string>
+    <string name="none">无</string>
+
+    <!-- User -->
+    <string name="user_title">用户</string>
+    <string name="user_id">ID</string>
+    <string name="user_user">用户</string>
+    <string name="user_project">项目</string>
+    <string name="user_last_sync">上次同步</string>
+    <string name="not_selected">未选择</string>
+    <string name="never">从未</string>
+
+    <!-- Dialer -->
+    <string name="default_dialer_set">已设置默认拨号器。</string>
+    <string name="default_dialer_failed">设置默认拨号器失败。</string>
+    <string name="set_default_dialer">设置默认拨号器</string>
+
+    <!-- Calls -->
+    <string name="call_records">通话记录</string>
+    <string name="results_count">结果</string>
+
+    <string name="incoming">呼入</string>
+    <string name="outgoing">呼出</string>
+    <string name="accepted">已接通</string>
+    <string name="unaccepted">未接通</string>
+
+    <!-- Settings -->
+    <string name="settings_title">设置</string>
+    <string name="settings_message">为了确保功能正常与通话记录，请检查设置。</string>
+    <string name="settings_button">设置</string>
+    <string name="cancel">取消</string>
+
+    <!-- Filters -->
+    <string name="filter_call_type">按通话类型筛选</string>
+    <string name="select_filter">选择筛选条件</string>
+
+    <!-- Updates -->
+    <string name="update_available">有更新</string>
+    <string name="update_available_msg">有新版本可用，建议尽快更新。</string>
+    <string name="update">更新</string>
+
+    <string name="update_required">需要更新</string>
+    <string name="update_required_msg">继续使用前必须完成更新。</string>
+
+    <!-- Misc -->
+    <string name="cannot_open_browser">无法打开浏览器</string>
+
+    <!-- Menu -->
+    <string name="change_project">选择项目</string>
+    <string name="sync_history">同步历史</string>
+    <string name="analytics">分析</string>
+    <string name="user">用户</string>
+    <string name="settings">设置</string>
+    <string name="about_app">关于</string>
+    <string name="sign_out">退出登录</string>
+
+    <string name="show_called_detail">查看来电详情</string>
+    <string name="none_records_found">未找到通话记录。\n请更改搜索条件或执行同步。</string>
+
+    <string name="projects">项目</string>
+    <string name="call_type">通话类型</string>
+    <string name="select_from">从</string>
+    <string name="select_to">到</string>
+
+    <string name="project">项目</string>
+    <string name="domain">域</string>
+
+    <string name="copyright">2023 RAMICORP s.r.o. 版权所有</string>
+
+    <string name="sync_select_project_required">请选择项目！未选择项目无法同步。</string>
+    <string name="sync_missing_permission">同步失败，缺少读取通话记录权限。</string>
+    <string name="sync_no_need">无需同步，数据已是最新。</string>
+    <string name="sync_no_internet">同步失败，请检查网络连接。</string>
+    <string name="sync_success">同步成功，共上传并保存 %1$d 条记录。</string>
+
+    <string name="analytics_title">分析</string>
+
+    <string name="analytics_all_projects">所有项目</string>
+
+    <string name="analytics_date_range">%1$s - %2$s</string>
+
+    <string name="analytics_accepted_calls">已接通电话数量：%1$d</string>
+    <string name="analytics_declined_calls">未接来电数量：%1$d</string>
+    <string name="analytics_outgoing_connected">已接通外呼数量：%1$d</string>
+    <string name="analytics_outgoing_not_connected">未接通外呼数量：%1$d</string>
+
+    <string name="analytics_total_moves">总事件数：%1$d</string>
+    <string name="analytics_total_connected">总接通次数：%1$d</string>
+
+    <string name="battery_already_set">电池已配置</string>
+
+    <string name="sync_count_title">记录数量 1 - 500</string>
+    <string name="save">保存</string>
+    <string name="sync_count_saved">已设置为 %1$d 条记录</string>
+
+</resources>

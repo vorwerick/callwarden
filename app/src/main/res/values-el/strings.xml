@@ -1,0 +1,129 @@
+<resources>
+
+    <string name="app_name">RAMICALL</string>
+
+    <string name="permission_title">Άδεια</string>
+    <string name="permission_request_user_message">Για τη σωστή λειτουργία της εφαρμογής απαιτούνται ορισμένες άδειες.</string>
+    <string name="button_next">Επόμενο</string>
+    <string name="button_cancel">Ακύρωση</string>
+
+    <string name="button_back">Πίσω</string>
+    <string name="button_update">Ενημέρωση</string>
+
+    <string name="update_available_title">Διαθέσιμη νέα έκδοση</string>
+    <string name="update_available_description">Υπάρχει νεότερη έκδοση της εφαρμογής. Συνιστάται η ενημέρωση το co nejdříve pro správnou funkčnost.</string>
+
+    <string name="browser_cannot_be_opened">Δεν είναι δυνατή η εκκίνηση του προγράμματος περιήγησης</string>
+
+    <string name="login_enter_user_id">Εισαγάγετε ID και χρήστη</string>
+    <string name="login_field_domain">ID τομέα</string>
+    <string name="login_field_user_id">ID χρήστη</string>
+    <string name="button_login">Σύνδεση</string>
+    <string name="button_register">Απόκτηση πρόσβασης</string>
+
+    <string name="connection_failed_message">Αδυναμία σύνδεσης με τον server.\nΕλέγξτε το διαδίκτυο.</string>
+    <string name="unknown_user_id_message">Άγνωστο ID ή χρήστης</string>
+    <string name="user_has_no_project_message">Ο χρήστης δεν έχει έργο</string>
+    <string name="server_error_message">Σφάλμα server</string>
+
+    <string name="sync_running">Συγχρονισμός σε εξέλιξη...</string>
+    <string name="no_permission">Δεν δόθηκε άδεια</string>
+
+    <string name="select_project">Επιλογή έργου</string>
+    <string name="project_changed">Το έργο άλλαξε επιτυχώς.</string>
+    <string name="project_change_failed">Αποτυχία αλλαγής έργου.</string>
+    <string name="project_change_title">Αλλαγή έργου</string>
+    <string name="project_select_title">Επιλογή έργου</string>
+
+    <string name="about_title">Πληροφορίες</string>
+    <string name="about_ok">OK</string>
+
+    <string name="all">όλα</string>
+    <string name="all_projects">Όλα τα έργα</string>
+    <string name="none">κανένα</string>
+
+    <string name="user_title">Χρήστης</string>
+    <string name="user_id">ID</string>
+    <string name="user_user">Χρήστης</string>
+    <string name="user_project">Έργο</string>
+    <string name="user_last_sync">Τελευταίος συγχρονισμός</string>
+    <string name="not_selected">Δεν επιλέχθηκε</string>
+    <string name="never">ποτέ</string>
+
+    <string name="default_dialer_set">Ορίστηκε προεπιλεγμένος τηλεφωνητής.</string>
+    <string name="default_dialer_failed">Αποτυχία ρύθμισης τηλεφωνητή.</string>
+    <string name="set_default_dialer">Ορισμός τηλεφωνητή</string>
+
+    <string name="call_records">Κλήσεις</string>
+    <string name="results_count">Αποτελέσματα</string>
+
+    <string name="incoming">εισερχόμενη</string>
+    <string name="outgoing">εξερχόμενη</string>
+    <string name="accepted">συνδεδεμένη</string>
+    <string name="unaccepted">μη συνδεδεμένη</string>
+
+    <string name="settings_title">Ρυθμίσεις</string>
+    <string name="settings_message">Ελέγξτε τις ρυθμίσεις για σωστή λειτουργία.</string>
+    <string name="settings_button">Ρυθμίσεις</string>
+    <string name="cancel">Ακύρωση</string>
+
+    <string name="filter_call_type">Φίλτρο κλήσεων</string>
+    <string name="select_filter">Επιλογή φίλτρου</string>
+
+    <string name="update_available">Διαθέσιμη ενημέρωση</string>
+    <string name="update_available_msg">Συνιστάται ενημέρωση.</string>
+    <string name="update">Ενημέρωση</string>
+
+    <string name="update_required">Απαιτείται ενημέρωση</string>
+    <string name="update_required_msg">Πρέπει να ενημερώσετε για να συνεχίσετε.</string>
+
+    <string name="cannot_open_browser">Δεν είναι δυνατή η εκκίνηση browser</string>
+
+    <string name="change_project">Επιλογή έργου</string>
+    <string name="sync_history">Ιστορικό συγχρονισμού</string>
+    <string name="analytics">Αναλυτικά</string>
+    <string name="user">Χρήστης</string>
+    <string name="settings">Ρυθμίσεις</string>
+    <string name="about_app">Πληροφορίες</string>
+    <string name="sign_out">Αποσύνδεση</string>
+
+    <string name="show_called_detail">Λεπτομέρειες κλήσης</string>
+    <string name="none_records_found">Δεν βρέθηκαν εγγραφές.</string>
+
+    <string name="projects">Έργα</string>
+    <string name="call_type">Τύπος κλήσης</string>
+    <string name="select_from">Από</string>
+    <string name="select_to">Έως</string>
+
+    <string name="project">Έργο</string>
+    <string name="domain">Τομέας</string>
+
+    <string name="copyright">2023 RAMICORP s.r.o. Με επιφύλαξη παντός δικαιώματος</string>
+
+    <string name="sync_select_project_required">Επιλέξτε έργο!</string>
+    <string name="sync_missing_permission">Λείπει άδεια.</string>
+    <string name="sync_no_need">Δεν απαιτείται συγχρονισμός.</string>
+    <string name="sync_no_internet">Χωρίς σύνδεση στο διαδίκτυο.</string>
+    <string name="sync_success">Επιτυχής συγχρονισμός %1$d εγγραφών.</string>
+
+    <string name="analytics_title">Αναλυτικά</string>
+
+    <string name="analytics_all_projects">Όλα τα έργα</string>
+
+    <string name="analytics_date_range">%1$s - %2$s</string>
+
+    <string name="analytics_accepted_calls">Εισερχόμενες κλήσεις: %1$d</string>
+    <string name="analytics_declined_calls">Χαμένες κλήσεις: %1$d</string>
+    <string name="analytics_outgoing_connected">Εξερχόμενες συνδεδεμένες: %1$d</string>
+    <string name="analytics_outgoing_not_connected">Εξερχόμενες μη συνδεδεμένες: %1$d</string>
+
+    <string name="analytics_total_moves">Συνολικά γεγονότα: %1$d</string>
+    <string name="analytics_total_connected">Σύνολο συνδέσεων: %1$d</string>
+
+    <string name="battery_already_set">Η μπαταρία έχει ρυθμιστεί</string>
+
+    <string name="sync_count_title">Αριθμός εγγραφών 1 - 500</string>
+    <string name="save">Αποθήκευση</string>
+    <string name="sync_count_saved">Ορίστηκε %1$d εγγραφές</string>
+
+</resources>
