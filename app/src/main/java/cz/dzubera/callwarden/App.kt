@@ -88,7 +88,7 @@ class App : MultiDexApplication(), Configuration.Provider {
         }
 
         // Initialize WorkManager for periodic synchronization
-        setupPeriodicSynchronization()
+      //  setupPeriodicSynchronization() TODO enable, musí být vidět s vědomím uživatele např foreground service
     }
 
     /**

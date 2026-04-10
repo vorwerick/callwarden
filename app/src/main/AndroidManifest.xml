@@ -14,80 +14,80 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- Only included on Android 14+ (API 34+) -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" tools:targetApi="34"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" tools:targetApi="33"/>
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <!--   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" tools:targetApi="34"/>  -->
+     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" tools:targetApi="33"/>
+     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
 
 
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.VIEW"/>
-            <data android:scheme="http"/>
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.VIEW"/>
-            <data android:scheme="https"/>
-        </intent>
-    </queries>
+     <queries>
+         <intent>
+             <action android:name="android.intent.action.VIEW"/>
+             <data android:scheme="http"/>
+         </intent>
+         <intent>
+             <action android:name="android.intent.action.VIEW"/>
+             <data android:scheme="https"/>
+         </intent>
+     </queries>
 
-    <application
-            android:name=".App"
-            android:allowBackup="true"
-            android:icon="@mipmap/ic_launcher"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:supportsRtl="true"
-            android:networkSecurityConfig="@xml/network_security_config"
-            android:usesCleartextTraffic="true"
-            android:theme="@style/Theme.MyApplication">
+     <application
+             android:name=".App"
+             android:allowBackup="true"
+             android:icon="@mipmap/ic_launcher"
+             android:label="@string/app_name"
+             android:roundIcon="@mipmap/ic_launcher_round"
+             android:supportsRtl="true"
+             android:networkSecurityConfig="@xml/network_security_config"
+             android:usesCleartextTraffic="true"
+             android:theme="@style/Theme.MyApplication">
 
-        <meta-data
-                android:name="io.sentry.dsn"
-                android:value="https://45b054736dbf4d1a9c7e8b3903afaca2@o1174084.ingest.sentry.io/6269826"/>
+         <meta-data
+                 android:name="io.sentry.dsn"
+                 android:value="https://45b054736dbf4d1a9c7e8b3903afaca2@o1174084.ingest.sentry.io/6269826"/>
 
-        <activity
-                android:name=".ui.activity.LoginActivity"
-                android:exported="true"
-                android:theme="@style/Theme.AppCompat.NoActionBar"
-                android:noHistory="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+         <activity
+                 android:name=".ui.activity.LoginActivity"
+                 android:exported="true"
+                 android:theme="@style/Theme.AppCompat.NoActionBar"
+                 android:noHistory="true">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN"/>
+                 <category android:name="android.intent.category.LAUNCHER"/>
+             </intent-filter>
 
-        </activity>
-        <activity
-                android:name=".ui.activity.NotificationActivity"
-                android:launchMode="singleTop"
-                android:enabled="true"
-                android:noHistory="true"
-                android:exported="true">
-        </activity>
-        <activity
-                android:name=".ui.activity.MainActivity"
-                android:enabled="true"
-                android:noHistory="true"
-                android:exported="true">
-        </activity>
-        <activity
-                android:name=".ui.activity.AnalyticsActivity"
-                android:exported="true"/>
-        <activity
-                android:name=".ui.activity.SettingsActivity"
-                android:exported="true"/>
+         </activity>
+         <activity
+                 android:name=".ui.activity.NotificationActivity"
+                 android:launchMode="singleTop"
+                 android:enabled="true"
+                 android:noHistory="true"
+                 android:exported="true">
+         </activity>
+         <activity
+                 android:name=".ui.activity.MainActivity"
+                 android:enabled="true"
+                 android:noHistory="true"
+                 android:exported="true">
+         </activity>
+         <activity
+                 android:name=".ui.activity.AnalyticsActivity"
+                 android:exported="true"/>
+         <activity
+                 android:name=".ui.activity.SettingsActivity"
+                 android:exported="true"/>
 
-        <service
-                android:name=".service.BackgroundCallService"
-                android:enabled="true"
-                android:foregroundServiceType="phoneCall"
-                android:exported="false"/>
-        <meta-data
-                android:name="io.sentry.traces.sample-rate"
-                android:value="1.0"/>
+         <service
+                 android:name=".service.BackgroundCallService"
+                 android:enabled="true"
+                 android:foregroundServiceType="phoneCall"
+                 android:exported="false"/>
+         <meta-data
+                 android:name="io.sentry.traces.sample-rate"
+                 android:value="1.0"/>
 
-        <!-- Updated to handle Android 12+ compatibility -->
+         <!-- Updated to handle Android 12+ compatibility -->
         <receiver android:name=".NotificationReceiver"
                   android:exported="true"/>
 

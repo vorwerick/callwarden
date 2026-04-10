@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">RAMICALL</string>
+    <string name="permission_title">Permission</string>
+    <string name="permission_request_user_message">Pro správné fungování aplikace je potřeba potvrdit některá oprávnění.</string>
+    <string name="button_next">Next</string>
+    <string name="button_cancel">Cancel</string>
+</resources>

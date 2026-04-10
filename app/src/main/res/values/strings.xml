@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">RAMICALL</string>
+    <string name="permission_title">Permission</string>
+    <string name="permission_request_user_message">Pro správné fungování aplikace je potřeba potvrdit některá oprávnění.</string>
+    <string name="button_next">Next</string>
+    <string name="button_cancel">Cancel</string>
+
+    <string name="button_back">Back</string>
+    <string name="button_update">Update</string>
+    <string name="update_available_title">New version available</string>
+    <string name="update_available_description">Máme pro vás novější verzi aplikace. Doporučujeme provést aktualizaci co nejdříve, pro správné fungování aplikace.</string>
+
+    <string name="browser_cannot_be_opened">"Nelze otevřít prohlížeč"</string>
+    <string name="login_enter_user_id">Zadejte ID a uživatele</string>
+
+    <string name="connection_failed_message">Nelze se připojit k serveru.\nZkontrolujte připojení k internetu.</string>
+    <string name="unknown_user_id_message">Neznámé ID nebo uživatel</string>
+    <string name="user_has_no_project_message">Uživatel nemá žádný projekt</string>
+    <string name="server_error_message">Chyba serveru</string>
+
+    <string name="login_field_domain">Id domény</string>
+    <string name="login_field_user_id">Číslo uživatele</string>
+    <string name="button_login">Přihlásit</string>
+    <string name="button_register">Získat přístup</string>
+
+
+
 </resources>

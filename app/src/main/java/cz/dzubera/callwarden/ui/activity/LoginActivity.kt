@@ -139,7 +139,8 @@ class LoginActivity : AppCompatActivity() {
             val domainId = findViewById<EditText>(R.id.domain_id).text.toString()
             val userId = findViewById<EditText>(R.id.user_id).text.toString().toIntOrNull()
             if (domainId.isEmpty() || userId == null) {
-                findViewById<TextView>(R.id.error_label).text = "Zadejte ID a uživatele"
+                findViewById<TextView>(R.id.error_label).text =
+                    ContextCompat.getString(this, R.string.login_enter_user_id)
             } else {
                 login(domainId, userId)
             }
@@ -156,7 +157,11 @@ class LoginActivity : AppCompatActivity() {
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
-            Toast.makeText(this, "Nelze otevřít prohlížeč", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this,
+                ContextCompat.getString(this, R.string.browser_cannot_be_opened),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -187,10 +192,19 @@ class LoginActivity : AppCompatActivity() {
     // Show alert dialog to request permissions
     private fun showAlert() {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Oprávnění")
-        builder.setMessage("Pro správné fungování aplikace je potřeba potvrdit některá oprávnění.")
-        builder.setPositiveButton("Další") { dialog, which -> requestPermissions() }
-        builder.setNeutralButton("Ukončit") { dialog, which -> finish() }
+
+        builder.setTitle(ContextCompat.getString(this, R.string.permission_title))
+        builder.setMessage(ContextCompat.getString(this, R.string.permission_request_user_message))
+        builder.setPositiveButton(
+            ContextCompat.getString(
+                this, R.string.button_next
+            )
+        ) { dialog, which -> requestPermissions() }
+        builder.setNeutralButton(
+            ContextCompat.getString(
+                this, R.string.button_cancel
+            )
+        ) { dialog, which -> finish() }
         val dialog = builder.create()
         dialog.show()
     }
@@ -202,7 +216,7 @@ class LoginActivity : AppCompatActivity() {
         if (permission.isEmpty()) return
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
             // Show an explanation asynchronously
-            Toast.makeText(this, "Should show an explanation.", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "Should show an explanation.", Toast.LENGTH_SHORT).show()
         } else {
             ActivityCompat.requestPermissions(this, permissionList.toTypedArray(), 29)
         }
@@ -226,17 +240,25 @@ class LoginActivity : AppCompatActivity() {
     fun showNewVersionDialog(url: String?, done: () -> Unit) {
         val builder = AlertDialog.Builder(this)
         builder.setCancelable(false)
-        builder.setTitle("Dostupná aktualizace")
-        builder.setMessage("Máme pro vás novější verzi aplikace. Doporučujeme provést aktualizaci co nejdříve, pro správné fungování aplikace.")
+        builder.setTitle(ContextCompat.getString(this, R.string.update_available_title))
+        builder.setMessage(ContextCompat.getString(this, R.string.update_available_description))
         url?.let {
-            builder.setPositiveButton("Aktualizovat") { dialog, which ->
+            builder.setPositiveButton(
+                ContextCompat.getString(
+                    this, R.string.button_update
+                )
+            ) { dialog, which ->
                 openUrlInCustomTab(this, url)
                 dialog.dismiss()
                 done()
 
             }
         }
-        builder.setNegativeButton("Zpět") { dialog, which -> dialog.dismiss() }
+        builder.setNegativeButton(
+            ContextCompat.getString(
+                this, R.string.button_back
+            )
+        ) { dialog, which -> dialog.dismiss() }
 
         val dialog = builder.create()
         dialog.show()
@@ -245,10 +267,14 @@ class LoginActivity : AppCompatActivity() {
     fun showUpdateNeededDialog(url: String?) {
         val builder = AlertDialog.Builder(this)
         builder.setCancelable(false)
-        builder.setTitle("Provést aktualizaci")
-        builder.setMessage("Pro správné fungování aplikace je nutné nejprve dokončit aktualizaci.")
+        builder.setTitle(ContextCompat.getString(this, R.string.update_available_title))
+        builder.setMessage(ContextCompat.getString(this, R.string.update_available_description))
         url?.let {
-            builder.setPositiveButton("Aktualizovat") { dialog, which ->
+            builder.setPositiveButton(
+                ContextCompat.getString(
+                    this, R.string.button_update
+                )
+            ) { dialog, which ->
                 val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(it)).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
@@ -346,7 +372,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun login(domain: String, user: Int): Unit {
+    private fun login(domain: String, user: Int) {
         Config.signedOut = false
         findViewById<TextView>(R.id.error_label).text = ""
         findViewById<LinearProgressIndicator>(R.id.progressbar_indicator).isIndeterminate = false
@@ -364,28 +390,31 @@ class LoginActivity : AppCompatActivity() {
                     when (response.code) {
                         0 -> {
                             findViewById<TextView>(R.id.error_label).text =
-                                "Nelze se připojit k serveru.\nZkontrolujte připojení k internetu."
-
+                                ContextCompat.getString(this, R.string.connection_failed_message)
                         }
 
                         401 -> {
                             findViewById<TextView>(R.id.error_label).text =
-                                "Neznámé ID nebo uživatel"
+                                ContextCompat.getString(this, R.string.unknown_user_id_message)
                         }
 
                         422 -> {
                             findViewById<TextView>(R.id.error_label).text =
-                                "Uživatel nemá žádný projekt"
+                                ContextCompat.getString(this, R.string.user_has_no_project_message)
                         }
 
                         404 -> {
                             findViewById<TextView>(R.id.error_label).text =
-                                response.data ?: "Chyba serveru " + response.code
+                                response.data ?: ContextCompat.getString(
+                                    this, R.string.server_error_message
+                                ) + response.code
                         }
 
                         in 500..599 -> {
                             findViewById<TextView>(R.id.error_label).text =
-                                response.data ?: "Chyba serveru" + response.code
+                                response.data ?: ContextCompat.getString(
+                                    this, R.string.server_error_message
+                                ) + response.code
                         }
                     }
 

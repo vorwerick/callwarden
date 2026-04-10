@@ -2,31 +2,32 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/primary_light"
     android:fitsSystemWindows="true"
-    android:id="@+id/mainLayout"
     tools:context=".ui.activity.LoginActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@id/login_form"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:gravity="center"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:src="@drawable/rami_logo_black" />
+
         <ImageView
-            android:layout_marginTop="16dp"
             android:layout_width="wrap_content"
             android:layout_height="28dp"
+            android:layout_marginTop="16dp"
             android:src="@drawable/ramicall_text_logo" />
     </LinearLayout>
 
@@ -50,11 +51,11 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginBottom="16dp"
-
             android:layout_marginTop="32dp"
+
+            android:layout_marginBottom="16dp"
             android:backgroundTint="@color/black"
-            android:hint="Id domény"
+            android:hint="@string/login_field_domain"
             android:textColor="@color/black"
             android:textColorHint="@color/black" />
 
@@ -62,10 +63,10 @@
             android:id="@+id/user_id"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginVertical="8dp"
             android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="8dp"
             android:backgroundTint="@color/black"
-            android:hint="Číslo uživatele"
+            android:hint="@string/login_field_user_id"
             android:inputType="number"
             android:textColor="@color/black"
             android:textColorHint="@color/black" />
@@ -86,30 +87,30 @@
             android:id="@+id/user_log_in"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginVertical="8dp"
             android:layout_marginHorizontal="20dp"
-            android:textSize="20sp"
-            android:textAllCaps="false"
+            android:layout_marginVertical="8dp"
             android:backgroundTint="@color/black"
-            android:text="Přihlásit"
-            android:textColor="@color/white" />
+            android:text="@string/button_login"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/register"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:focusable="true"
-            android:textColor="@color/black"
-            android:padding="16dp"
-            android:textSize="16sp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
-            android:text="Získat přístup"/>
+            android:focusable="true"
+            android:padding="16dp"
+            android:text="@string/button_register"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressbar_indicator"
             android:layout_width="match_parent"
             android:layout_height="12dp"
-            android:id="@+id/progressbar_indicator"
 
             />
     </LinearLayout>
