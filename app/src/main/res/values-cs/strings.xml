@@ -136,4 +136,10 @@
     <string name="analytics_total_moves">Počet pohybů: %1$d</string>
     <string name="analytics_total_connected">Počet spojených hovorů: %1$d</string>
 
+    <string name="battery_already_set">Baterie je již nastavena</string>
+
+    <string name="sync_count_title">Počet záznamů 1 - 500</string>
+    <string name="save">Uložit</string>
+    <string name="sync_count_saved">Nastaveno %1$d záznamů</string>
+
 </resources>

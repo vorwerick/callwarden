@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.messaging.FirebaseMessaging
 import cz.dzubera.callwarden.App
@@ -408,6 +409,7 @@ class MainActivity : AppCompatActivity() {
 
         }
         setContentView(R.layout.activity_main)
+
 
         val url = intent?.extras?.getString("url") ?: intent?.getStringExtra("url")
         if (url != null) {

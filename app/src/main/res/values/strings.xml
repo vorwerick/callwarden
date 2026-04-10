@@ -137,4 +137,10 @@
     <string name="analytics_total_moves">Total events: %1$d</string>
     <string name="analytics_total_connected">Total connected calls: %1$d</string>
 
+    <string name="battery_already_set">Battery is already configured</string>
+
+    <string name="sync_count_title">Record count 1 - 500</string>
+    <string name="save">Save</string>
+    <string name="sync_count_saved">Set to %1$d records</string>
+
 </resources>

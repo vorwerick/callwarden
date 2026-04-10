@@ -29,7 +29,7 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
 
-        supportActionBar?.title = "Nastavení";
+        supportActionBar?.title = getString(R.string.settings_title)
 
         val btnAutoStart = findViewById<CardView>(R.id.autostartView)
         val btnBatterySetting = findViewById<CardView>(R.id.batteryView)
@@ -63,7 +63,11 @@ class SettingsActivity : AppCompatActivity() {
 //                        )
 //                    )
                 } else {
-                    Toast.makeText(this, "Baterie je jíž nastavena", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        getString(R.string.battery_already_set),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         } else {
@@ -83,14 +87,14 @@ class SettingsActivity : AppCompatActivity() {
     private fun showSyncCountDialog() {
         val currentVal = PreferencesUtils.loadSyncCount(this)
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Počet záznamů 1 - 500")
+        builder.setTitle(getString(R.string.sync_count_title))
 
         val input = EditText(this)
         input.inputType = InputType.TYPE_CLASS_NUMBER
         input.setText(currentVal.toString())
         builder.setView(input)
 
-        builder.setPositiveButton("Uložit") { dialog, which ->
+        builder.setPositiveButton(getString(R.string.save)) { dialog, which ->
             var x = kotlin.math.abs(input.text.toString().toIntOrNull() ?: 100)
             if(x == 0){
                 x = 1
@@ -99,11 +103,15 @@ class SettingsActivity : AppCompatActivity() {
                 x = 500
             }
             PreferencesUtils.saveSyncCount(this, x)
-            Toast.makeText(this, "Nastaveno $x záznamů", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                getString(R.string.sync_count_saved, x),
+                Toast.LENGTH_SHORT
+            ).show()
             findViewById<TextView>(R.id.syncCountText).text = x.toString()
             dialog.cancel()
         }
-        builder.setNegativeButton("Zrušit") { dialog, _ -> dialog.cancel() }
+        builder.setNegativeButton(getString(R.string.cancel)) { dialog, _ -> dialog.cancel() }
 
         builder.show()
     }
