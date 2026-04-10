@@ -1,7 +1,108 @@
 <resources>
+
     <string name="app_name">RAMICALL</string>
-    <string name="permission_title">Permission</string>
-    <string name="permission_request_user_message">Pro správné fungování aplikace je potřeba potvrdit některá oprávnění.</string>
-    <string name="button_next">Next</string>
-    <string name="button_cancel">Cancel</string>
+
+    <!-- Permissions -->
+    <string name="permission_title">Oprávnění</string>
+    <string name="permission_request_user_message">Pro správné fungování aplikace je potřeba povolit některá oprávnění.</string>
+    <string name="button_next">Další</string>
+    <string name="button_cancel">Zrušit</string>
+
+    <!-- Navigation / buttons -->
+    <string name="button_back">Zpět</string>
+    <string name="button_update">Aktualizovat</string>
+
+    <string name="all">všechny</string>
+    <string name="all_projects">Všechny projekty</string>
+    <string name="none">žádný</string>
+
+
+    <!-- Updates -->
+    <string name="update_available_title">Dostupná nová verze</string>
+    <string name="update_available_description">Je k dispozici novější verze aplikace. Doporučujeme ji co nejdříve aktualizovat pro správné fungování aplikace.</string>
+
+    <!-- Browser -->
+    <string name="browser_cannot_be_opened">Nelze otevřít prohlížeč</string>
+
+    <!-- Login -->
+    <string name="login_enter_user_id">Zadejte ID a uživatele</string>
+    <string name="login_field_domain">ID domény</string>
+    <string name="login_field_user_id">ID uživatele</string>
+    <string name="button_login">Přihlásit</string>
+    <string name="button_register">Získat přístup</string>
+
+    <!-- Connection / errors -->
+    <string name="connection_failed_message">Nelze se připojit k serveru.\nZkontrolujte připojení k internetu.</string>
+    <string name="unknown_user_id_message">Neznámé ID nebo uživatel</string>
+    <string name="user_has_no_project_message">Uživatel nemá přiřazen žádný projekt</string>
+    <string name="server_error_message">Chyba serveru</string>
+
+    <!-- Sync -->
+    <string name="sync_running">Synchronizace probíhá...</string>
+    <string name="no_permission">Nemáte oprávnění</string>
+
+    <!-- Project -->
+    <string name="select_project">Vybrat projekt</string>
+    <string name="project_changed">Projekt byl úspěšně změněn.</string>
+    <string name="project_change_failed">Nepodařilo se změnit projekt. Zkuste to prosím znovu.</string>
+    <string name="project_change_title">Změnit projekt</string>
+    <string name="project_select_title">Vybrat projekt</string>
+
+    <!-- About -->
+    <string name="about_title">O aplikaci</string>
+    <string name="about_ok">OK</string>
+
+    <!-- User -->
+    <string name="user_title">Uživatel</string>
+    <string name="user_id">ID</string>
+    <string name="user_user">Uživatel</string>
+    <string name="user_project">Projekt</string>
+    <string name="user_last_sync">Poslední synchronizace</string>
+    <string name="not_selected">Nevybráno</string>
+    <string name="never">nikdy</string>
+
+    <!-- Dialer -->
+    <string name="default_dialer_set">Výchozí dialer nastaven.</string>
+    <string name="default_dialer_failed">Nepodařilo se nastavit výchozí dialer.</string>
+    <string name="set_default_dialer">Nastavit výchozí dialer</string>
+
+    <!-- Calls -->
+    <string name="call_records">Záznamy hovorů</string>
+    <string name="results_count">Výsledků</string>
+
+    <string name="incoming">příchozí</string>
+    <string name="outgoing">odchozí</string>
+    <string name="accepted">spojené</string>
+    <string name="unaccepted">nespojené</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Nastavení</string>
+    <string name="settings_message">Pro správné fungování aplikace a zaznamenávání hovorů je nutné zkontrolovat nastavení.</string>
+    <string name="settings_button">Nastavení</string>
+    <string name="cancel">Zrušit</string>
+
+    <!-- Filters -->
+    <string name="filter_call_type">Filtr dle typu hovoru</string>
+    <string name="select_filter">Vybrat filtr</string>
+
+    <!-- Updates -->
+    <string name="update_available">Dostupná aktualizace</string>
+    <string name="update_available_msg">Je k dispozici novější verze aplikace. Doporučujeme ji co nejdříve aktualizovat.</string>
+    <string name="update">Aktualizovat</string>
+
+    <string name="update_required">Vyžadována aktualizace</string>
+    <string name="update_required_msg">Pro pokračování je nutné nejprve aplikaci aktualizovat.</string>
+
+    <!-- Misc -->
+    <string name="cannot_open_browser">Nelze otevřít prohlížeč</string>
+
+    <!-- Menu -->
+    <string name="change_project">Vybrat projekt</string>
+    <string name="sync_history">Synchronizovat historii</string>
+    <string name="analytics">Analytika</string>
+    <string name="user">Uživatel</string>
+    <string name="settings">Nastavení</string>
+    <string name="about_app">O aplikaci</string>
+    <string name="sign_out">Odhlásit</string>
+
 </resources>

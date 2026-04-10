@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.telecom.TelecomManager
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -21,7 +20,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts.*
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -108,7 +107,7 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     //show toast
                     Toast.makeText(
-                        this@MainActivity, "Synchronizace probíhá...", Toast.LENGTH_SHORT
+                        this@MainActivity,     ContextCompat.getString(this, R.string.sync_running), Toast.LENGTH_SHORT
                     ).show()
                     //get calls from history
                     startSynchronization(this@MainActivity) {
@@ -121,7 +120,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 } else {
                     // show toast you need permissions
-                    Toast.makeText(this@MainActivity, "Nemáte oprávnění", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity,     ContextCompat.getString(this, R.string.no_permission), Toast.LENGTH_SHORT).show()
                     false
                 }
 
@@ -201,7 +200,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun showProjectDialog(cancelable: Boolean) {
         val builderSingle = AlertDialog.Builder(this)
-        builderSingle.setTitle("Vybrat projekt")
+        builderSingle.setTitle(
+            ContextCompat.getString(this, R.string.project_select_title)
+        )
         builderSingle.setCancelable(cancelable)
         val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
         arrayAdapter.addAll(App.projectStorage.projects.map { it.name })
@@ -219,7 +220,7 @@ class MainActivity : AppCompatActivity() {
         }
         if (cancelable) {
             builderSingle.setNegativeButton(
-                "Zpět"
+                ContextCompat.getString(this, R.string.button_back)
             ) { dialog, _ -> dialog.dismiss() }
         }
         builderSingle.show()
@@ -228,7 +229,7 @@ class MainActivity : AppCompatActivity() {
     private fun showProjectEditDialog(callEntity: CallEntity) {
 
         val builderSingle = AlertDialog.Builder(this)
-        builderSingle.setTitle("Změna projektu")
+        builderSingle.setTitle(ContextCompat.getString(this, R.string.project_change_title))
         builderSingle.setCancelable(true)
         val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
         arrayAdapter.addAll(App.projectStorage.projects.map { it.name })
@@ -265,14 +266,22 @@ class MainActivity : AppCompatActivity() {
                         App.appDatabase.taskCalls().update(callEntity)
                         runOnUiThread {
                             Toast.makeText(
-                                this@MainActivity, "Projekt byl úspěšně změněn.", Toast.LENGTH_SHORT
+                                this@MainActivity,
+                                ContextCompat.getString(
+                                    this@MainActivity,
+                                    R.string.project_changed
+                                ),
+                                Toast.LENGTH_SHORT
                             ).show()
                         }
                     } else {
                         runOnUiThread {
                             Toast.makeText(
                                 this@MainActivity,
-                                "Nepodařilo se změnit projekt, zkuste to prosím znovu.",
+                                ContextCompat.getString(
+                                    this@MainActivity,
+                                    R.string.project_change_failed
+                                ),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -283,7 +292,7 @@ class MainActivity : AppCompatActivity() {
 
         }
         builderSingle.setNegativeButton(
-            "Zpět"
+            ContextCompat.getString(this, R.string.button_back)
         ) { dialog, _ -> dialog.dismiss() }
 
 
@@ -295,8 +304,8 @@ class MainActivity : AppCompatActivity() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setMessage("RAMICALL " + BuildConfig.VERSION_NAME + "(" + BuildConfig.VERSION_CODE + ")" + "\n2023 RAMICORP s.r.o. \nVšechna práva vyhrazena")
-            .setTitle("O aplikaci").setPositiveButton(
-                "Ok"
+            .setTitle(ContextCompat.getString(this, R.string.about_title)).setPositiveButton(
+                ContextCompat.getString(this, R.string.about_ok)
             ) { p0, _ -> p0.dismiss() }
 
 // 3. Get the <code><a href="/reference/android/app/AlertDialog.html">AlertDialog</a></code> from <code><a href="/reference/android/app/AlertDialog.Builder.html#create()">create()</a></code>
@@ -312,14 +321,14 @@ class MainActivity : AppCompatActivity() {
         val lastSyncTime = PreferencesUtils.loadLastSyncDate(this)
         var syncDateTime = SimpleDateFormat("HH:mm").format(lastSyncTime)
         if (lastSyncTime == 0L) {
-            syncDateTime = "<neproběhla>"
+            syncDateTime = ContextCompat.getString(this, R.string.never)
         }
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setMessage(
             "ID: ${App.userSettingsStorage.credentials!!.domain}\nUživatel: ${App.userSettingsStorage.credentials!!.user}\nProjekt: ${project?.name ?: "Nebyl vybrán"}\n" + "Poslední synchronizace: $syncDateTime"
-        ).setTitle("Uživatel").setPositiveButton(
-            "Ok"
+        ).setTitle((ContextCompat.getString(this, R.string.user_title))).setPositiveButton(
+            (ContextCompat.getString(this, R.string.about_ok))
         ) { p0, _ -> p0.dismiss() }
 
 // 3. Get the <code><a href="/reference/android/app/AlertDialog.html">AlertDialog</a></code> from <code><a href="/reference/android/app/AlertDialog.Builder.html#create()">create()</a></code>
@@ -354,14 +363,23 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
 
-      launcher = registerForActivityResult(
+        launcher = registerForActivityResult(
             StartActivityForResult()
         ) { result ->
             if (result.resultCode == RESULT_OK) {
-                Toast.makeText(this, "Výchozí dialer nastaven.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    (ContextCompat.getString(this, R.string.default_dialer_set)),
+                    Toast.LENGTH_SHORT
+                ).show()
                 // uživatel nastavil aplikaci jako default dialer
             } else {
-                Toast.makeText(this, "Nelze nastavit jako výchozí dialer.",Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    (ContextCompat.getString(this, R.string.default_dialer_failed)),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
             }
         }
         // start alarm
@@ -382,7 +400,6 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        Log.i("testik", "abrakadabra " + PreferencesUtils.get(this, "XXX"));
 
         val project = App.projectStorage.getProject(this)
         supportActionBar!!.subtitle = "---"
@@ -401,7 +418,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        supportActionBar?.title = "Záznamy hovorů"
+        supportActionBar?.title = (ContextCompat.getString(this, R.string.call_records))
 
         App.userSettingsStorage.credentials = credentials
 
@@ -416,7 +433,12 @@ class MainActivity : AppCompatActivity() {
             }
         }, { calls ->
             findViewById<TextView>(R.id.call_list_result_count).text =
-                "Výsledků " + calls.size.toString()
+                "${
+                    (ContextCompat.getString(
+                        this,
+                        R.string.results_count,
+                    ))
+                } " + calls.size.toString()
         })
 
         val recyclerView: RecyclerView = findViewById(R.id.call_list)
@@ -428,7 +450,7 @@ class MainActivity : AppCompatActivity() {
         val buttonProject: Button = findViewById(R.id.buttonProject)
         buttonProject.setOnClickListener { selectProjectFilter() }
         if (App.projectFilter == null) {
-            buttonProject.text = "Všechny projekty"
+            buttonProject.text = (ContextCompat.getString(this, R.string.all_projects))
         } else {
             buttonProject.text = App.projectFilter!!.name
         }
@@ -440,22 +462,22 @@ class MainActivity : AppCompatActivity() {
         val accepted = App.callTypeFilter[2]
         val unaccepted = App.callTypeFilter[3]
         if (income && outcome && accepted && unaccepted) {
-            buttonCallType.text = "všechny"
+            buttonCallType.text = (ContextCompat.getString(this, R.string.all))
         } else if (!income && !outcome && !accepted && !unaccepted) {
-            buttonCallType.text = "žádné"
+            buttonCallType.text = (ContextCompat.getString(this, R.string.none))
         } else {
             val sb = StringBuilder()
             if (income) {
-                sb.append("příchozí ")
+                sb.append("${(ContextCompat.getString(this, R.string.incoming))} ")
             }
             if (outcome) {
-                sb.append("odchozí ")
+                sb.append("${(ContextCompat.getString(this, R.string.outgoing))} ")
             }
             if (accepted) {
-                sb.append("spojené ")
+                sb.append("${(ContextCompat.getString(this, R.string.accepted))} ")
             }
             if (unaccepted) {
-                sb.append("nespojené ")
+                sb.append("${(ContextCompat.getString(this, R.string.unaccepted))} ")
             }
             buttonCallType.text = sb.toString()
         }
@@ -489,23 +511,34 @@ class MainActivity : AppCompatActivity() {
     // Show alert dialog to request permissions
     private fun showSettingDialog() {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Nastavení")
-        builder.setMessage("Pro správné fungování aplikace a zaznamenávání hovorů je nutné zkontrolovat nastavení.")
-        builder.setPositiveButton("Nastavení") { _, _ -> navigateToSetting() }
-        builder.setNeutralButton("Zrušit") { dialog, _ -> dialog.cancel() }
+        builder.setTitle((ContextCompat.getString(this, R.string.settings_title)))
+        builder.setMessage((ContextCompat.getString(this, R.string.settings_message)))
+        builder.setPositiveButton(
+            (ContextCompat.getString(
+                this,
+                R.string.settings_button
+            ))
+        ) { _, _ -> navigateToSetting() }
+        builder.setNeutralButton(
+            (ContextCompat.getString(
+                this,
+                R.string.cancel
+            ))
+        ) { dialog, _ -> dialog.cancel() }
         val dialog = builder.create()
         dialog.show()
     }
 
     private fun selectCallTypeFilter() {
         val builderSingle = AlertDialog.Builder(this)
-        builderSingle.setTitle("Filtr dle typu hovoru")
+        builderSingle.setTitle(ContextCompat.getString(this, R.string.filter_call_type))
         builderSingle.setCancelable(true)
         val stringArray = mutableListOf<String>()
-        stringArray.add("příchozí")
-        stringArray.add("odchozí")
-        stringArray.add("spojené")
-        stringArray.add("nespojené")
+        ContextCompat.getString(this, R.string.incoming)
+        stringArray.add(ContextCompat.getString(this, R.string.incoming))
+        stringArray.add(ContextCompat.getString(this, R.string.outgoing))
+        stringArray.add(ContextCompat.getString(this, R.string.accepted))
+        stringArray.add(ContextCompat.getString(this, R.string.unaccepted))
         val checkedItems = App.callTypeFilter.toBooleanArray()
         builderSingle.setMultiChoiceItems(
             stringArray.toTypedArray(), checkedItems
@@ -518,43 +551,43 @@ class MainActivity : AppCompatActivity() {
             val accepted = App.callTypeFilter[2]
             val unaccepted = App.callTypeFilter[3]
             if (income && outcome && accepted && unaccepted) {
-                buttonCallType.text = "všechny"
+                buttonCallType.text = ContextCompat.getString(this, R.string.all)
             } else if (!income && !outcome && !accepted && !unaccepted) {
-                buttonCallType.text = "žádné"
+                buttonCallType.text = ContextCompat.getString(this, R.string.none)
             } else {
                 val sb = StringBuilder()
                 if (income) {
-                    sb.append("příchozí ")
+                    sb.append("${ContextCompat.getString(this, R.string.incoming)} ")
                 }
                 if (outcome) {
-                    sb.append("odchozí ")
+                    sb.append("${ContextCompat.getString(this, R.string.outgoing)} ")
                 }
                 if (accepted) {
-                    sb.append("spojené ")
+                    sb.append("${ContextCompat.getString(this, R.string.accepted)} ")
                 }
                 if (unaccepted) {
-                    sb.append("nespojené ")
+                    sb.append("${ContextCompat.getString(this, R.string.unaccepted)} ")
                 }
                 buttonCallType.text = sb.toString()
             }
         }
 
         builderSingle.setNegativeButton(
-            "Zpět"
+            ContextCompat.getString(this, R.string.button_back)
         ) { dialog, _ -> dialog.dismiss() }
         builderSingle.show()
     }
 
     private fun selectProjectFilter() {
         val builderSingle = AlertDialog.Builder(this)
-        builderSingle.setTitle("Vybrat filtr")
+        builderSingle.setTitle(ContextCompat.getString(this, R.string.select_filter))
         builderSingle.setCancelable(true)
         val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice)
         val filters =
             App.projectStorage.projects.toMutableList().also { it.add(0, ProjectObject("", "")) }
         arrayAdapter.addAll(filters.map {
             if (it.id == "") {
-                "Všechny projekty"
+                ContextCompat.getString(this, R.string.all_projects)
             } else {
                 it.name
 
@@ -568,7 +601,7 @@ class MainActivity : AppCompatActivity() {
             val buttonProject: Button = findViewById(R.id.buttonProject)
             if (p.id == "") {
                 App.projectFilter = null
-                buttonProject.text = "Všechny projekty"
+                buttonProject.text = ContextCompat.getString(this, R.string.all_projects)
             } else {
                 App.projectFilter = p
                 buttonProject.text = App.projectFilter!!.name
@@ -577,7 +610,7 @@ class MainActivity : AppCompatActivity() {
             App.cacheStorage.loadFromDatabase { }
         }
         builderSingle.setNegativeButton(
-            "Zpět"
+            ContextCompat.getString(this, R.string.button_back)
         ) { dialog, _ -> dialog.dismiss() }
         builderSingle.show()
     }
@@ -607,7 +640,7 @@ class MainActivity : AppCompatActivity() {
         val buttonProject: Button = findViewById(R.id.buttonProject)
         buttonProject.setOnClickListener { selectProjectFilter() }
         if (App.projectFilter == null) {
-            buttonProject.text = "Všechny projekty"
+            buttonProject.text = ContextCompat.getString(this, R.string.all_projects)
         } else {
             buttonProject.text = App.projectFilter!!.name
         }
@@ -669,17 +702,27 @@ class MainActivity : AppCompatActivity() {
     fun showNewVersionDialog(url: String?, done: () -> Unit) {
         val builder = AlertDialog.Builder(this)
         builder.setCancelable(false)
-        builder.setTitle("Dostupná aktualizace")
-        builder.setMessage("Máme pro vás novější verzi aplikace. Doporučujeme provést aktualizaci co nejdříve, pro správné fungování aplikace.")
+        builder.setTitle(ContextCompat.getString(this, R.string.update_available_title))
+        builder.setMessage(ContextCompat.getString(this, R.string.update_available_description))
         url?.let {
-            builder.setPositiveButton("Aktualizovat") { dialog, which ->
+            builder.setPositiveButton(
+                ContextCompat.getString(
+                    this,
+                    R.string.button_update
+                )
+            ) { dialog, which ->
                 openUrlInCustomTab(this, url)
                 dialog.dismiss()
                 done()
 
             }
         }
-        builder.setNegativeButton("Zpět") { dialog, which -> dialog.dismiss() }
+        builder.setNegativeButton(
+            ContextCompat.getString(
+                this,
+                R.string.button_back
+            )
+        ) { dialog, which -> dialog.dismiss() }
 
         val dialog = builder.create()
         dialog.show()
@@ -688,10 +731,15 @@ class MainActivity : AppCompatActivity() {
     fun showUpdateNeededDialog(url: String?) {
         val builder = AlertDialog.Builder(this)
         builder.setCancelable(false)
-        builder.setTitle("Provést aktualizaci")
-        builder.setMessage("Pro správné fungování aplikace je nutné nejprve dokončit aktualizaci.")
+        builder.setTitle(ContextCompat.getString(this, R.string.update_available_title))
+        builder.setMessage(ContextCompat.getString(this, R.string.update_available_description))
         url?.let {
-            builder.setPositiveButton("Aktualizovat") { dialog, which ->
+            builder.setPositiveButton(
+                ContextCompat.getString(
+                    this,
+                    R.string.button_update
+                )
+            ) { dialog, which ->
                 val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(it)).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
@@ -735,7 +783,11 @@ class MainActivity : AppCompatActivity() {
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
-            Toast.makeText(this, "Nelze otevřít prohlížeč", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this,
+                ContextCompat.getString(this, R.string.browser_cannot_be_opened),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -786,7 +838,8 @@ class MainActivity : AppCompatActivity() {
         val buttonTo: Button = findViewById(R.id.buttonTo)
         buttonTo.text = SimpleDateFormat("d.M.yyyy").format(App.dateTo)
         val buttonProjects = findViewById<Button>(R.id.buttonProject)
-        buttonProjects.text = App.projectStorage.getProject(this)?.name ?: "Všechny"
+        buttonProjects.text =
+            App.projectStorage.getProject(this)?.name ?: ContextCompat.getString(this, R.string.all)
         App.cacheStorage.loadFromDatabase()
     }
 }

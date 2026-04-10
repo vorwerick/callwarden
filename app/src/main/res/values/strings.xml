@@ -1,28 +1,107 @@
 <resources>
+
     <string name="app_name">RAMICALL</string>
+
+    <!-- Permissions -->
     <string name="permission_title">Permission</string>
-    <string name="permission_request_user_message">Pro správné fungování aplikace je potřeba potvrdit některá oprávnění.</string>
+    <string name="permission_request_user_message">To ensure proper app functionality, some permissions are required.</string>
     <string name="button_next">Next</string>
     <string name="button_cancel">Cancel</string>
 
+    <!-- Navigation / buttons -->
     <string name="button_back">Back</string>
     <string name="button_update">Update</string>
+
+    <!-- Updates -->
     <string name="update_available_title">New version available</string>
-    <string name="update_available_description">Máme pro vás novější verzi aplikace. Doporučujeme provést aktualizaci co nejdříve, pro správné fungování aplikace.</string>
+    <string name="update_available_description">A newer version of the app is available. We recommend updating as soon as possible to ensure proper functionality.</string>
 
-    <string name="browser_cannot_be_opened">"Nelze otevřít prohlížeč"</string>
-    <string name="login_enter_user_id">Zadejte ID a uživatele</string>
+    <!-- Browser -->
+    <string name="browser_cannot_be_opened">Cannot open browser</string>
 
-    <string name="connection_failed_message">Nelze se připojit k serveru.\nZkontrolujte připojení k internetu.</string>
-    <string name="unknown_user_id_message">Neznámé ID nebo uživatel</string>
-    <string name="user_has_no_project_message">Uživatel nemá žádný projekt</string>
-    <string name="server_error_message">Chyba serveru</string>
+    <!-- Login -->
+    <string name="login_enter_user_id">Enter ID and user</string>
+    <string name="login_field_domain">Domain ID</string>
+    <string name="login_field_user_id">User ID</string>
+    <string name="button_login">Login</string>
+    <string name="button_register">Get access</string>
 
-    <string name="login_field_domain">Id domény</string>
-    <string name="login_field_user_id">Číslo uživatele</string>
-    <string name="button_login">Přihlásit</string>
-    <string name="button_register">Získat přístup</string>
+    <!-- Connection / errors -->
+    <string name="connection_failed_message">Cannot connect to server.\nCheck your internet connection.</string>
+    <string name="unknown_user_id_message">Unknown ID or user</string>
+    <string name="user_has_no_project_message">User has no project assigned</string>
+    <string name="server_error_message">Server error</string>
 
+    <!-- Sync -->
+    <string name="sync_running">Synchronization in progress...</string>
+    <string name="no_permission">No permission granted</string>
 
+    <!-- Project -->
+    <string name="select_project">Select project</string>
+    <string name="project_changed">Project successfully changed.</string>
+    <string name="project_change_failed">Failed to change project. Please try again.</string>
+    <string name="project_change_title">Change project</string>
+    <string name="project_select_title">Select project</string>
+
+    <!-- About -->
+    <string name="about_title">About</string>
+    <string name="about_ok">OK</string>
+
+    <string name="all">all</string>
+    <string name="all_projects">All projects</string>
+    <string name="none">none</string>
+
+    <!-- User -->
+    <string name="user_title">User</string>
+    <string name="user_id">ID</string>
+    <string name="user_user">User</string>
+    <string name="user_project">Project</string>
+    <string name="user_last_sync">Last synchronization</string>
+    <string name="not_selected">Not selected</string>
+    <string name="never">never</string>
+
+    <!-- Dialer -->
+    <string name="default_dialer_set">Default dialer set.</string>
+    <string name="default_dialer_failed">Failed to set default dialer.</string>
+    <string name="set_default_dialer">Set default dialer</string>
+
+    <!-- Calls -->
+    <string name="call_records">Call records</string>
+    <string name="results_count">Results</string>
+
+    <string name="incoming">incoming</string>
+    <string name="outgoing">outgoing</string>
+    <string name="accepted">connected</string>
+    <string name="unaccepted">not connected</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_message">To ensure proper functionality and call logging, please review settings.</string>
+    <string name="settings_button">Settings</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Filters -->
+    <string name="filter_call_type">Filter by call type</string>
+    <string name="select_filter">Select filter</string>
+
+    <!-- Updates -->
+    <string name="update_available">Update available</string>
+    <string name="update_available_msg">A newer version of the app is available. We recommend updating as soon as possible.</string>
+    <string name="update">Update</string>
+
+    <string name="update_required">Update required</string>
+    <string name="update_required_msg">You must complete the update before continuing.</string>
+
+    <!-- Misc -->
+    <string name="cannot_open_browser">Cannot open browser</string>
+
+    <!-- Menu -->
+    <string name="change_project">Select project</string>
+    <string name="sync_history">Sync history</string>
+    <string name="analytics">Analytics</string>
+    <string name="user">User</string>
+    <string name="settings">Settings</string>
+    <string name="about_app">About</string>
+    <string name="sign_out">Sign out</string>
 
 </resources>

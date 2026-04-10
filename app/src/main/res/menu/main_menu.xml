@@ -4,34 +4,40 @@
     <item
         android:id="@+id/change_project"
         android:icon="@drawable/group"
-        android:title="Vybrat projekt"
+        android:title="@string/change_project"
         android:visible="true"
         app:showAsAction="always" />
+
     <group android:enabled="true">
         <item
             android:id="@+id/sync"
-            android:title="Synchronizovat historii" />
+            android:title="@string/sync_history" />
+
         <item
             android:id="@+id/analytics"
-            android:title="Analytiky" />
-
+            android:title="@string/analytics" />
     </group>
+
     <item
         android:id="@+id/menu_user"
-        android:title="Uživatel" />
+        android:title="@string/user" />
+
     <item
         android:id="@+id/menu_settings"
-        android:title="Nastavení" />
+        android:title="@string/settings" />
+
     <item
         android:id="@+id/menu_about"
-        android:title="O aplikaci" />
+        android:title="@string/about_app" />
+
     <item
         android:id="@+id/menu_set_default_dialer"
-        android:title="Nastavit výchozí dialer" />
+        android:title="@string/set_default_dialer" />
+
     <group android:enabled="true">
         <item
             android:id="@+id/signOut"
-            android:title="Odhlásit" />
+            android:title="@string/sign_out" />
     </group>
 
 </menu>
