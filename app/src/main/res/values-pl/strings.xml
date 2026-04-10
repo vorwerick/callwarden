@@ -1,0 +1,106 @@
+<resources>
+
+    <string name="app_name">RAMICALL</string>
+
+    <string name="permission_title">Uprawnienie</string>
+    <string name="permission_request_user_message">Aby aplikacja działała poprawnie, wymagane są niektóre uprawnienia.</string>
+    <string name="button_next">Dalej</string>
+    <string name="button_cancel">Anuluj</string>
+
+    <string name="button_back">Wstecz</string>
+    <string name="button_update">Aktualizuj</string>
+
+    <string name="update_available_title">Dostępna nowa wersja</string>
+    <string name="update_available_description">Dostępna jest nowsza wersja aplikacji. Zalecamy aktualizację.</string>
+
+    <string name="browser_cannot_be_opened">Nie można otworzyć przeglądarki</string>
+
+    <string name="login_enter_user_id">Wprowadź ID i użytkownika</string>
+    <string name="login_field_domain">ID domeny</string>
+    <string name="login_field_user_id">ID użytkownika</string>
+    <string name="button_login">Zaloguj się</string>
+    <string name="button_register">Uzyskaj dostęp</string>
+
+    <string name="connection_failed_message">Nie można połączyć się z serwerem.\nSprawdź połączenie internetowe.</string>
+    <string name="unknown_user_id_message">Nieznane ID lub użytkownik</string>
+    <string name="user_has_no_project_message">Użytkownik nie ma przypisanego projektu</string>
+    <string name="server_error_message">Błąd serwera</string>
+
+    <string name="sync_running">Synchronizacja w toku...</string>
+    <string name="no_permission">Brak uprawnień</string>
+
+    <string name="select_project">Wybierz projekt</string>
+    <string name="project_changed">Projekt został zmieniony.</string>
+    <string name="project_change_failed">Nie udało się zmienić projektu.</string>
+    <string name="project_change_title">Zmień projekt</string>
+    <string name="project_select_title">Wybierz projekt</string>
+
+    <string name="about_title">O aplikacji</string>
+    <string name="about_ok">OK</string>
+
+    <string name="all">wszystkie</string>
+    <string name="all_projects">Wszystkie projekty</string>
+    <string name="none">brak</string>
+
+    <string name="user_title">Użytkownik</string>
+    <string name="user_id">ID</string>
+    <string name="user_user">Użytkownik</string>
+    <string name="user_project">Projekt</string>
+    <string name="user_last_sync">Ostatnia synchronizacja</string>
+    <string name="not_selected">Nie wybrano</string>
+    <string name="never">nigdy</string>
+
+    <string name="default_dialer_set">Domyślny dialer ustawiony.</string>
+    <string name="default_dialer_failed">Nie udało się ustawić domyślnego dialera.</string>
+    <string name="set_default_dialer">Ustaw domyślny dialer</string>
+
+    <string name="call_records">Rejestr połączeń</string>
+    <string name="results_count">Wyniki</string>
+
+    <string name="incoming">przychodzące</string>
+    <string name="outgoing">wychodzące</string>
+    <string name="accepted">połączone</string>
+    <string name="unaccepted">niepołączone</string>
+
+    <string name="settings_title">Ustawienia</string>
+    <string name="settings_message">Sprawdź ustawienia, aby aplikacja działała poprawnie.</string>
+    <string name="settings_button">Ustawienia</string>
+    <string name="cancel">Anuluj</string>
+
+    <string name="filter_call_type">Filtr według typu połączeń</string>
+    <string name="select_filter">Wybierz filtr</string>
+
+    <string name="update_available">Dostępna aktualizacja</string>
+    <string name="update_available_msg">Dostępna jest nowsza wersja aplikacji. Zalecamy aktualizację.</string>
+    <string name="update">Aktualizuj</string>
+
+    <string name="update_required">Wymagana aktualizacja</string>
+    <string name="update_required_msg">Musisz dokończyć aktualizację, aby kontynuować.</string>
+
+    <string name="cannot_open_browser">Nie można otworzyć przeglądarki</string>
+
+    <string name="change_project">Wybierz projekt</string>
+    <string name="sync_history">Synchronizacja historii</string>
+    <string name="analytics">Analityka</string>
+
+    <string name="user">Użytkownik</string>
+    <string name="settings">Ustawienia</string>
+    <string name="about_app">O aplikacji</string>
+
+    <string name="set_default_dialer">Ustaw domyślny dialer</string>
+    <string name="sign_out">Wyloguj się</string>
+
+    <string name="show_called_detail">Pokaż szczegóły połączenia</string>
+    <string name="none_records_found">Brak zapisów połączeń.\nZmień parametry lub zsynchronizuj.</string>
+
+    <string name="projects">Projekty</string>
+    <string name="call_type">Typ połączenia</string>
+    <string name="select_from">Od</string>
+    <string name="select_to">Do</string>
+
+    <string name="battery_already_set">Optymalizacja baterii już skonfigurowana</string>
+    <string name="sync_count_title">Liczba rekordów 1 - 500</string>
+    <string name="save">Zapisz</string>
+    <string name="sync_count_saved">Ustawiono %1$d rekordów</string>
+
+</resources>

@@ -1,0 +1,106 @@
+<resources>
+
+    <string name="app_name">RAMICALL</string>
+
+    <string name="permission_title">Povolenie</string>
+    <string name="permission_request_user_message">Pre správne fungovanie aplikácie je potrebné udeliť niektoré povolenia.</string>
+    <string name="button_next">Ďalej</string>
+    <string name="button_cancel">Zrušiť</string>
+
+    <string name="button_back">Späť</string>
+    <string name="button_update">Aktualizovať</string>
+
+    <string name="update_available_title">Nová verzia je k dispozícii</string>
+    <string name="update_available_description">Je dostupná novšia verzia aplikácie. Odporúčame ju čo najskôr aktualizovať.</string>
+
+    <string name="browser_cannot_be_opened">Nie je možné otvoriť prehliadač</string>
+
+    <string name="login_enter_user_id">Zadajte ID a používateľa</string>
+    <string name="login_field_domain">ID domény</string>
+    <string name="login_field_user_id">ID používateľa</string>
+    <string name="button_login">Prihlásiť sa</string>
+    <string name="button_register">Získať prístup</string>
+
+    <string name="connection_failed_message">Nie je možné pripojiť sa k serveru.\nSkontrolujte internetové pripojenie.</string>
+    <string name="unknown_user_id_message">Neznáme ID alebo používateľ</string>
+    <string name="user_has_no_project_message">Používateľ nemá priradený projekt</string>
+    <string name="server_error_message">Chyba servera</string>
+
+    <string name="sync_running">Synchronizácia prebieha...</string>
+    <string name="no_permission">Chýba oprávnenie</string>
+
+    <string name="select_project">Vybrať projekt</string>
+    <string name="project_changed">Projekt bol úspešne zmenený.</string>
+    <string name="project_change_failed">Nepodarilo sa zmeniť projekt.</string>
+    <string name="project_change_title">Zmeniť projekt</string>
+    <string name="project_select_title">Vybrať projekt</string>
+
+    <string name="about_title">O aplikácii</string>
+    <string name="about_ok">OK</string>
+
+    <string name="all">všetko</string>
+    <string name="all_projects">Všetky projekty</string>
+    <string name="none">žiadne</string>
+
+    <string name="user_title">Používateľ</string>
+    <string name="user_id">ID</string>
+    <string name="user_user">Používateľ</string>
+    <string name="user_project">Projekt</string>
+    <string name="user_last_sync">Posledná synchronizácia</string>
+    <string name="not_selected">Nevybrané</string>
+    <string name="never">nikdy</string>
+
+    <string name="default_dialer_set">Predvolený dialer nastavený.</string>
+    <string name="default_dialer_failed">Nepodarilo sa nastaviť predvolený dialer.</string>
+    <string name="set_default_dialer">Nastaviť predvolený dialer</string>
+
+    <string name="call_records">Záznamy hovorov</string>
+    <string name="results_count">Výsledky</string>
+
+    <string name="incoming">prichádzajúce</string>
+    <string name="outgoing">odchádzajúce</string>
+    <string name="accepted">spojené</string>
+    <string name="unaccepted">nespojené</string>
+
+    <string name="settings_title">Nastavenia</string>
+    <string name="settings_message">Pre správne fungovanie aplikácie skontrolujte nastavenia.</string>
+    <string name="settings_button">Nastavenia</string>
+    <string name="cancel">Zrušiť</string>
+
+    <string name="filter_call_type">Filter podľa typu hovoru</string>
+    <string name="select_filter">Vybrať filter</string>
+
+    <string name="update_available">Dostupná aktualizácia</string>
+    <string name="update_available_msg">Je dostupná novšia verzia aplikácie. Odporúčame aktualizovať.</string>
+    <string name="update">Aktualizovať</string>
+
+    <string name="update_required">Vyžaduje sa aktualizácia</string>
+    <string name="update_required_msg">Pre pokračovanie je potrebné dokončiť aktualizáciu.</string>
+
+    <string name="cannot_open_browser">Nie je možné otvoriť prehliadač</string>
+
+    <string name="change_project">Vybrať projekt</string>
+    <string name="sync_history">Synchronizácia histórie</string>
+    <string name="analytics">Analytika</string>
+
+    <string name="user">Používateľ</string>
+    <string name="settings">Nastavenia</string>
+    <string name="about_app">O aplikácii</string>
+
+    <string name="set_default_dialer">Nastaviť predvolený dialer</string>
+    <string name="sign_out">Odhlásiť sa</string>
+
+    <string name="show_called_detail">Zobraziť detail volajúceho</string>
+    <string name="none_records_found">Žiadne hovory nenájdené.\nZmeňte parametre alebo synchronizujte.</string>
+
+    <string name="projects">Projekty</string>
+    <string name="call_type">Typ hovoru</string>
+    <string name="select_from">Od</string>
+    <string name="select_to">Do</string>
+
+    <string name="battery_already_set">Batéria je už nastavená</string>
+    <string name="sync_count_title">Počet záznamov 1 - 500</string>
+    <string name="save">Uložiť</string>
+    <string name="sync_count_saved">Nastavené na %1$d záznamov</string>
+
+</resources>
