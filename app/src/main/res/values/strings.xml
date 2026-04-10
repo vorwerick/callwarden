@@ -117,5 +117,10 @@
 
     <string name="copyright">2023 RAMICORP s.r.o. All rights reserved</string>
 
+    <string name="sync_select_project_required">Select a project! Synchronization cannot be performed without a selected project.</string>
+    <string name="sync_missing_permission">Synchronization failed, missing permission to read call history.</string>
+    <string name="sync_no_need">No synchronization needed, records are up to date.</string>
+    <string name="sync_no_internet">Synchronization failed, please check your internet connection.</string>
+    <string name="sync_success">Synchronization completed successfully, %1$d records uploaded and saved.</string>
 
 </resources>

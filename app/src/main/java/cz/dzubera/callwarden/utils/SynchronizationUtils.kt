@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import androidx.core.content.ContextCompat
 import cz.dzubera.callwarden.App
+import cz.dzubera.callwarden.R
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.model.CallHistory
 import cz.dzubera.callwarden.service.db.CallEntity
@@ -27,7 +28,7 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
 
             val project = App.projectStorage.getProject(context)
             if (project == null) {
-                state?.invoke("Vyberte projekt! Synchronizaci nelze provést bez vybraného projektu.")
+                state?.invoke(ContextCompat.getString(context, R.string.sync_select_project_required))
                 return@withLock
             }
 
@@ -36,7 +37,7 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
                 Log.e(
                     "SynchronizationUtils", "READ_CALL_LOG permission not granted"
                 )
-                state?.invoke("Synchronizace se nezdařila, chybí oprávnění pro čtení historie hovorů.")
+                state?.invoke(ContextCompat.getString(context, R.string.permission_request_user_message))
                 return@withLock
             }
 
@@ -94,7 +95,7 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
 
             if (callsToSync.isEmpty()) {
                 PreferencesUtils.saveLastSyncDate(context, System.currentTimeMillis())
-                state?.invoke("Synchronizace není potřeba, záznamy jsou aktuální.")
+                state?.invoke(ContextCompat.getString(context, R.string.sync_no_need))
                 return@withLock
             }
 
@@ -103,7 +104,7 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
 
             uploadCall(context, dbEntities) { success ->
                 if (!success) {
-                    state?.invoke("Synchronizace se nezdařila, zkontrolujte připojení k internetu.")
+                    state?.invoke(ContextCompat.getString(context, R.string.sync_no_internet))
                     return@uploadCall
                 }
 
@@ -114,13 +115,14 @@ fun startSynchronization(context: Context, state: ((String) -> Unit)?) {
                             App.appDatabase.taskCalls().insert(entity)
                         }
                     } catch (e: SQLiteConstraintException) {
-                        Sentry.addBreadcrumb("Call already stored, ignoring duplicate insert")
+                        e.printStackTrace()
+                        //  Sentry.addBreadcrumb("Call already stored, ignoring duplicate insert")
                     }
                 }
 
                 callsToSync.forEach { App.cacheStorage.addCallItem(it.first) }
 
-                state?.invoke("Synchronizace proběhla úspěšně, nahráno a uloženo ${dbEntities.size} záznamů.")
+                state?.invoke(     context.getString( R.string.sync_success,dbEntities.size))
                 PreferencesUtils.saveLastSyncDate(context, System.currentTimeMillis())
             }
         }

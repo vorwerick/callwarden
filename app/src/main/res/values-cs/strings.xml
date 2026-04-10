@@ -116,4 +116,10 @@
     <string name="select_from">Od</string>
     <string name="select_to">do</string>
 
+    <string name="sync_select_project_required">Vyberte projekt! Synchronizaci nelze provést bez vybraného projektu.</string>
+    <string name="sync_missing_permission">Synchronizace se nezdařila, chybí oprávnění pro čtení historie hovorů.</string>
+    <string name="sync_no_need">Synchronizace není potřeba, záznamy jsou aktuální.</string>
+    <string name="sync_no_internet">Synchronizace se nezdařila, zkontrolujte připojení k internetu.</string>
+    <string name="sync_success">Synchronizace proběhla úspěšně, nahráno a uloženo %1$d záznamů.</string>
+
 </resources>
