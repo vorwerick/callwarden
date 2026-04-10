@@ -122,4 +122,18 @@
     <string name="sync_no_internet">Synchronizace se nezdařila, zkontrolujte připojení k internetu.</string>
     <string name="sync_success">Synchronizace proběhla úspěšně, nahráno a uloženo %1$d záznamů.</string>
 
+    <string name="analytics_title">Analytika</string>
+
+    <string name="analytics_all_projects">Všechny projekty</string>
+
+    <string name="analytics_date_range">%1$s - %2$s</string>
+
+    <string name="analytics_accepted_calls">Počet přijatých hovorů: %1$d</string>
+    <string name="analytics_declined_calls">Počet nepřijatých hovorů: %1$d</string>
+    <string name="analytics_outgoing_connected">Počet odchozích spojených hovorů: %1$d</string>
+    <string name="analytics_outgoing_not_connected">Počet odchozích nespojených hovorů: %1$d</string>
+
+    <string name="analytics_total_moves">Počet pohybů: %1$d</string>
+    <string name="analytics_total_connected">Počet spojených hovorů: %1$d</string>
+
 </resources>

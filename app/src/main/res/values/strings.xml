@@ -123,4 +123,18 @@
     <string name="sync_no_internet">Synchronization failed, please check your internet connection.</string>
     <string name="sync_success">Synchronization completed successfully, %1$d records uploaded and saved.</string>
 
+    <string name="analytics_title">Analytics</string>
+
+    <string name="analytics_all_projects">All projects</string>
+
+    <string name="analytics_date_range">%1$s - %2$s</string>
+
+    <string name="analytics_accepted_calls">Number of accepted calls: %1$d</string>
+    <string name="analytics_declined_calls">Number of missed calls: %1$d</string>
+    <string name="analytics_outgoing_connected">Number of outgoing connected calls: %1$d</string>
+    <string name="analytics_outgoing_not_connected">Number of outgoing not connected calls: %1$d</string>
+
+    <string name="analytics_total_moves">Total events: %1$d</string>
+    <string name="analytics_total_connected">Total connected calls: %1$d</string>
+
 </resources>

@@ -16,7 +16,7 @@ class AnalyticsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.analytics_acitivity)
 
-        supportActionBar?.title = "Analytiky";
+        supportActionBar?.title = getString(R.string.analytics_title)
 
         val analytics1 = findViewById<TextView>(R.id.analytics_text_1)
         val analytics2 = findViewById<TextView>(R.id.analytics_text_2)
@@ -28,12 +28,11 @@ class AnalyticsActivity : AppCompatActivity() {
 
         val analyticsDate = findViewById<TextView>(R.id.analytics_date)
         val analyticsProject = findViewById<TextView>(R.id.analytics_project)
-        if ( App.projectFilter == null) {
-            analyticsProject.text =  "Všechny projekty"
+        if (App.projectFilter == null) {
+            analyticsProject.text = getString(R.string.analytics_all_projects)
         } else {
-            analyticsProject.text =   App.projectFilter!!.name
+            analyticsProject.text = App.projectFilter!!.name
         }
-
 
 
         App.cacheStorage.loadFromDatabase {
@@ -59,18 +58,44 @@ class AnalyticsActivity : AppCompatActivity() {
                     }
                 }
 
-                analyticsDate.text =
-                    SimpleDateFormat("dd.MM.yyyy").format(App.dateFrom) + " - " + SimpleDateFormat("dd.MM.yyyy").format(
-                        App.dateTo
-                    )
+                val from = SimpleDateFormat("dd.MM.yyyy").format(App.dateFrom)
+                val to = SimpleDateFormat("dd.MM.yyyy").format(App.dateTo)
 
-                analytics1.text = "Počet přijatých hovorů: $accepted"
-                analytics2.text = "Počet nepřijatých hovorů: $declined"
-                analytics3.text = "Počet odchozích spojených hovorů: $called"
-                analytics4.text = "Počet odchozích nespojených hovorů: $dialing"
+                analyticsDate.text = getString(
+                    R.string.analytics_date_range,
+                    from,
+                    to
+                )
 
-                analyticsSum1.text = "Počet pohybů: " + (accepted + declined + called + dialing)
-                analyticsSum2.text = "Počet spojených hovorů: " + (accepted + called)
+                analytics1.text = getString(
+                    R.string.analytics_accepted_calls,
+                    accepted
+                )
+
+                analytics2.text = getString(
+                    R.string.analytics_declined_calls,
+                    declined
+                )
+
+                analytics3.text = getString(
+                    R.string.analytics_outgoing_connected,
+                    called
+                )
+
+                analytics4.text = getString(
+                    R.string.analytics_outgoing_not_connected,
+                    dialing
+                )
+
+                analyticsSum1.text = getString(
+                    R.string.analytics_total_moves,
+                    accepted + declined + called + dialing
+                )
+
+                analyticsSum2.text = getString(
+                    R.string.analytics_total_connected,
+                    accepted + called
+                )
             }
         }
 
