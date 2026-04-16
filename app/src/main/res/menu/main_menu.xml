@@ -10,6 +10,9 @@
 
     <group android:enabled="true">
         <item
+            android:id="@+id/make_call"
+            android:title="@string/make_call" />
+        <item
             android:id="@+id/sync"
             android:title="@string/sync_history" />
 

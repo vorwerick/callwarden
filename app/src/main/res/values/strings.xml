@@ -98,6 +98,7 @@
     <!-- Menu -->
     <string name="change_project">Select project</string>
     <string name="sync_history">Sync history</string>
+    <string name="make_call">Call</string>
     <string name="analytics">Analytics</string>
     <string name="user">User</string>
     <string name="settings">Settings</string>

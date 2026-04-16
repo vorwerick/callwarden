@@ -27,12 +27,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.messaging.FirebaseMessaging
 import cz.dzubera.callwarden.App
 import cz.dzubera.callwarden.BuildConfig
 import cz.dzubera.callwarden.R
+import cz.dzubera.callwarden.dialer.DialerActivity
 import cz.dzubera.callwarden.model.Call
 import cz.dzubera.callwarden.service.HttpRequest
 import cz.dzubera.callwarden.service.db.CallEntity
@@ -61,11 +61,35 @@ class MainActivity : AppCompatActivity() {
     var pendingRequests = 0
     lateinit var launcher: ActivityResultLauncher<Intent>
 
+    fun isDefaultDialer(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = context.getSystemService(Context.ROLE_SERVICE) as RoleManager
+            roleManager.isRoleHeld(RoleManager.ROLE_DIALER)
+        } else {
+            val telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+            val defaultDialerPackage = telecomManager.defaultDialerPackage
+            context.packageName == defaultDialerPackage
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
+
+
+
+
         inflater.inflate(R.menu.main_menu, menu)
         return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+
+        val isDefault = isDefaultDialer(this)
+
+        menu.findItem(R.id.make_call)?.isVisible = isDefault
+        menu.findItem(R.id.menu_set_default_dialer)?.isVisible = !isDefault
+
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -108,7 +132,9 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     //show toast
                     Toast.makeText(
-                        this@MainActivity,     ContextCompat.getString(this, R.string.sync_running), Toast.LENGTH_SHORT
+                        this@MainActivity,
+                        ContextCompat.getString(this, R.string.sync_running),
+                        Toast.LENGTH_SHORT
                     ).show()
                     //get calls from history
                     startSynchronization(this@MainActivity) {
@@ -121,11 +147,21 @@ class MainActivity : AppCompatActivity() {
                     true
                 } else {
                     // show toast you need permissions
-                    Toast.makeText(this@MainActivity,     ContextCompat.getString(this, R.string.no_permission), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@MainActivity,
+                        ContextCompat.getString(this, R.string.no_permission),
+                        Toast.LENGTH_SHORT
+                    ).show()
                     false
                 }
 
 
+            }
+
+            R.id.make_call -> {
+                val intent = Intent(this, DialerActivity::class.java)
+                startActivity(intent)
+                true
             }
 
             R.id.analytics -> {
@@ -304,7 +340,19 @@ class MainActivity : AppCompatActivity() {
     private fun showAboutDialog() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setMessage("${ContextCompat.getString(this, R.string.app_name)} " + BuildConfig.VERSION_NAME + "(" + BuildConfig.VERSION_CODE + ")" + "\n${ContextCompat.getString(this, R.string.copyright)}")
+        builder.setMessage(
+            "${
+                ContextCompat.getString(
+                    this,
+                    R.string.app_name
+                )
+            } " + BuildConfig.VERSION_NAME + "(" + BuildConfig.VERSION_CODE + ")" + "\n${
+                ContextCompat.getString(
+                    this,
+                    R.string.copyright
+                )
+            }"
+        )
             .setTitle(ContextCompat.getString(this, R.string.about_title)).setPositiveButton(
                 ContextCompat.getString(this, R.string.about_ok)
             ) { p0, _ -> p0.dismiss() }
@@ -327,7 +375,27 @@ class MainActivity : AppCompatActivity() {
         // 1. Instantiate an <code><a href="/reference/android/app/AlertDialog.Builder.html">AlertDialog.Builder</a></code> with its constructor
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setMessage(
-            "${ContextCompat.getString(this, R.string.domain)}: ${App.userSettingsStorage.credentials!!.domain}\n${ContextCompat.getString(this, R.string.user)}: ${App.userSettingsStorage.credentials!!.user}\n${ContextCompat.getString(this, R.string.project)}: ${project?.name ?: ContextCompat.getString(this, R.string.none)}\n" + "${ContextCompat.getString(this, R.string.user_last_sync)}: $syncDateTime"
+            "${
+                ContextCompat.getString(
+                    this,
+                    R.string.domain
+                )
+            }: ${App.userSettingsStorage.credentials!!.domain}\n${
+                ContextCompat.getString(
+                    this,
+                    R.string.user
+                )
+            }: ${App.userSettingsStorage.credentials!!.user}\n${
+                ContextCompat.getString(
+                    this,
+                    R.string.project
+                )
+            }: ${
+                project?.name ?: ContextCompat.getString(
+                    this,
+                    R.string.none
+                )
+            }\n" + "${ContextCompat.getString(this, R.string.user_last_sync)}: $syncDateTime"
         ).setTitle((ContextCompat.getString(this, R.string.user_title))).setPositiveButton(
             (ContextCompat.getString(this, R.string.about_ok))
         ) { p0, _ -> p0.dismiss() }

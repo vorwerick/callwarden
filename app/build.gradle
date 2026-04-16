@@ -15,8 +15,8 @@ android {
         applicationId "cz.dzubera.callwarden"
         minSdk 24
         targetSdk 36
-        versionCode 92
-        versionName "1.66"
+        versionCode 93
+        versionName "1.67"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         setProperty('archivesBaseName', "ramicall-$versionName")
@@ -141,6 +141,8 @@ dependencies {
 
     // WorkManager for background tasks
     implementation "androidx.work:work-runtime-ktx:2.11.0"
+
+    implementation("androidx.compose.material:material-icons-extended:1.7.0")
 
 
 }

@@ -1,7 +1,12 @@
 package cz.dzubera.callwarden
 
 import android.app.Application
+import android.content.ComponentName
+import android.content.Context
 import android.os.Build
+import android.telecom.PhoneAccount
+import android.telecom.PhoneAccountHandle
+import android.telecom.TelecomManager
 import android.util.Log
 import androidx.multidex.MultiDexApplication
 import androidx.room.Room
@@ -14,6 +19,7 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.firebase.FirebaseApp
+import cz.dzubera.callwarden.dialer.MyConnectionService
 import cz.dzubera.callwarden.service.PhoneStateReceiver
 import cz.dzubera.callwarden.service.SynchronizationWorker
 import cz.dzubera.callwarden.service.db.AppDatabase
@@ -68,6 +74,8 @@ class App : MultiDexApplication(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
 
+        registerPhoneAccount(this)
+
         FirebaseApp.initializeApp(this)
 
         appDatabase =
@@ -88,7 +96,7 @@ class App : MultiDexApplication(), Configuration.Provider {
         }
 
         // Initialize WorkManager for periodic synchronization
-      //  setupPeriodicSynchronization() TODO enable, musí být vidět s vědomím uživatele např foreground service
+        //setupPeriodicSynchronization()
     }
 
     /**
@@ -122,5 +130,24 @@ class App : MultiDexApplication(), Configuration.Provider {
         } catch (e: Exception) {
             Log.e("App", "Failed to set up periodic synchronization: ${e.message}", e)
         }
+    }
+
+    fun registerPhoneAccount(context: Context) {
+        val telecomManager = getSystemService(TelecomManager::class.java)
+
+        Log.d("DIALER", "accounts = ${telecomManager.callCapablePhoneAccounts}")
+
+        val handle = PhoneAccountHandle(
+            ComponentName(context, MyConnectionService::class.java),
+            "MY_DIALER"
+        )
+
+        val account = PhoneAccount.builder(handle, "My Dialer")
+            .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER)
+            .setShortDescription("Hovory přes aplikaci My Dialer") // Uvidí uživatel v nastavení
+            .addSupportedUriScheme(PhoneAccount.SCHEME_TEL)        // Bez tohoto nemusí brát tel. čísla
+            .build()
+
+        telecomManager.registerPhoneAccount(account)
     }
 }

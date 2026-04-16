@@ -102,6 +102,7 @@
     <!-- Menu -->
     <string name="change_project">Vybrat projekt</string>
     <string name="sync_history">Synchronizovat historii</string>
+    <string name="make_call">Volat</string>
     <string name="analytics">Analytika</string>
     <string name="user">Uživatel</string>
     <string name="settings">Nastavení</string>
